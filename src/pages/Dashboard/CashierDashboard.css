@@ -1,0 +1,209 @@
+.cashier-dashboard {
+  width: 100%;
+  min-width: 0;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 34px 38px 48px;
+  color: #352c2b;
+}
+
+.cashier-dashboard-header,
+.cashier-dashboard-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.cashier-dashboard-header {
+  margin-bottom: 28px;
+}
+
+.cashier-dashboard-eyebrow {
+  color: #8b4651;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 1.5px;
+}
+
+.cashier-dashboard-header h1 {
+  margin: 8px 0 5px;
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.8px;
+  overflow-wrap: anywhere;
+}
+
+.cashier-dashboard-header p,
+.cashier-dashboard-section-heading p {
+  margin: 0;
+  color: #82716b;
+  font-size: 13px;
+}
+
+.cashier-dashboard-header time {
+  padding: 10px 14px;
+  border: 1px solid #e8d9cc;
+  border-radius: 8px;
+  background: #fffcf7;
+  color: #766665;
+  font-size: 12px;
+}
+
+.cashier-dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.cashier-dashboard-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 20px;
+  border: 1px solid #e8d9cc;
+  border-radius: 12px;
+  background: #fffcf7;
+}
+
+.cashier-dashboard-card > span {
+  color: #77857c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cashier-dashboard-card strong {
+  color: #352c2b;
+  font-size: clamp(21px, 2.4vw, 28px);
+  letter-spacing: -0.5px;
+  overflow-wrap: anywhere;
+}
+
+.cashier-dashboard-card small {
+  color: #82716b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.cashier-till-card strong {
+  color: #8b4651;
+}
+
+.cashier-net-sales-card strong {
+  color: #287346;
+}
+
+.cashier-dashboard-section {
+  margin: 0 0 30px;
+}
+
+.cashier-dashboard-section-heading {
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.cashier-dashboard-section-heading h2 {
+  margin: 0 0 5px;
+  font-size: 17px;
+}
+
+.cashier-dashboard-section-heading a {
+  flex-shrink: 0;
+  color: #8b4651;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.cashier-dashboard-section-heading a:hover {
+  text-decoration: underline;
+}
+
+.cashier-dashboard-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e8d9cc;
+  border-radius: 10px;
+  background: #fffcf7;
+}
+
+.cashier-dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.cashier-dashboard-table th,
+.cashier-dashboard-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee3d9;
+  text-align: left;
+  font-size: 12px;
+}
+
+.cashier-dashboard-table th {
+  color: #766665;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cashier-dashboard-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.cashier-status,
+.cashier-reconciliation {
+  display: inline-block;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.cashier-status.completed,
+.cashier-reconciliation.balanced {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.cashier-status.voided,
+.cashier-reconciliation.difference {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.cashier-negative {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.cashier-positive {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.cashier-dashboard-table .cashier-empty {
+  padding: 24px;
+  color: #927f78;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .cashier-dashboard {
+    padding: 24px 18px 36px;
+  }
+
+  .cashier-dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .cashier-dashboard-header,
+  .cashier-dashboard-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

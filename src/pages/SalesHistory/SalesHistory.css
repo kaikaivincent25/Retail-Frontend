@@ -1,0 +1,160 @@
+.sales-history-page {
+  padding: 1.5rem;
+  max-width: 950px;
+}
+
+.history-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.history-filters select,
+.history-filters input {
+  padding: 0.5rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 6px;
+}
+
+.history-filters label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.75rem;
+  color: #766665;
+  gap: 0.2rem;
+}
+
+.sessions-link {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  color: #8b4651;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.sessions-link:hover {
+  text-decoration: underline;
+}
+
+.clear-filters {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 6px;
+  background: #fffcf7;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fffcf7;
+}
+
+.sales-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  color: #766665;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e8d9cc;
+}
+
+.sales-table td {
+  padding: 0.6rem 0.5rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee3d9;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.status-badge.completed { background: #dcfce7; color: #15803d; }
+.status-badge.voided { background: #fee2e2; color: #b91c1c; }
+
+.sales-table button {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 4px;
+  background: #fffcf7;
+  cursor: pointer;
+}
+
+.empty-hint {
+  text-align: center;
+  color: #927f78;
+  padding: 1rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-card {
+  background: #fffcf7;
+  padding: 1.5rem;
+  border-radius: 10px;
+  width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.sale-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.sale-items-table th, .sale-items-table td {
+  padding: 0.4rem;
+  font-size: 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid #eee3d9;
+}
+
+.sale-detail-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-top: 1px solid #e8d9cc;
+  padding-top: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sale-detail-totals div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.sale-detail-totals div:last-child {
+  font-weight: 700;
+}
+
+.modal-card button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 6px;
+  background: #fffcf7;
+  cursor: pointer;
+}
+
+.sessions-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #8b4651;
+  font-size: 0.9rem;
+  text-decoration: none;
+}

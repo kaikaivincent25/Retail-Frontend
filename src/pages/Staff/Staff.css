@@ -1,0 +1,104 @@
+.staff-page {
+  padding: 1.5rem;
+  max-width: 850px;
+}
+
+.new-staff-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.new-staff-form input, .new-staff-form select {
+  padding: 0.6rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 6px;
+}
+
+.new-staff-form button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #8b4651;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fffcf7;
+}
+
+.staff-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  color: #766665;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e8d9cc;
+}
+
+.staff-table td {
+  padding: 0.6rem 0.5rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee3d9;
+}
+
+.inactive-row {
+  opacity: 0.5;
+}
+
+.you-badge {
+  font-size: 0.7rem;
+  background: #f3e6e0;
+  color: #8b4651;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.4rem;
+}
+
+.staff-table select {
+  padding: 0.3rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 4px;
+}
+
+.staff-table select:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
+.primary.small, .danger.small {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.primary.small {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.danger.small {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.staff-table button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.form-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}

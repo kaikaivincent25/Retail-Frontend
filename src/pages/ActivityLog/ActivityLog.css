@@ -1,0 +1,280 @@
+
+.activity-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px;
+  color: #14201a;
+}
+
+.activity-page h1 {
+  margin: 0 0 24px;
+  color: #14201a;
+  font-size: 1.75rem;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+}
+
+/* Filters */
+.activity-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #e1e8e4;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(20, 32, 26, 0.035);
+}
+
+.risk-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #34443b;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.risk-toggle input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #8b4651;
+  cursor: pointer;
+}
+
+.activity-controls select {
+  min-width: 190px;
+  padding: 10px 36px 10px 12px;
+  color: #26372e;
+  background: #ffffff;
+  border: 1px solid #d9e2dc;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.activity-controls select:focus {
+  border-color: #8b4651;
+  box-shadow: 0 0 0 3px rgba(23, 107, 69, 0.12);
+}
+
+/* Activity list */
+.activity-list {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e1e8e4;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(20, 32, 26, 0.035);
+}
+
+.activity-row {
+  position: relative;
+  padding: 18px 22px;
+  border-bottom: 1px solid #edf1ee;
+  transition: background 160ms ease;
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-row:hover {
+  background: #fbfdfb;
+}
+
+.activity-main {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.2fr) minmax(130px, 0.8fr) minmax(190px, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.activity-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  color: #1c3025;
+  font-size: 0.94rem;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.activity-user {
+  color: #526158;
+  font-size: 0.88rem;
+  font-weight: 550;
+}
+
+.activity-time {
+  color: #7b8781;
+  font-size: 0.82rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* High-risk entries */
+.activity-row.high-risk {
+  background: #fffaf7;
+  border-left: 3px solid #d97745;
+  padding-left: 19px;
+}
+
+.activity-row.high-risk:hover {
+  background: #fff5ef;
+}
+
+.activity-row.high-risk .activity-action {
+  color: #873f22;
+}
+
+.risk-dot {
+  display: inline-flex;
+  flex: 0 0 22px;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: #a64b25;
+  background: #ffeadf;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.activity-description {
+  margin: 9px 0 0;
+  padding-left: 0;
+  color: #68766e;
+  font-size: 0.87rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.activity-row.high-risk .activity-description {
+  color: #795b4c;
+}
+
+/* Empty state */
+.empty-hint {
+  margin: 0;
+  padding: 48px 20px;
+  color: #7b8781;
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.pagination button {
+  min-width: 108px;
+  padding: 10px 16px;
+  color: #8b4651;
+  background: #ffffff;
+  border: 1px solid #cbdad1;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.pagination button:not(:disabled):hover {
+  color: #ffffff;
+  background: #8b4651;
+  border-color: #8b4651;
+}
+
+.pagination button:focus-visible {
+  outline: 3px solid rgba(23, 107, 69, 0.2);
+  outline-offset: 2px;
+}
+
+.pagination button:disabled {
+  color: #a2ada6;
+  background: #f6f8f6;
+  border-color: #e4eae6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .activity-page {
+    padding: 20px 16px;
+  }
+
+  .activity-page h1 {
+    font-size: 1.5rem;
+  }
+
+  .activity-controls {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .activity-controls select {
+    width: 100%;
+  }
+
+  .activity-main {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .activity-time {
+    text-align: left;
+  }
+
+  .activity-row {
+    padding: 16px;
+  }
+
+  .activity-row.high-risk {
+    padding-left: 13px;
+  }
+
+  .pagination button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 380px) {
+  .activity-page {
+    padding: 16px 12px;
+  }
+
+  .activity-controls {
+    padding: 14px;
+  }
+
+  .activity-row {
+    padding: 14px;
+  }
+
+  .activity-row.high-risk {
+    padding-left: 11px;
+  }
+
+  .pagination button {
+    min-width: 0;
+    padding: 10px 12px;
+  }
+}

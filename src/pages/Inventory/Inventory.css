@@ -1,0 +1,1033 @@
+
+/* =========================================
+   RISA INVENTORY MANAGEMENT
+========================================= */
+
+.inventory-page {
+  width: 100%;
+  max-width: 1600px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 35px 40px 50px;
+  color: #352C2B;
+  font-family: var(--sans);
+  box-sizing: border-box;
+}
+
+.inventory-page *,
+.inventory-page *::before,
+.inventory-page *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   PAGE HEADER
+========================================= */
+
+.inventory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.inventory-eyebrow {
+  display: inline-block;
+  margin-bottom: 9px;
+  color: #8B4651;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 1.5px;
+}
+
+.inventory-header h1 {
+  margin: 0;
+  color: #352C2B;
+  font-size: 29px;
+  font-weight: 750;
+  letter-spacing: -0.9px;
+}
+
+.inventory-header p {
+  margin: 8px 0 0;
+  color: #82716B;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.inventory-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 15px;
+  border: 1px solid #E8D9CC;
+  border-radius: 9px;
+  background: #FFFCF7;
+  color: #766665;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inventory-header-icon {
+  color: #8B4651;
+  font-size: 19px;
+}
+
+/* =========================================
+   INVENTORY PANEL
+========================================= */
+
+.inventory-panel {
+  overflow: hidden;
+  border: 1px solid #E8D9CC;
+  border-radius: 13px;
+  background: #FFFCF7;
+  box-shadow: 0 3px 15px rgba(27, 54, 37, 0.035);
+}
+
+.inventory-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 23px 25px 19px;
+}
+
+.inventory-panel-header h2 {
+  margin: 0;
+  color: #493D39;
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.inventory-panel-header p {
+  margin: 6px 0 0;
+  color: #927F78;
+  font-size: 11px;
+}
+
+.inventory-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 7px;
+  background: #F8F1E8;
+  color: #766665;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.count-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #36A269;
+}
+
+/* =========================================
+   TABS
+========================================= */
+
+.inventory-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 25px;
+  border-bottom: 1px solid #E9EFEA;
+}
+
+.inventory-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  min-height: 45px;
+  padding: 0 14px;
+  border: none;
+  background: transparent;
+  color: #829087;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.inventory-tabs button:hover {
+  color: #8B4651;
+}
+
+.inventory-tabs button.active {
+  color: #8B4651;
+  font-weight: 750;
+}
+
+.inventory-tabs button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 3px 3px 0 0;
+  background: #8B4651;
+}
+
+.tab-icon {
+  font-size: 15px;
+}
+
+/* =========================================
+   INVENTORY TABLE
+========================================= */
+
+.inventory-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.inventory-table thead {
+  background: #F8FAF8;
+}
+
+.inventory-table th {
+  padding: 14px 18px;
+  color: #849188;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.inventory-table th:first-child,
+.inventory-table td:first-child {
+  padding-left: 25px;
+}
+
+.inventory-table th:last-child,
+.inventory-table td:last-child {
+  padding-right: 25px;
+}
+
+.inventory-table td {
+  padding: 15px 18px;
+  border-bottom: 1px solid #F0F3F0;
+  color: #53645A;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.inventory-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.inventory-table tbody tr:hover {
+  background: #FAFCFA;
+}
+
+.inventory-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Product */
+
+.inventory-product {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 170px;
+}
+
+.inventory-product-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: #F3E6E0;
+  color: #8B4651;
+  font-size: 17px;
+}
+
+.inventory-product > span {
+  color: #304137;
+  font-weight: 650;
+}
+
+/* Sale Mode */
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: #F0F3F1;
+  color: #66766C;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.mode-badge.bulk {
+  background: #EEF2FC;
+  color: #5971AC;
+}
+
+.mode-badge.fixed {
+  background: #F3E6E0;
+  color: #8B4651;
+}
+
+/* Quantity */
+
+.stock-quantity {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.stock-quantity strong {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.stock-quantity > span:last-child {
+  color: #96A198;
+  font-size: 10px;
+}
+
+.quantity-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #36A269;
+}
+
+.stock-quantity.normal strong {
+  color: #304137;
+}
+
+.stock-quantity.low strong {
+  color: #C34E40;
+}
+
+.stock-quantity.low .quantity-dot {
+  background: #D85D4F;
+}
+
+/* Low Stock Row */
+
+.inventory-table tr.low-row {
+  background: #FFFCFB;
+}
+
+.inventory-table tr.low-row:hover {
+  background: #FFF8F6;
+}
+
+.inventory-table tr.low-row .inventory-product-icon {
+  background: #FCEAE6;
+  color: #C34E40;
+}
+
+/* Reorder Level */
+
+.reorder-value {
+  color: #69786E;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================================
+   TABLE ACTIONS
+========================================= */
+
+.actions-heading {
+  text-align: right;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.row-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 33px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.adjust-button {
+  background: #F3E6E0;
+  color: #8B4651;
+}
+
+.adjust-button:hover {
+  border-color: #DEC5BA;
+  background: #EEDDD5;
+}
+
+.history-button {
+  border-color: #E8D9CC !important;
+  background: #FFFCF7;
+  color: #766665;
+}
+
+.history-button:hover {
+  border-color: #DEC5BA !important;
+  background: #F8F1E8;
+  color: #8B4651;
+}
+
+.row-actions button:focus-visible,
+.inventory-tabs button:focus-visible {
+  outline: 2px solid #8B4651;
+  outline-offset: 2px;
+}
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.empty-hint {
+  padding: 0 !important;
+}
+
+.inventory-empty {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 25px;
+  text-align: center;
+}
+
+.inventory-empty-icon {
+  width: 47px;
+  height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3px;
+  border-radius: 12px;
+  background: #F3E6E0;
+  color: #8B4651;
+  font-size: 22px;
+}
+
+.inventory-empty strong {
+  color: #34463A;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.inventory-empty > span:last-child {
+  color: #929E95;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   TABLE FOOTER
+========================================= */
+
+.inventory-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 25px;
+  border-top: 1px solid #EEF2EF;
+  background: #FCFDFC;
+  color: #98A39B;
+  font-size: 10px;
+}
+
+/* =========================================
+   MODAL OVERLAY
+========================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(15, 34, 23, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* =========================================
+   MODAL CARD
+========================================= */
+
+.modal-card {
+  width: 100%;
+  max-width: 470px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 15px;
+  background: #FFFFFF;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.18);
+  animation: modal-enter 0.2s ease-out;
+}
+
+.modal-card.wide {
+  max-width: 1000px;
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Header */
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #EDF1EE;
+}
+
+.modal-eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #8B4651;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 1.3px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #1D3024;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+}
+
+.modal-subtitle {
+  margin: 6px 0 0;
+  color: #829087;
+  font-size: 11px;
+}
+
+.modal-close {
+  width: 33px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #E7EDE8;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #77857C;
+  font-size: 21px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  border-color: #F0D3CF;
+  background: #FFF5F3;
+  color: #C0392B;
+}
+
+/* Current Stock */
+
+.modal-current-stock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 14px 16px;
+  border: 1px solid #E8D9CC;
+  border-radius: 9px;
+  background: #F8F1E8;
+}
+
+.modal-current-stock span {
+  color: #718077;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.modal-current-stock strong {
+  color: #8B4651;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+/* =========================================
+   MODAL FORM
+========================================= */
+
+.modal-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-form-content label {
+  margin-top: 7px;
+  color: #554542;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.modal-form-content label span {
+  color: #9AA49D;
+  font-weight: 400;
+}
+
+.modal-form-content .form-section-label {
+  margin-top: 0;
+}
+
+/* Direction Toggle */
+
+.direction-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+
+.direction-toggle button {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #E3EAE5;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #748178;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.direction-toggle button span {
+  font-size: 18px;
+}
+
+.direction-toggle button.add-active {
+  border-color: #DEC5BA;
+  background: #F3E6E0;
+  color: #8B4651;
+}
+
+.direction-toggle button.remove-active {
+  border-color: #EBC1BA;
+  background: #FFF2EF;
+  color: #C34E40;
+}
+
+.direction-toggle button:focus-visible {
+  outline: 2px solid #8B4651;
+  outline-offset: 2px;
+}
+
+/* Form Inputs */
+
+.modal-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #DFE8E1;
+  border-radius: 8px;
+  outline: none;
+  background: #FAFCFA;
+  color: #26372C;
+  font-family: inherit;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.modal-input::placeholder {
+  color: #A0AAA3;
+}
+
+.modal-input:hover {
+  border-color: #B9CCC0;
+}
+
+.modal-input:focus {
+  border-color: #8B4651;
+  background: #FFFCF7;
+  box-shadow: 0 0 0 3px rgba(139, 70, 81, 0.13);
+}
+
+/* Form Error */
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 5px;
+  padding: 11px 12px;
+  border: 1px solid #F1D5D0;
+  border-radius: 8px;
+  background: #FFF3F1;
+  color: #C0392B;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.form-error span {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #F7DCD7;
+  font-weight: 800;
+}
+
+/* =========================================
+   MODAL ACTIONS
+========================================= */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 24px;
+  padding-top: 17px;
+  border-top: 1px solid #EDF1EE;
+}
+
+.modal-actions button {
+  min-height: 41px;
+  padding: 0 17px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-button,
+.modal-actions > button:not(.primary) {
+  border-color: #E2E9E3;
+  background: #FFFFFF;
+  color: #69786E;
+}
+
+.cancel-button:hover,
+.modal-actions > button:not(.primary):hover {
+  background: #F5F8F5;
+  color: #34463A;
+}
+
+.modal-actions .primary {
+  background: #8B4651;
+  color: #FFFFFF;
+}
+
+.modal-actions .primary:hover {
+  background: #6F3540;
+  box-shadow: 0 4px 12px rgba(111, 53, 64, 0.18);
+}
+
+.modal-actions .primary.remove-submit {
+  background: #C34E40;
+}
+
+.modal-actions .primary.remove-submit:hover {
+  background: #A93D32;
+}
+
+.modal-actions button:focus-visible {
+  outline: 2px solid #8B4651;
+  outline-offset: 2px;
+}
+
+/* =========================================
+   HISTORY MODAL
+========================================= */
+
+.history-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0;
+  padding: 12px 15px;
+  border-radius: 8px;
+  background: #F8F1E8;
+}
+
+.history-summary span {
+  color: #77857C;
+  font-size: 11px;
+}
+
+.history-summary strong {
+  color: #8B4651;
+  font-size: 15px;
+}
+
+.history-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #E8EEE9;
+  border-radius: 9px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.history-table thead {
+  background: #F7F9F7;
+}
+
+.history-table th {
+  padding: 13px 12px;
+  color: #849188;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.history-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid #EEF2EF;
+  color: #596A60;
+  font-size: 10px;
+  vertical-align: middle;
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table tbody tr:hover {
+  background: #FAFCFA;
+}
+
+/* Movement Type Badges */
+
+.type-badge {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: #F0F3F1;
+  color: #69786E;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.type-badge.purchase {
+  background: #F3E6E0;
+  color: #8B4651;
+}
+
+.type-badge.adjustment {
+  background: #EDF2FC;
+  color: #5971AC;
+}
+
+.type-badge.damage {
+  background: #FCEAE6;
+  color: #C34E40;
+}
+
+/* Movement Values */
+
+.history-table td.positive {
+  color: #367A5A;
+  font-weight: 750;
+}
+
+.history-table td.negative {
+  color: #C34E40;
+  font-weight: 750;
+}
+
+.history-quantity {
+  color: #34463A;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.history-quantity span {
+  margin: 0 4px;
+  color: #A1ACA4;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 1100px) {
+  .inventory-page {
+    padding: 30px 25px 40px;
+  }
+
+  .inventory-table th,
+  .inventory-table td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .inventory-table th:first-child,
+  .inventory-table td:first-child {
+    padding-left: 18px;
+  }
+
+  .inventory-table th:last-child,
+  .inventory-table td:last-child {
+    padding-right: 18px;
+  }
+}
+
+@media (max-width: 750px) {
+  .inventory-page {
+    padding: 25px 18px 35px;
+  }
+
+  .inventory-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inventory-header h1 {
+    font-size: 25px;
+  }
+
+  .inventory-panel-header {
+    padding: 19px 17px;
+  }
+
+  .inventory-tabs {
+    padding: 0 17px;
+  }
+
+  .inventory-table {
+    min-width: 760px;
+  }
+
+  .inventory-table-footer {
+    padding: 13px 17px;
+  }
+
+  .modal-card.wide {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .inventory-page {
+    padding: 21px 13px 30px;
+  }
+
+  .inventory-header p {
+    font-size: 11px;
+  }
+
+  .inventory-panel-header {
+    align-items: flex-start;
+  }
+
+  .inventory-count {
+    font-size: 9px;
+  }
+
+  .inventory-table-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 9px;
+  }
+
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .modal-card {
+    max-height: calc(100vh - 24px);
+    padding: 20px 17px;
+    margin: auto 0;
+  }
+
+  .modal-header h3 {
+    font-size: 17px;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+  }
+
+  .modal-actions button {
+    flex: 1;
+  }
+
+  .history-table {
+    min-width: 720px;
+  }
+}
