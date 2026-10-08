@@ -76,6 +76,8 @@
 
 .status-badge.completed { background: #dcfce7; color: #15803d; }
 .status-badge.voided { background: #fee2e2; color: #b91c1c; }
+.status-badge.pending { background: #fef3c7; color: #92400e; }
+.status-badge.failed { background: #fee2e2; color: #b91c1c; }
 
 .sales-table button {
   padding: 0.3rem 0.7rem;
@@ -149,6 +151,45 @@
   border-radius: 6px;
   background: #fffcf7;
   cursor: pointer;
+}
+
+.manual-payment-history-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 0.9rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 8px;
+  background: #f7f0e7;
+}
+
+.manual-payment-history-actions p {
+  margin: 0;
+  color: #766665;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.manual-payment-history-actions label {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.manual-payment-history-actions input {
+  padding: 0.55rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 6px;
+}
+
+.manual-payment-history-actions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.payment-action-error {
+  color: #b91c1c !important;
 }
 
 .sessions-link {

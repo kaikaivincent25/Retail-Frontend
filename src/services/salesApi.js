@@ -11,4 +11,13 @@ export const getVariantsForProduct = (productId) =>
   api.get(`/products/${productId}/variants`).then((r) => r.data);
 export const completeSale = (items, amountReceived) =>
   api.post("/sales", { items, amount_received: amountReceived }).then((r) => r.data);
+export const startMpesaPayment = (items, phoneNumber) =>
+  api.post("/sales/mpesa", { items, phone_number: phoneNumber }).then((r) => r.data);
+export const startManualMpesaPayment = (items, paymentMethod) =>
+  api.post("/sales/manual-mpesa", { items, payment_method: paymentMethod }).then((r) => r.data);
+export const confirmManualPayment = (saleId, receiptNumber) =>
+  api.post(`/sales/${saleId}/manual-payment/confirm`, { receipt_number: receiptNumber }).then((r) => r.data);
+export const cancelManualPayment = (saleId) =>
+  api.post(`/sales/${saleId}/manual-payment/cancel`).then((r) => r.data);
+export const getSale = (saleId) => api.get(`/sales/${saleId}`).then((r) => r.data);
 export const getProducts = () => api.get("/products").then((r) => r.data);

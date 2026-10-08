@@ -1,6 +1,13 @@
 
 import { useEffect, useState } from "react";
-import { listInventory, listLowStock, adjustStock, getMovements } from "../../services/inventoryApi";
+import { formatCurrency } from "../../utils/money";
+import {
+  listInventory,
+  listLowStock,
+  adjustStock,
+  getMovements,
+  recordStaffConsumption,
+} from "../../services/inventoryApi";
 import "./Inventory.css";
 
 const MOVEMENT_TYPES = [
@@ -13,6 +20,7 @@ function Inventory() {
   const [tab, setTab] = useState("all");
   const [variants, setVariants] = useState([]);
   const [adjustingVariant, setAdjustingVariant] = useState(null);
+  const [consumingVariant, setConsumingVariant] = useState(null);
   const [historyVariant, setHistoryVariant] = useState(null);
   const [movements, setMovements] = useState([]);
 
@@ -139,6 +147,13 @@ function Inventory() {
                     >
                       <span>◷</span> History
                     </button>
+
+                    <button
+                      className="history-button"
+                      onClick={() => setConsumingVariant(v)}
+                    >
+                      Staff use
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -180,6 +195,17 @@ function Inventory() {
           onClose={() => setAdjustingVariant(null)}
           onSaved={() => {
             setAdjustingVariant(null);
+            refresh();
+          }}
+        />
+      )}
+
+      {consumingVariant && (
+        <StaffConsumptionModal
+          variant={consumingVariant}
+          onClose={() => setConsumingVariant(null)}
+          onSaved={() => {
+            setConsumingVariant(null);
             refresh();
           }}
         />
@@ -376,6 +402,7 @@ function HistoryModal({ variant, movements, onClose }) {
                 <th>Movement Type</th>
                 <th>Change</th>
                 <th>Before → After</th>
+                <th>Staff-use cost</th>
                 <th>Reason</th>
               </tr>
             </thead>
@@ -401,13 +428,19 @@ function HistoryModal({ variant, movements, onClose }) {
                     </span>
                   </td>
 
+                  <td>
+                    {m.unit_cost_at_time != null
+                      ? formatCurrency(Number(m.unit_cost_at_time) * Math.abs(m.quantity))
+                      : "—"}
+                  </td>
+
                   <td>{m.reason || "—"}</td>
                 </tr>
               ))}
 
               {movements.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="empty-hint">
+                  <td colSpan={6} className="empty-hint">
                     <div className="inventory-empty">
                       <span className="inventory-empty-icon">◷</span>
                       <strong>No movements recorded</strong>
@@ -427,6 +460,86 @@ function HistoryModal({ variant, movements, onClose }) {
         </div>
 
       </div>
+    </div>
+  );
+}
+
+function StaffConsumptionModal({ variant, onClose, onSaved }) {
+  const [quantity, setQuantity] = useState("");
+  const [reason, setReason] = useState("Staff meal");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const unitLabel = variant.sale_mode === "bulk" ? variant.unit : "unit";
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError("");
+    setSaving(true);
+    try {
+      await recordStaffConsumption(variant.id, {
+        quantity: Number(quantity),
+        reason: reason.trim() || null,
+      });
+      onSaved();
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || "Could not record staff consumption.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="staff-consumption-title">
+      <form className="modal-card" onSubmit={handleSubmit}>
+        <div className="modal-header">
+          <div>
+            <span className="modal-eyebrow">INTERNAL STOCK USE</span>
+            <h3 id="staff-consumption-title">Record staff consumption</h3>
+            <p className="modal-subtitle">{variant.name}</p>
+          </div>
+          <button type="button" className="modal-close" onClick={onClose}>×</button>
+        </div>
+
+        <div className="modal-current-stock">
+          <span>Available stock</span>
+          <strong>{variant.quantity} {unitLabel}{variant.sale_mode === "bulk" ? "" : "s"}</strong>
+        </div>
+
+        <p>This reduces inventory and records its cost separately. It does not change till cash or create a sale.</p>
+
+        <div className="modal-form-content">
+          <label htmlFor="staff-consumption-quantity">
+            Quantity ({unitLabel}{variant.sale_mode === "bulk" ? "" : "s"})
+          </label>
+          <input
+            id="staff-consumption-quantity"
+            className="modal-input"
+            type="number"
+            min="1"
+            max={variant.quantity}
+            value={quantity}
+            onChange={(event) => setQuantity(event.target.value)}
+            autoFocus
+            required
+          />
+          <label htmlFor="staff-consumption-reason">Reason</label>
+          <input
+            id="staff-consumption-reason"
+            className="modal-input"
+            maxLength="255"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+          />
+          {error && <div className="form-error" role="alert">{error}</div>}
+        </div>
+
+        <div className="modal-actions">
+          <button type="button" onClick={onClose} disabled={saving}>Cancel</button>
+          <button type="submit" className="primary" disabled={saving}>
+            {saving ? "Recording…" : "Record use"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

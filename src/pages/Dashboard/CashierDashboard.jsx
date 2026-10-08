@@ -62,6 +62,11 @@ function CashierDashboard() {
           <strong>{formatCurrency(summary.expense_total)}</strong>
           <small>Shop spending logged today</small>
         </article>
+        <article className="cashier-dashboard-card">
+          <span>Staff consumption cost</span>
+          <strong>{formatCurrency(summary.staff_consumption_total)}</strong>
+          <small>Stock used internally, not cash paid out</small>
+        </article>
         <article className="cashier-dashboard-card cashier-net-sales-card">
           <span>Net sales</span>
           <strong>{formatCurrency(summary.net_sales)}</strong>

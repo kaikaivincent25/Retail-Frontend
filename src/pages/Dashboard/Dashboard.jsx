@@ -133,6 +133,22 @@ function Dashboard() {
             </Link>
           </div>
 
+          <div className="summary-card expense-card">
+            <div className="card-top">
+              <span className="card-label">Staff Consumption Cost</span>
+              <span className="card-icon expense-icon">↘</span>
+            </div>
+            <span className="card-value">
+              {formatCurrency(summary.staff_consumption_total)}
+            </span>
+            <span className="card-description">
+              Stock used internally, valued at cost
+            </span>
+            <Link to="/inventory" className="card-link">
+              View inventory <span>→</span>
+            </Link>
+          </div>
+
           <div className="summary-card net-sales-card">
             <div className="card-top">
               <span className="card-label">Net Sales</span>

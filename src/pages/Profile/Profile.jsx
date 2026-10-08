@@ -29,6 +29,10 @@ function Profile() {
   const [shopName, setShopName] = useState("");
   const [shopLocation, setShopLocation] = useState("");
   const [shopCurrency, setShopCurrency] = useState("");
+  const [shopPochiNumber, setShopPochiNumber] = useState("");
+  const [shopTillNumber, setShopTillNumber] = useState("");
+  const [shopPaybillNumber, setShopPaybillNumber] = useState("");
+  const [shopPaybillAccountNumber, setShopPaybillAccountNumber] = useState("");
   const [savingShop, setSavingShop] = useState(false);
 
   useEffect(() => {
@@ -44,6 +48,10 @@ function Profile() {
         setShopName(data.name);
         setShopLocation(data.location || "");
         setShopCurrency(data.currency);
+        setShopPochiNumber(data.mpesa_pochi_number || "");
+        setShopTillNumber(data.mpesa_till_number || "");
+        setShopPaybillNumber(data.mpesa_paybill_number || "");
+        setShopPaybillAccountNumber(data.mpesa_paybill_account_number || "");
       });
     }
   }, [user]);
@@ -94,8 +102,16 @@ function Profile() {
         name: shopName,
         location: shopLocation || null,
         currency: shopCurrency,
+        mpesa_pochi_number: shopPochiNumber || null,
+        mpesa_till_number: shopTillNumber || null,
+        mpesa_paybill_number: shopPaybillNumber || null,
+        mpesa_paybill_account_number: shopPaybillAccountNumber || null,
       });
       setShop(updated);
+      setShopPochiNumber(updated.mpesa_pochi_number || "");
+      setShopTillNumber(updated.mpesa_till_number || "");
+      setShopPaybillNumber(updated.mpesa_paybill_number || "");
+      setShopPaybillAccountNumber(updated.mpesa_paybill_account_number || "");
       showToast("Shop settings updated.", "success");
     } catch (err) {
       showToast(extractErrorMessage(err), "error");
@@ -410,13 +426,56 @@ function Profile() {
                       Example: KES
                     </span>
                   </div>
+                  <div className="profile-field">
+                    <label htmlFor="shop-mpesa-pochi">Pochi la Biashara number</label>
+                    <input
+                      id="shop-mpesa-pochi"
+                      value={shopPochiNumber}
+                      onChange={(e) => setShopPochiNumber(e.target.value)}
+                      maxLength={50}
+                      placeholder="Optional"
+                    />
+                  </div>
+
+                  <div className="profile-field">
+                    <label htmlFor="shop-mpesa-till">Buy Goods Till number</label>
+                    <input
+                      id="shop-mpesa-till"
+                      value={shopTillNumber}
+                      onChange={(e) => setShopTillNumber(e.target.value)}
+                      maxLength={50}
+                      placeholder="Optional"
+                    />
+                  </div>
+
+                  <div className="profile-field">
+                    <label htmlFor="shop-mpesa-paybill">PayBill business number</label>
+                    <input
+                      id="shop-mpesa-paybill"
+                      value={shopPaybillNumber}
+                      onChange={(e) => setShopPaybillNumber(e.target.value)}
+                      maxLength={50}
+                      placeholder="Optional"
+                    />
+                  </div>
+
+                  <div className="profile-field">
+                    <label htmlFor="shop-mpesa-account">PayBill account number</label>
+                    <input
+                      id="shop-mpesa-account"
+                      value={shopPaybillAccountNumber}
+                      onChange={(e) => setShopPaybillAccountNumber(e.target.value)}
+                      maxLength={100}
+                      placeholder="Required when PayBill is configured"
+                    />
+                  </div>
                 </div>
 
                 <div className="business-note">
                   <span>💡</span>
                   <p>
-                    Keeping your shop information accurate helps maintain
-                    consistent business records across your retail system.
+                    Cashiers can use configured payment details at checkout.
+                    PayBill requires both a business number and an account number.
                   </p>
                 </div>
 

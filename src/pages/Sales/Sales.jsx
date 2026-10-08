@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
   getCurrentSession, openSession, getPopularProducts, browseVariants, completeSale,
+  startMpesaPayment, getSale, startManualMpesaPayment, confirmManualPayment,
+  cancelManualPayment,
 } from "../../services/salesApi";
+import { getPaymentDestinations } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useToast } from "../../context/ToastContext";
@@ -20,6 +23,12 @@ function Sales() {
   const [allItems, setAllItems] = useState([]);
   const [cart, setCart] = useState([]); // [{ variant, quantity }]
   const [amountReceived, setAmountReceived] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentDestinations, setPaymentDestinations] = useState([]);
+  const [mpesaPhone, setMpesaPhone] = useState("");
+  const [mpesaSale, setMpesaSale] = useState(null);
+  const [manualSale, setManualSale] = useState(null);
+  const [manualReceiptNumber, setManualReceiptNumber] = useState("");
   const amountInputRef = useRef(null);
   const bulkInputRef = useRef(null);
   const [bulkPromptVariant, setBulkPromptVariant] = useState(null);
@@ -58,6 +67,13 @@ function Sales() {
   }, [session]);
 
   useEffect(() => {
+    if (!session) return;
+    getPaymentDestinations()
+      .then(setPaymentDestinations)
+      .catch((err) => showToast(extractErrorMessage(err), "error"));
+  }, [session, showToast]);
+
+  useEffect(() => {
     if (!session || viewMode !== "all") return undefined;
 
     let active = true;
@@ -82,6 +98,35 @@ function Sales() {
     const timer = setTimeout(() => setMessage(null), 4000);
     return () => clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    if (!mpesaSale || mpesaSale.status !== "pending") return undefined;
+
+    let active = true;
+    const timer = setInterval(async () => {
+      try {
+        const updated = await getSale(mpesaSale.id);
+        if (!active || updated.status === "pending") return;
+        setMpesaSale(updated);
+        if (updated.status === "completed") {
+          setMessage({
+            type: "success",
+            text: `M-Pesa payment confirmed${updated.mpesa_receipt_number ? `: ${updated.mpesa_receipt_number}` : ""}.`,
+          });
+          getPopularProducts().then(setPopular);
+        } else if (updated.status === "failed") {
+          setMessage({ type: "error", text: "M-Pesa payment was not completed. Reserved stock has been released." });
+        }
+      } catch (err) {
+        if (active) showToast(extractErrorMessage(err), "error");
+      }
+    }, 3000);
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [mpesaSale?.id, mpesaSale?.status, showToast]);
 
   async function handleOpenSession(e) {
     e.preventDefault();
@@ -211,25 +256,110 @@ function Sales() {
   const total = cart.reduce((sum, line) => sum + toCents(line.variant.selling_price) * line.quantity, 0) / 100;
   const received = fromCents(toCents(amountReceived));
   const change = received - total;
+  const isManualPayment = ["pochi", "till", "paybill"].includes(paymentMethod);
+  const selectedDestination = paymentDestinations.find(
+    (destination) => destination.method === paymentMethod
+  );
+  const manualDestination = manualSale
+    ? {
+        label: {
+          pochi: "Pochi la Biashara",
+          till: "Buy Goods Till",
+          paybill: "PayBill",
+        }[manualSale.payment_method],
+        number: manualSale.payment_destination_number,
+        account_number: manualSale.payment_account_number,
+      }
+    : selectedDestination;
 
   function tapDenomination(value) {
     setAmountReceived(String(value));
   }
 
   async function handleCompleteSale() {
-    if (cart.length === 0 || received < total || submitting) return;
+    if (cart.length === 0 || submitting) return;
+    if (paymentMethod === "cash" && received < total) return;
+    if (paymentMethod === "mpesa" && toCents(total) % 100 !== 0) {
+      setMessage({ type: "error", text: "M-Pesa STK Push supports whole KSh amounts only. Adjust the cart total." });
+      return;
+    }
+    if (paymentMethod === "mpesa" && !mpesaPhone.trim()) {
+      setMessage({ type: "error", text: "Enter the customer's M-Pesa phone number." });
+      return;
+    }
+    if (isManualPayment && !selectedDestination) {
+      setMessage({ type: "error", text: "This M-Pesa payment destination is not configured." });
+      return;
+    }
+    if (manualSale?.status === "pending") {
+      setMessage({ type: "error", text: "Confirm or cancel the pending manual payment before starting another sale." });
+      return;
+    }
     setSubmitting(true);
 
     try {
-      const sale = await completeSale(
-        cart.map((line) => ({ variant_id: line.variant.variant_id, quantity: Math.round(line.quantity) })),
-        Number(received.toFixed(2))
-      );
+      const items = cart.map((line) => ({
+        variant_id: line.variant.variant_id,
+        quantity: Math.round(line.quantity),
+      }));
+      if (paymentMethod === "mpesa") {
+        const sale = await startMpesaPayment(items, mpesaPhone);
+        setMpesaSale(sale);
+        setMessage({
+          type: "success",
+          text: `STK Push sent to ${mpesaPhone}. Waiting for payment confirmation...`,
+        });
+      } else if (isManualPayment) {
+        const sale = await startManualMpesaPayment(items, paymentMethod);
+        setManualSale(sale);
+        setManualReceiptNumber("");
+        setMessage({
+          type: "success",
+          text: `Sale #${sale.id} is awaiting manual M-Pesa payment confirmation.`,
+        });
+      } else {
+        const sale = await completeSale(items, Number(received.toFixed(2)));
+        setMessage({ type: "success", text: `Sale complete. Change due: KSh ${sale.change}` });
+      }
       setCart([]);
       setAmountReceived("");
-      amountInputRef.current?.focus();
-      setMessage({ type: "success", text: `Sale complete. Change due: KSh ${sale.change}` });
-      getPopularProducts().then(setPopular); // refresh ranking for next customer
+      if (paymentMethod === "cash") {
+        amountInputRef.current?.focus();
+        getPopularProducts().then(setPopular); // refresh ranking for next customer
+      }
+    } catch (err) {
+      showToast(extractErrorMessage(err), "error");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleConfirmManualPayment() {
+    if (!manualSale || !manualReceiptNumber.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      const updated = await confirmManualPayment(manualSale.id, manualReceiptNumber);
+      setManualSale(updated);
+      setMessage({
+        type: "success",
+        text: `Manual M-Pesa payment confirmed${updated.mpesa_receipt_number ? `: ${updated.mpesa_receipt_number}` : ""}.`,
+      });
+      setManualReceiptNumber("");
+      getPopularProducts().then(setPopular);
+    } catch (err) {
+      showToast(extractErrorMessage(err), "error");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleCancelManualPayment() {
+    if (!manualSale || submitting) return;
+    setSubmitting(true);
+    try {
+      const updated = await cancelManualPayment(manualSale.id);
+      setManualSale(updated);
+      setMessage({ type: "error", text: `Pending payment for sale #${updated.id} was cancelled and reserved stock released.` });
     } catch (err) {
       showToast(extractErrorMessage(err), "error");
     } finally {
@@ -449,43 +579,198 @@ function Sales() {
             <span>{formatCurrency(total)}</span>
           </div>
 
-          <div className="denomination-row">
-            {DENOMINATIONS.map((d) => (
-              <button key={d} onClick={() => tapDenomination(d)}>{formatCurrency(d)}</button>
+          <div className="payment-section-heading">
+            <span>Payment method</span>
+            <span>Choose how the customer is paying</span>
+          </div>
+          <div className="payment-method-options" role="group" aria-label="Payment method">
+            <button
+              type="button"
+              className={`payment-method-card cash${paymentMethod === "cash" ? " active" : ""}`}
+              aria-pressed={paymentMethod === "cash"}
+              disabled={manualSale?.status === "pending"}
+              onClick={() => setPaymentMethod("cash")}
+            >
+              <span className="payment-method-icon" aria-hidden="true">KSh</span>
+              <span className="payment-method-copy">
+                <strong>Cash</strong>
+                <small>Pay in person</small>
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`payment-method-card mpesa${paymentMethod === "mpesa" ? " active" : ""}`}
+              aria-pressed={paymentMethod === "mpesa"}
+              disabled={manualSale?.status === "pending"}
+              onClick={() => setPaymentMethod("mpesa")}
+            >
+              <span className="payment-method-icon" aria-hidden="true">M</span>
+              <span className="payment-method-copy">
+                <strong>M-Pesa</strong>
+                <small>Send STK prompt</small>
+              </span>
+            </button>
+            {paymentDestinations.map((destination) => (
+              <button
+                key={destination.method}
+                type="button"
+                className={`payment-method-card manual${paymentMethod === destination.method ? " active" : ""}`}
+                aria-pressed={paymentMethod === destination.method}
+                disabled={manualSale?.status === "pending"}
+                onClick={() => setPaymentMethod(destination.method)}
+              >
+                <span className="payment-method-icon" aria-hidden="true">Pay</span>
+                <span className="payment-method-copy">
+                  <strong>{destination.label}</strong>
+                  <small>Confirm manually</small>
+                </span>
+              </button>
             ))}
           </div>
 
-          <input
-            ref={amountInputRef}
-            className="amount-received-input"
-            type="number"
-            min="0"
-            step="0.01"
-            value={amountReceived}
-            onChange={(e) => setAmountReceived(e.target.value)}
-            placeholder="Cash received"
-          />
+          {paymentMethod === "cash" ? (
+            <>
+              <label className="checkout-field-label" htmlFor="cash-received">
+                Cash received
+                <span>Enter the amount handed over</span>
+              </label>
+              <div className="denomination-row">
+                {DENOMINATIONS.map((d) => (
+                  <button key={d} onClick={() => tapDenomination(d)}>{formatCurrency(d)}</button>
+                ))}
+              </div>
 
-          {amountReceived !== "" && received < total && (
-            <div className="change-row negative">Short by {formatCurrency(total - received)}</div>
-          )}
-          {amountReceived !== "" && received >= total && (
-            <div className="change-row">Change: {formatCurrency(change)}</div>
+              <input
+                ref={amountInputRef}
+                id="cash-received"
+                className="amount-received-input"
+                type="number"
+                min="0"
+                step="0.01"
+                value={amountReceived}
+                onChange={(e) => setAmountReceived(e.target.value)}
+                placeholder="Cash received"
+              />
+
+              {amountReceived !== "" && (
+                <div className={`change-row ${received < total ? "negative" : "positive"}`} role="status">
+                  <span className="change-copy">
+                    <strong>{received < total ? "Still to collect" : "Change to give back"}</strong>
+                    <small>{received < total ? "Additional cash needed" : "Return this amount to the customer"}</small>
+                  </span>
+                  <strong className="change-value">
+                    {formatCurrency(received < total ? total - received : change)}
+                  </strong>
+                </div>
+              )}
+            </>
+          ) : paymentMethod === "mpesa" ? (
+            <>
+              <input
+                className="amount-received-input"
+                type="tel"
+                autoComplete="tel"
+                value={mpesaPhone}
+                onChange={(e) => setMpesaPhone(e.target.value)}
+                placeholder="Customer M-Pesa number"
+                aria-label="Customer M-Pesa phone number"
+              />
+              {toCents(total) % 100 !== 0 && (
+                <div className="change-row negative">
+                  STK Push requires a whole KSh total; this cart total includes cents.
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="manual-payment-hint">
+              {selectedDestination
+                ? "The payment number and instructions will be shown after you create the pending sale."
+                : "No manual M-Pesa destinations are configured. Ask an admin to add them in Profile & Settings."}
+            </div>
           )}
 
           <button
             className="complete-sale-button"
-            disabled={cart.length === 0 || received < total || submitting}
+            disabled={
+              cart.length === 0 ||
+              submitting ||
+              manualSale?.status === "pending" ||
+              (paymentMethod === "cash" && received < total) ||
+              (paymentMethod === "mpesa" && (!mpesaPhone.trim() || toCents(total) % 100 !== 0)) ||
+              (isManualPayment && !selectedDestination)
+            }
             onClick={handleCompleteSale}
           >
             {submitting
               ? "Processing..."
               : cart.length === 0
               ? "Cart is empty"
-              : received < total
+              : paymentMethod === "cash" && received < total
               ? "Awaiting full payment"
+              : paymentMethod === "mpesa"
+              ? `Send STK Push · ${formatCurrency(total)}`
+              : isManualPayment
+              ? `Create pending sale · ${formatCurrency(total)}`
               : "Complete Sale"}
           </button>
+          {mpesaSale?.status === "pending" && (
+            <div className="mpesa-pending-message" role="status">
+              Waiting for M-Pesa confirmation for sale #{mpesaSale.id}.
+              The sale is completed only after Daraja confirms the exact amount.
+            </div>
+          )}
+          {mpesaSale?.status === "failed" && (
+            <div className="mpesa-pending-message failed" role="status">
+              M-Pesa payment for sale #{mpesaSale.id} was not completed.
+            </div>
+          )}
+          {manualSale?.status === "pending" && manualDestination && (
+            <div className="manual-payment-card" role="status">
+              <strong>Payment instructions · Sale #{manualSale.id}</strong>
+              <p>Ask the customer to pay exactly {formatCurrency(manualSale.total)} and verify the payment confirmation and recipient before recording it.</p>
+              <div className="manual-payment-destination">
+                <span>{manualDestination.label}</span>
+                <strong>{manualDestination.number}</strong>
+                {manualDestination.account_number && (
+                  <>
+                    <span>Account number</span>
+                    <strong>{manualDestination.account_number}</strong>
+                  </>
+                )}
+              </div>
+              <label htmlFor="manual-mpesa-receipt">M-Pesa confirmation code</label>
+              <input
+                id="manual-mpesa-receipt"
+                className="amount-received-input"
+                value={manualReceiptNumber}
+                onChange={(e) => setManualReceiptNumber(e.target.value)}
+                maxLength={30}
+                placeholder="e.g. QGH123ABC"
+              />
+              <div className="manual-payment-actions">
+                <button
+                  type="button"
+                  onClick={handleConfirmManualPayment}
+                  disabled={submitting || !manualReceiptNumber.trim()}
+                >
+                  {submitting ? "Processing..." : "Confirm payment received"}
+                </button>
+                <button type="button" onClick={handleCancelManualPayment} disabled={submitting}>
+                  Cancel and release stock
+                </button>
+              </div>
+            </div>
+          )}
+          {manualSale?.status === "completed" && (
+            <div className="mpesa-pending-message" role="status">
+              Manual payment for sale #{manualSale.id} confirmed{manualSale.mpesa_receipt_number ? ` · ${manualSale.mpesa_receipt_number}` : ""}.
+            </div>
+          )}
+          {manualSale?.status === "failed" && (
+            <div className="mpesa-pending-message failed" role="status">
+              Manual payment for sale #{manualSale.id} was cancelled; reserved stock has been released.
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -535,7 +820,11 @@ function CloseTillModal({ session, onClose, onClosed }) {
             {pendingClosingCash === null ? (
               <>
                 <h3 id="close-till-title">Close Till</h3>
-                <p>Opened with {formatCurrency(session.opening_cash)}. Count the cash in the drawer and enter it below.</p>
+                <p>
+                  Opened with {formatCurrency(session.opening_cash)}. Expected cash includes cash sales
+                  and subtracts till expenses. Staff stock use is tracked separately and does not
+                  reduce expected till cash. Count the drawer and enter it below.
+                </p>
                 <form onSubmit={handleSubmit}>
                   <input
                     type="number"

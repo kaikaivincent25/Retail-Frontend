@@ -92,7 +92,10 @@ function Expenses() {
         <div>
           <span className="expenses-eyebrow">CASH CONTROL</span>
           <h1>Expenses</h1>
-          <p>Record spending as it happens and keep the day's cash position accurate.</p>
+          <p>
+            Record money paid out from the till here. For stock taken by staff,
+            record staff use in Inventory instead; it does not reduce till cash.
+          </p>
         </div>
         <Link className="expenses-sales-link" to="/dashboard">
           View daily sales <span aria-hidden="true">→</span>

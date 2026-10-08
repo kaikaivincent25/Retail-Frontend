@@ -1,8 +1,20 @@
 import { useEffect, useState } from "react";
 import { listUsers } from "../../services/usersApi";
-import { listSales, getSale } from "../../services/salesHistoryApi";
+import {
+  listSales, getSale,
+} from "../../services/salesHistoryApi";
+import { confirmManualPayment, cancelManualPayment } from "../../services/salesApi";
+import { extractErrorMessage } from "../../services/errorHandling";
 import { useAuth } from "../../context/AuthContext";
 import "./SalesHistory.css";
+
+const PAYMENT_METHOD_LABELS = {
+  cash: "Cash",
+  mpesa: "M-Pesa STK Push",
+  pochi: "Pochi la Biashara",
+  till: "Buy Goods Till",
+  paybill: "PayBill",
+};
 
 function SalesHistory() {
   const { user } = useAuth();
@@ -12,6 +24,9 @@ function SalesHistory() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedSale, setSelectedSale] = useState(null);
+  const [receiptNumber, setReceiptNumber] = useState("");
+  const [paymentActionError, setPaymentActionError] = useState("");
+  const [paymentActionBusy, setPaymentActionBusy] = useState(false);
 
   useEffect(() => {
     if (user?.role === "cashier") return;
@@ -33,6 +48,39 @@ function SalesHistory() {
   async function openDetail(saleId) {
     const full = await getSale(saleId);
     setSelectedSale(full);
+    setReceiptNumber("");
+    setPaymentActionError("");
+  }
+
+  async function handleConfirmPayment() {
+    if (!selectedSale || !receiptNumber.trim() || paymentActionBusy) return;
+    setPaymentActionBusy(true);
+    setPaymentActionError("");
+    try {
+      const updated = await confirmManualPayment(selectedSale.id, receiptNumber);
+      setSelectedSale(updated);
+      setReceiptNumber("");
+      refresh();
+    } catch (err) {
+      setPaymentActionError(extractErrorMessage(err));
+    } finally {
+      setPaymentActionBusy(false);
+    }
+  }
+
+  async function handleCancelPayment() {
+    if (!selectedSale || paymentActionBusy) return;
+    setPaymentActionBusy(true);
+    setPaymentActionError("");
+    try {
+      const updated = await cancelManualPayment(selectedSale.id);
+      setSelectedSale(updated);
+      refresh();
+    } catch (err) {
+      setPaymentActionError(extractErrorMessage(err));
+    } finally {
+      setPaymentActionBusy(false);
+    }
   }
 
   return (
@@ -80,7 +128,7 @@ function SalesHistory() {
             <tr key={sale.id}>
               <td>{new Date(sale.created_at || Date.now()).toLocaleString()}</td>
               <td>KSh {sale.total}</td>
-              <td>{sale.payment_method}</td>
+              <td>{PAYMENT_METHOD_LABELS[sale.payment_method] || sale.payment_method}</td>
               <td><span className={`status-badge ${sale.status}`}>{sale.status}</span></td>
               <td><button onClick={() => openDetail(sale.id)}>View</button></td>
             </tr>
@@ -111,11 +159,51 @@ function SalesHistory() {
               </tbody>
             </table>
             <div className="sale-detail-totals">
+              <div><span>Payment method</span><span>{PAYMENT_METHOD_LABELS[selectedSale.payment_method] || selectedSale.payment_method}</span></div>
+              <div><span>Status</span><span>{selectedSale.status}</span></div>
               <div><span>Subtotal</span><span>KSh {selectedSale.subtotal}</span></div>
               <div><span>Total</span><span>KSh {selectedSale.total}</span></div>
               <div><span>Received</span><span>KSh {selectedSale.amount_received}</span></div>
               <div><span>Change</span><span>KSh {selectedSale.change}</span></div>
+              {selectedSale.payment_destination_number && (
+                <div><span>Payment destination</span><span>{selectedSale.payment_destination_number}</span></div>
+              )}
+              {selectedSale.payment_account_number && (
+                <div><span>PayBill account</span><span>{selectedSale.payment_account_number}</span></div>
+              )}
+              {selectedSale.mpesa_receipt_number && (
+                <div><span>M-Pesa confirmation code</span><span>{selectedSale.mpesa_receipt_number}</span></div>
+              )}
             </div>
+            {selectedSale.status === "pending" &&
+              ["pochi", "till", "paybill"].includes(selectedSale.payment_method) && (
+                <div className="manual-payment-history-actions">
+                  <p>
+                    Verify the customer's payment in M-Pesa and confirm the amount and destination before completing this sale.
+                  </p>
+                  <label htmlFor="history-mpesa-receipt">M-Pesa confirmation code</label>
+                  <input
+                    id="history-mpesa-receipt"
+                    value={receiptNumber}
+                    onChange={(e) => setReceiptNumber(e.target.value)}
+                    maxLength={30}
+                    placeholder="e.g. QGH123ABC"
+                  />
+                  {paymentActionError && <p className="payment-action-error">{paymentActionError}</p>}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleConfirmPayment}
+                      disabled={paymentActionBusy || !receiptNumber.trim()}
+                    >
+                      {paymentActionBusy ? "Processing..." : "Confirm payment received"}
+                    </button>
+                    <button type="button" onClick={handleCancelPayment} disabled={paymentActionBusy}>
+                      Cancel and release stock
+                    </button>
+                  </div>
+                </div>
+              )}
             <button onClick={() => setSelectedSale(null)}>Close</button>
           </div>
         </div>

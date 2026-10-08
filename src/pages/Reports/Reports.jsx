@@ -25,6 +25,7 @@ const PRESETS = [
 const METRICS = [
   { key: "total_sales", label: "Gross sales", symbol: "↗", format: formatCurrency },
   { key: "expense_total", label: "Expenses", symbol: "−", format: formatCurrency },
+  { key: "staff_consumption_total", label: "Staff consumption cost", symbol: "↘", format: formatCurrency },
   { key: "net_sales", label: "Net sales", symbol: "=", format: formatCurrency },
   { key: "transaction_count", label: "Transactions", symbol: "#", format: (value) => value.toLocaleString() },
   { key: "estimated_profit", label: "Estimated profit", symbol: "◈", format: formatCurrency },
@@ -95,7 +96,7 @@ function Reports() {
         <div className="reports-hero-content">
           <span className="reports-eyebrow">YOUR BUSINESS, AT A GLANCE</span>
           <h1 id="reports-title">Reports &amp; insights</h1>
-          <p>Understand what is selling, track recorded expenses, and see your net sales with confidence.</p>
+          <p>Understand sales, cash expenses, and staff stock use as separate business costs.</p>
         </div>
         <div className="reports-hero-note">
           <span className="reports-note-dot" />
@@ -179,7 +180,7 @@ function Reports() {
                 <div>
                   <span className="section-kicker">DAILY CASH POSITION</span>
                   <h2>Daily net sales</h2>
-                  <p>Gross sales less expenses recorded on each day.</p>
+                  <p>Gross sales less cash expenses. Staff stock use is reported separately.</p>
                 </div>
                 <span className="section-period">{formatShortDate(startDate)} – {formatShortDate(endDate)}</span>
               </div>
