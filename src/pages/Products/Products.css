@@ -125,11 +125,47 @@
   gap: 0.75rem;
 }
 
+.product-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.product-filters button,
+.restore-product {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 6px;
+  background: #fffaf6;
+  color: #6f3540;
+  cursor: pointer;
+}
+
+.product-filters button.selected {
+  border-color: #8b4651;
+  background: #8b4651;
+  color: white;
+}
+
 .product-card {
   border: 1px solid #e8d9cc;
   border-radius: 8px;
   background: #fffcf7;
   overflow: hidden;
+}
+
+.inactive-product {
+  border-style: dashed;
+}
+
+.product-status {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.75rem;
 }
 
 .product-card-header {

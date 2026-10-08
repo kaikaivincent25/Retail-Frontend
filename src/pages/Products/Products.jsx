@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
-  listProducts, createProduct, deactivateProduct,
+  listProducts, createProduct, deactivateProduct, reactivateProduct,
+  permanentlyDeleteProduct,
   listVariants, createVariant, deactivateVariant,
 } from "../../services/catalogApi";
 import api from "../../services/api";
@@ -19,6 +20,7 @@ const getErrorMessage = (err, fallback) =>
 
 function Products() {
   const [products, setProducts] = useState([]);
+  const [productFilter, setProductFilter] = useState("active");
   const [expandedId, setExpandedId] = useState(null);
   const [variantsByProduct, setVariantsByProduct] = useState({});
 
@@ -32,8 +34,12 @@ function Products() {
     refreshProducts();
   }, []);
 
-  function refreshProducts() {
-    listProducts().then(setProducts);
+  async function refreshProducts() {
+    try {
+      setProducts(await listProducts("?include_inactive=true"));
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not load products."));
+    }
   }
 
   async function handleCreateProduct(e) {
@@ -80,8 +86,40 @@ function Products() {
 
   async function handleDeactivateProduct(id) {
     if (!window.confirm("Deactivate this product? It will be hidden from the sales screen.")) return;
-    await deactivateProduct(id);
-    refreshProducts();
+    setError("");
+    try {
+      await deactivateProduct(id);
+      await refreshProducts();
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not deactivate product."));
+    }
+  }
+
+  async function handleReactivateProduct(id) {
+    setError("");
+    try {
+      await reactivateProduct(id);
+      await refreshProducts();
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not reactivate product."));
+    }
+  }
+
+  async function handlePermanentlyDeleteProduct(product) {
+    if (!window.confirm(`Permanently delete "${product.name}"? This cannot be undone.`)) return;
+    setError("");
+    try {
+      await permanentlyDeleteProduct(product.id);
+      setVariantsByProduct((prev) => {
+        const next = { ...prev };
+        delete next[product.id];
+        return next;
+      });
+      if (expandedId === product.id) setExpandedId(null);
+      await refreshProducts();
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not permanently delete product."));
+    }
   }
 
   async function toggleExpand(productId) {
@@ -100,6 +138,11 @@ function Products() {
     const variants = await listVariants(productId, true);
     setVariantsByProduct((prev) => ({ ...prev, [productId]: variants }));
   }
+
+  const visibleProducts = products.filter((product) => (
+    productFilter === "all"
+      || (productFilter === "active" ? product.is_active : !product.is_active)
+  ));
 
   return (
     <div className="products-page">
@@ -209,21 +252,57 @@ function Products() {
       </form>
       {error && <div className="form-error">{error}</div>}
 
+      <div className="product-filters" aria-label="Filter products">
+        {[
+          ["active", "Active"],
+          ["inactive", "Deactivated"],
+          ["all", "All"],
+        ].map(([filter, label]) => (
+          <button
+            key={filter}
+            type="button"
+            className={productFilter === filter ? "selected" : ""}
+            aria-pressed={productFilter === filter}
+            onClick={() => setProductFilter(filter)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="product-list">
-        {products.map((product) => (
-          <div className="product-card" key={product.id}>
+        {visibleProducts.map((product) => (
+          <div className={`product-card${product.is_active ? "" : " inactive-product"}`} key={product.id}>
             <div className="product-card-header" onClick={() => toggleExpand(product.id)}>
               <div>
                 <span className="product-name">{product.name}</span>
                 {product.category && <span className="product-category">{product.category}</span>}
+                {!product.is_active && <span className="product-status">Deactivated</span>}
               </div>
               <div className="product-card-actions">
-                <button
-                  className="danger"
-                  onClick={(e) => { e.stopPropagation(); handleDeactivateProduct(product.id); }}
-                >
-                  Deactivate
-                </button>
+                {product.is_active ? (
+                  <button
+                    className="danger"
+                    onClick={(e) => { e.stopPropagation(); handleDeactivateProduct(product.id); }}
+                  >
+                    Deactivate
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      className="restore-product"
+                      onClick={(e) => { e.stopPropagation(); handleReactivateProduct(product.id); }}
+                    >
+                      Reactivate
+                    </button>
+                    <button
+                      className="danger"
+                      onClick={(e) => { e.stopPropagation(); handlePermanentlyDeleteProduct(product); }}
+                    >
+                      Delete permanently
+                    </button>
+                  </>
+                )}
                 <span className="expand-arrow">{expandedId === product.id ? "▲" : "▼"}</span>
               </div>
             </div>
@@ -237,7 +316,13 @@ function Products() {
             )}
           </div>
         ))}
-        {products.length === 0 && <p className="empty-hint">No products yet — add your first one above.</p>}
+        {visibleProducts.length === 0 && (
+          <p className="empty-hint">
+            {productFilter === "active" && products.length === 0
+              ? "No products yet — add your first one above."
+              : `No ${productFilter === "inactive" ? "deactivated " : ""}products found.`}
+          </p>
+        )}
       </div>
     </div>
   );
