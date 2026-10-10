@@ -10,6 +10,7 @@ const NAV_ITEMS = {
     { to: "/expenses", label: "Expenses", icon: "−" },
     { to: "/products", label: "Products", icon: "▣" },
     { to: "/inventory", label: "Inventory", icon: "▤" },
+    { to: "/reports/sessions", label: "Cash & Deposits", icon: "◷" },
     { to: "/staff", label: "Staff", icon: "♙" },
     { to: "/reports", label: "Reports", icon: "▥" },
     { to: "/audit", label: "Activity Log", icon: "◷" },
@@ -20,6 +21,7 @@ const NAV_ITEMS = {
     { to: "/expenses", label: "Expenses", icon: "−" },
     { to: "/products", label: "Products", icon: "▣" },
     { to: "/inventory", label: "Inventory", icon: "▤" },
+    { to: "/reports/sessions", label: "Cash & Deposits", icon: "◷" },
     { to: "/reports", label: "Reports", icon: "▥" },
   ],
   cashier: [

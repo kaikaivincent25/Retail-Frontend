@@ -19,5 +19,7 @@ export const confirmManualPayment = (saleId, receiptNumber) =>
   api.post(`/sales/${saleId}/manual-payment/confirm`, { receipt_number: receiptNumber }).then((r) => r.data);
 export const cancelManualPayment = (saleId) =>
   api.post(`/sales/${saleId}/manual-payment/cancel`).then((r) => r.data);
+export const reconcileMpesaPayment = (saleId) =>
+  api.post(`/sales/${saleId}/mpesa/reconcile`).then((r) => r.data);
 export const getSale = (saleId) => api.get(`/sales/${saleId}`).then((r) => r.data);
 export const getProducts = () => api.get("/products").then((r) => r.data);

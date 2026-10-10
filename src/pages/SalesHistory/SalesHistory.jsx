@@ -3,7 +3,11 @@ import { listUsers } from "../../services/usersApi";
 import {
   listSales, getSale,
 } from "../../services/salesHistoryApi";
-import { confirmManualPayment, cancelManualPayment } from "../../services/salesApi";
+import {
+  confirmManualPayment,
+  cancelManualPayment,
+  reconcileMpesaPayment,
+} from "../../services/salesApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useAuth } from "../../context/AuthContext";
 import "./SalesHistory.css";
@@ -26,6 +30,7 @@ function SalesHistory() {
   const [selectedSale, setSelectedSale] = useState(null);
   const [receiptNumber, setReceiptNumber] = useState("");
   const [paymentActionError, setPaymentActionError] = useState("");
+  const [paymentActionMessage, setPaymentActionMessage] = useState("");
   const [paymentActionBusy, setPaymentActionBusy] = useState(false);
 
   useEffect(() => {
@@ -50,12 +55,14 @@ function SalesHistory() {
     setSelectedSale(full);
     setReceiptNumber("");
     setPaymentActionError("");
+    setPaymentActionMessage("");
   }
 
   async function handleConfirmPayment() {
     if (!selectedSale || !receiptNumber.trim() || paymentActionBusy) return;
     setPaymentActionBusy(true);
     setPaymentActionError("");
+    setPaymentActionMessage("");
     try {
       const updated = await confirmManualPayment(selectedSale.id, receiptNumber);
       setSelectedSale(updated);
@@ -72,9 +79,27 @@ function SalesHistory() {
     if (!selectedSale || paymentActionBusy) return;
     setPaymentActionBusy(true);
     setPaymentActionError("");
+    setPaymentActionMessage("");
     try {
       const updated = await cancelManualPayment(selectedSale.id);
       setSelectedSale(updated);
+      refresh();
+    } catch (err) {
+      setPaymentActionError(extractErrorMessage(err));
+    } finally {
+      setPaymentActionBusy(false);
+    }
+  }
+
+  async function handleReconcilePayment() {
+    if (!selectedSale || paymentActionBusy) return;
+    setPaymentActionBusy(true);
+    setPaymentActionError("");
+    setPaymentActionMessage("");
+    try {
+      const result = await reconcileMpesaPayment(selectedSale.id);
+      setSelectedSale(result.sale);
+      setPaymentActionMessage(result.message);
       refresh();
     } catch (err) {
       setPaymentActionError(extractErrorMessage(err));
@@ -202,6 +227,24 @@ function SalesHistory() {
                       Cancel and release stock
                     </button>
                   </div>
+                </div>
+              )}
+            {selectedSale.status === "pending" &&
+              selectedSale.payment_method === "mpesa" &&
+              user?.role !== "cashier" && (
+                <div className="mpesa-reconcile-history-actions">
+                  <p>
+                    Check the payment with Daraja. If the result is unclear, the sale remains pending and its stock stays reserved.
+                  </p>
+                  {paymentActionError && <p className="payment-action-error">{paymentActionError}</p>}
+                  {paymentActionMessage && <p role="status">{paymentActionMessage}</p>}
+                  <button
+                    type="button"
+                    onClick={handleReconcilePayment}
+                    disabled={paymentActionBusy}
+                  >
+                    {paymentActionBusy ? "Checking..." : "Check Daraja payment status"}
+                  </button>
                 </div>
               )}
             <button onClick={() => setSelectedSale(null)}>Close</button>

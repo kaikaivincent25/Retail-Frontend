@@ -153,7 +153,8 @@
   cursor: pointer;
 }
 
-.manual-payment-history-actions {
+.manual-payment-history-actions,
+.mpesa-reconcile-history-actions {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -164,7 +165,8 @@
   background: #f7f0e7;
 }
 
-.manual-payment-history-actions p {
+.manual-payment-history-actions p,
+.mpesa-reconcile-history-actions p {
   margin: 0;
   color: #766665;
   font-size: 0.85rem;

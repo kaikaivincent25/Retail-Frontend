@@ -7,3 +7,7 @@ export const closeSession = (closingCash) =>
   api.post("/cash-sessions/close", { closing_cash: closingCash }).then((r) => r.data);
 export const listSessions = (userId) =>
   api.get(`/cash-sessions${userId ? `?user_id=${userId}` : ""}`).then((r) => r.data);
+export const getCashDeposits = () =>
+  api.get("/cash-sessions/deposits").then((r) => r.data);
+export const recordCashDeposit = (deposit) =>
+  api.post("/cash-sessions/deposits", deposit).then((r) => r.data);
