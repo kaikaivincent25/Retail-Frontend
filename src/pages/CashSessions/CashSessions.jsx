@@ -38,25 +38,40 @@ function CashSessions() {
   }, [user?.role]);
 
   const loadCashData = useCallback(async () => {
-    const [cashSession, depositSummary] = await Promise.all([
+    const [sessionResult, depositResult] = await Promise.allSettled([
       getCurrentSession(),
       getCashDeposits(),
     ]);
-    setHasOpenSession(Boolean(cashSession));
-    setAvailableCash(Number(depositSummary.available_cash));
-    setDeposits(depositSummary.deposits);
+    if (sessionResult.status === "fulfilled") {
+      setHasOpenSession(Boolean(sessionResult.value));
+    }
+    if (depositResult.status === "fulfilled") {
+      setAvailableCash(Number(depositResult.value.available_cash));
+      setDeposits(depositResult.value.deposits);
+    } else {
+      throw depositResult.reason;
+    }
+    if (sessionResult.status === "rejected") {
+      throw sessionResult.reason;
+    }
   }, []);
 
   useEffect(() => {
-    Promise.all([
-      listSessions(user?.role === "cashier" ? undefined : userId || undefined),
-      loadCashData(),
-    ])
-      .then(([result]) => {
+    listSessions(user?.role === "cashier" ? undefined : userId || undefined)
+      .then((result) => {
         setSessions(result);
-        setError("");
       })
-      .catch(() => setError("Could not load cash sessions."));
+      .catch((requestError) => {
+        setError(
+          requestError.response?.data?.detail || "Could not load cash sessions.",
+        );
+      });
+    loadCashData().catch((requestError) => {
+      setError(
+        requestError.response?.data?.detail ||
+          "Could not load deposit information. Please contact your administrator if this continues.",
+      );
+    });
   }, [loadCashData, user?.role, userId]);
 
   async function handleDeposit(event) {
@@ -83,6 +98,12 @@ function CashSessions() {
   function staffName(id) {
     return staff.find((s) => s.id === id)?.full_name || `User #${id}`;
   }
+
+  const depositsBySession = deposits.reduce((totals, deposit) => {
+    totals[deposit.session_id] =
+      (totals[deposit.session_id] || 0) + Number(deposit.amount);
+    return totals;
+  }, {});
 
   return (
     <div className="cash-sessions-page">
@@ -208,6 +229,7 @@ function CashSessions() {
             <th>Opening</th>
             <th>Expected</th>
             <th>Counted</th>
+            <th>Deposited</th>
             <th>Difference</th>
             <th>Status</th>
           </tr>
@@ -221,6 +243,11 @@ function CashSessions() {
               <td>{formatCurrency(s.opening_cash)}</td>
               <td>{s.expected_cash != null ? formatCurrency(s.expected_cash) : "—"}</td>
               <td>{s.closing_cash != null ? formatCurrency(s.closing_cash) : "—"}</td>
+              <td>
+                {depositsBySession[s.id]
+                  ? formatCurrency(depositsBySession[s.id])
+                  : "—"}
+              </td>
               <td className={Number(s.difference) < 0 ? "negative" : Number(s.difference) > 0 ? "positive" : ""}>
                 {s.difference != null ? `${Number(s.difference) > 0 ? "+" : ""}${formatCurrency(s.difference)}` : "—"}
               </td>
@@ -228,7 +255,7 @@ function CashSessions() {
             </tr>
           ))}
           {sessions.length === 0 && (
-            <tr><td colSpan={8} className="empty-hint">No sessions recorded yet.</td></tr>
+            <tr><td colSpan={9} className="empty-hint">No sessions recorded yet.</td></tr>
           )}
         </tbody>
       </table>
