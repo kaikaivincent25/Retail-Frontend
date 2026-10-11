@@ -8,8 +8,10 @@ import {
   cancelManualPayment,
   reconcileMpesaPayment,
 } from "../../services/salesApi";
+import { getMe, getReceiptProfile } from "../../services/profileApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 import Receipt from "../../components/Receipt/Receipt";
 import "./SalesHistory.css";
 
@@ -23,8 +25,11 @@ const PAYMENT_METHOD_LABELS = {
 
 function SalesHistory() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [sales, setSales] = useState([]);
   const [staff, setStaff] = useState([]);
+  const [receiptProfile, setReceiptProfile] = useState(null);
+  const [cashierName, setCashierName] = useState("");
   const [cashierId, setCashierId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -33,6 +38,15 @@ function SalesHistory() {
   const [paymentActionError, setPaymentActionError] = useState("");
   const [paymentActionMessage, setPaymentActionMessage] = useState("");
   const [paymentActionBusy, setPaymentActionBusy] = useState(false);
+
+  useEffect(() => {
+    getReceiptProfile()
+      .then(setReceiptProfile)
+      .catch((err) => showToast(extractErrorMessage(err), "error"));
+    getMe()
+      .then((profile) => setCashierName(profile.full_name))
+      .catch((err) => showToast(extractErrorMessage(err), "error"));
+  }, [showToast]);
 
   useEffect(() => {
     if (user?.role === "cashier") return;
@@ -267,7 +281,13 @@ function SalesHistory() {
           {selectedSale.status === "completed" && (
             <Receipt
               sale={selectedSale}
-              cashierName={staff.find((member) => member.id === selectedSale.cashier_id)?.full_name}
+              shopName={receiptProfile?.name}
+              shopLocation={receiptProfile?.location}
+              cashierName={
+                selectedSale.cashier_name ||
+                staff.find((member) => member.id === selectedSale.cashier_id)?.full_name ||
+                (selectedSale.cashier_id === user?.id ? cashierName : "")
+              }
             />
           )}
         </>

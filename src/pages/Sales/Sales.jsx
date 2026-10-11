@@ -4,7 +4,7 @@ import {
   startMpesaPayment, getSale, startManualMpesaPayment, confirmManualPayment,
   cancelManualPayment,
 } from "../../services/salesApi";
-import { getPaymentDestinations } from "../../services/profileApi";
+import { getMe, getPaymentDestinations, getReceiptProfile } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useToast } from "../../context/ToastContext";
@@ -26,6 +26,8 @@ function Sales() {
   const [amountReceived, setAmountReceived] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [paymentDestinations, setPaymentDestinations] = useState([]);
+  const [receiptProfile, setReceiptProfile] = useState(null);
+  const [cashierName, setCashierName] = useState("");
   const [mpesaPhone, setMpesaPhone] = useState("");
   const [mpesaSale, setMpesaSale] = useState(null);
   const [manualSale, setManualSale] = useState(null);
@@ -44,6 +46,15 @@ function Sales() {
   useEffect(() => {
     getCurrentSession().then(setSession);
   }, []);
+
+  useEffect(() => {
+    getReceiptProfile()
+      .then(setReceiptProfile)
+      .catch((err) => showToast(extractErrorMessage(err), "error"));
+    getMe()
+      .then((profile) => setCashierName(profile.full_name))
+      .catch((err) => showToast(extractErrorMessage(err), "error"));
+  }, [showToast]);
 
   useEffect(() => {
     if (bulkPromptVariant) {
@@ -287,6 +298,8 @@ function Sales() {
         account_number: manualSale.payment_account_number,
       }
     : selectedDestination;
+  const visibleItems = viewMode === "popular" ? popular : allItems;
+  const itemCount = cart.reduce((count, line) => count + line.quantity, 0);
 
   function tapDenomination(value) {
     setAmountReceived(String(value));
@@ -409,12 +422,32 @@ function Sales() {
 
   return (
     <div className="sales-page">
+      <header className="sales-page-heading">
+        <div className="sales-page-brandmark" aria-hidden="true">
+          {receiptProfile?.name?.trim()?.[0]?.toUpperCase() || "R"}
+        </div>
+        <div className="sales-page-heading-copy">
+          <p className="sales-page-eyebrow">
+            <span className="sales-live-dot" aria-hidden="true" />
+            {receiptProfile?.name || "Retail workspace"}
+          </p>
+          <h1>Point of sale</h1>
+          <p>Build a basket, take payment, and keep checkout moving.</p>
+        </div>
+        <div className="sales-page-heading-actions">
+          <span className="sales-session-chip"><span aria-hidden="true">●</span> Till open</span>
+          <button className="close-till-button" onClick={() => setClosingModalOpen(true)}>
+            Close till
+          </button>
+        </div>
+      </header>
       <div className="sales-grid-panel">
         <div className="sales-header-row">
-          <h2>Sell</h2>
-          <button className="close-till-button" onClick={() => setClosingModalOpen(true)}>
-            Close Till
-          </button>
+          <div>
+            <span className="sales-section-label">Your catalogue</span>
+            <h2>Find products</h2>
+          </div>
+          <span className="sales-item-count">{visibleItems.length} items</span>
         </div>
 
         <div className="sales-view-controls">
@@ -444,7 +477,7 @@ function Sales() {
         {message && <div className={`sale-message ${message.type}`}>{message.text}</div>}
 
         <div className="quick-sell-grid">
-          {(viewMode === "popular" ? popular : allItems).map((item) => (
+          {visibleItems.map((item) => (
             <button
               key={item.variant_id}
               className="quick-sell-tile"
@@ -469,7 +502,7 @@ function Sales() {
             </button>
           ))}
         </div>
-        {(viewMode === "popular" ? popular : allItems).length === 0 && (
+        {visibleItems.length === 0 && (
           <p className="empty-hint">
             {viewMode === "popular"
               ? "No sales yet — items will appear here once sold."
@@ -565,7 +598,13 @@ function Sales() {
       </div>
 
       <div className="cart-panel">
-        <h2>Cart</h2>
+        <div className="cart-panel-heading">
+          <div>
+            <span className="sales-section-label">Current order</span>
+            <h2>Basket</h2>
+          </div>
+          <span className="cart-item-count">{itemCount} {itemCount === 1 ? "item" : "items"}</span>
+        </div>
 
         <div className="cart-lines">
           {cart.length === 0 && <p className="empty-hint">Cart is empty</p>}
@@ -848,7 +887,12 @@ function Sales() {
               </div>
             </div>
           </div>
-          <Receipt sale={saleComplete} />
+          <Receipt
+            sale={saleComplete}
+            shopName={receiptProfile?.name}
+            shopLocation={receiptProfile?.location}
+            cashierName={cashierName}
+          />
         </>
       )}
     </div>

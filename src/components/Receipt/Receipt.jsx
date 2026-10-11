@@ -9,7 +9,7 @@ const PAYMENT_METHOD_LABELS = {
   paybill: "PayBill",
 };
 
-function Receipt({ sale, cashierName }) {
+function Receipt({ sale, shopName, shopLocation, cashierName }) {
   if (!sale) return null;
 
   const paymentMethod =
@@ -18,7 +18,8 @@ function Receipt({ sale, cashierName }) {
   return (
     <section className="receipt-print-root" aria-hidden="true">
       <header className="receipt-header">
-        <p className="receipt-brand">RETAIL</p>
+        <p className="receipt-brand">{shopName || "Retail Shop"}</p>
+        {shopLocation && <p className="receipt-location">{shopLocation}</p>}
         <h1>Sales receipt</h1>
         <p>Thank you for shopping with us</p>
       </header>
