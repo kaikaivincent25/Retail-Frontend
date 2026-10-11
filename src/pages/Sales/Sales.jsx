@@ -35,8 +35,10 @@ function Sales() {
   const [bulkPresetVariant, setBulkPresetVariant] = useState(null);
   const [bulkAmountInput, setBulkAmountInput] = useState("");
   const [message, setMessage] = useState(null); // { type: 'success'|'error', text }
+  const [saleComplete, setSaleComplete] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [closingModalOpen, setClosingModalOpen] = useState(false);
+  const saleCompleteButtonRef = useRef(null);
 
   useEffect(() => {
     getCurrentSession().then(setSession);
@@ -49,16 +51,28 @@ function Sales() {
   }, [bulkPromptVariant]);
 
   useEffect(() => {
+    if (saleComplete) {
+      requestAnimationFrame(() => saleCompleteButtonRef.current?.focus());
+    }
+  }, [saleComplete]);
+
+  useEffect(() => {
     function handleEscape(e) {
       if (e.key === "Escape") {
         setBulkPromptVariant(null);
         setBulkPresetVariant(null);
         setClosingModalOpen(false);
+        if (saleComplete) {
+          setSaleComplete(null);
+          if (saleComplete.restoreCashFocus) {
+            requestAnimationFrame(() => amountInputRef.current?.focus());
+          }
+        }
       }
     }
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
-  }, []);
+  }, [saleComplete]);
 
   useEffect(() => {
     if (session) {
@@ -109,9 +123,13 @@ function Sales() {
         if (!active || updated.status === "pending") return;
         setMpesaSale(updated);
         if (updated.status === "completed") {
-          setMessage({
-            type: "success",
-            text: `M-Pesa payment confirmed${updated.mpesa_receipt_number ? `: ${updated.mpesa_receipt_number}` : ""}.`,
+          setMessage(null);
+          setSaleComplete({
+            id: updated.id,
+            total: updated.total,
+            change: updated.change,
+            paymentMethod: "M-Pesa",
+            receiptNumber: updated.mpesa_receipt_number,
           });
           getPopularProducts().then(setPopular);
         } else if (updated.status === "failed") {
@@ -319,12 +337,18 @@ function Sales() {
         });
       } else {
         const sale = await completeSale(items, Number(received.toFixed(2)));
-        setMessage({ type: "success", text: `Sale complete. Change due: KSh ${sale.change}` });
+        setMessage(null);
+        setSaleComplete({
+          id: sale.id,
+          total: sale.total,
+          change: sale.change,
+          paymentMethod: "Cash",
+          restoreCashFocus: true,
+        });
       }
       setCart([]);
       setAmountReceived("");
       if (paymentMethod === "cash") {
-        amountInputRef.current?.focus();
         getPopularProducts().then(setPopular); // refresh ranking for next customer
       }
     } catch (err) {
@@ -340,9 +364,13 @@ function Sales() {
     try {
       const updated = await confirmManualPayment(manualSale.id, manualReceiptNumber);
       setManualSale(updated);
-      setMessage({
-        type: "success",
-        text: `Manual M-Pesa payment confirmed${updated.mpesa_receipt_number ? `: ${updated.mpesa_receipt_number}` : ""}.`,
+      setMessage(null);
+      setSaleComplete({
+        id: updated.id,
+        total: updated.total,
+        change: updated.change,
+        paymentMethod: manualDestination?.label || "Manual M-Pesa",
+        receiptNumber: updated.mpesa_receipt_number,
       });
       setManualReceiptNumber("");
       getPopularProducts().then(setPopular);
@@ -773,6 +801,50 @@ function Sales() {
           )}
         </div>
       </div>
+      {saleComplete && (
+        <div
+          className="sale-complete-overlay"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="sale-complete-title"
+          aria-describedby="sale-complete-description"
+        >
+          <div className="sale-complete-card">
+            <div className="sale-complete-icon" aria-hidden="true">✓</div>
+            <p className="sale-complete-eyebrow">Payment received · {saleComplete.paymentMethod}</p>
+            <h2 id="sale-complete-title">Sale complete</h2>
+            <p id="sale-complete-description">
+              Sale #{saleComplete.id} has been recorded successfully.
+            </p>
+            <div className="sale-complete-total">
+              <span>Sale total</span>
+              <strong>{formatCurrency(saleComplete.total)}</strong>
+            </div>
+            <div className="sale-complete-change">
+              <span>{Number(saleComplete.change) > 0 ? "Change to give back" : "Change due"}</span>
+              <strong>{formatCurrency(saleComplete.change)}</strong>
+            </div>
+            {saleComplete.receiptNumber && (
+              <p className="sale-complete-receipt">
+                M-Pesa receipt <strong>{saleComplete.receiptNumber}</strong>
+              </p>
+            )}
+            <button
+              ref={saleCompleteButtonRef}
+              type="button"
+              className="sale-complete-done"
+              onClick={() => {
+                setSaleComplete(null);
+                if (saleComplete.restoreCashFocus) {
+                  requestAnimationFrame(() => amountInputRef.current?.focus());
+                }
+              }}
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
