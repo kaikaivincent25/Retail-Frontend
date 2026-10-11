@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { formatCurrency } from "../../utils/money";
 import "./Receipt.css";
 
@@ -14,48 +15,48 @@ function Receipt({ sale, shopName, shopLocation, cashierName }) {
 
   const paymentMethod =
     sale.paymentLabel || PAYMENT_METHOD_LABELS[sale.payment_method] || sale.payment_method;
+  const dateLabel = new Intl.DateTimeFormat("en-KE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(sale.created_at || Date.now()));
+  const servedBy = cashierName || sale.cashier_name;
 
-  return (
+  return createPortal(
     <section className="receipt-print-root" aria-hidden="true">
       <header className="receipt-header">
         <p className="receipt-brand">{shopName || "Retail Shop"}</p>
         {shopLocation && <p className="receipt-location">{shopLocation}</p>}
-        <h1>Sales receipt</h1>
+        <h1>Receipt</h1>
         <p>Thank you for shopping with us</p>
       </header>
 
       <dl className="receipt-meta">
-        <div><dt>Receipt</dt><dd>#{sale.id}</dd></div>
-        <div>
-          <dt>Date</dt>
-          <dd>{new Date(sale.created_at || Date.now()).toLocaleString()}</dd>
-        </div>
-        {(cashierName || sale.cashier_id) && (
-          <div><dt>Cashier</dt><dd>{cashierName || `#${sale.cashier_id}`}</dd></div>
+        <div><dt>Receipt no.</dt><dd>#{sale.id}</dd></div>
+        <div><dt>Date</dt><dd>{dateLabel}</dd></div>
+        {(servedBy || sale.cashier_id) && (
+          <div><dt>Served by</dt><dd>{servedBy || `Staff #${sale.cashier_id}`}</dd></div>
         )}
         <div><dt>Payment</dt><dd>{paymentMethod}</dd></div>
+        {sale.payment_destination_number && (
+          <div><dt>Paid to</dt><dd>{sale.payment_destination_number}</dd></div>
+        )}
+        {sale.payment_account_number && (
+          <div><dt>Account</dt><dd>{sale.payment_account_number}</dd></div>
+        )}
       </dl>
 
-      <table className="receipt-items">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(sale.items || []).map((item) => (
-            <tr key={item.id || item.variant_id}>
-              <td>{item.variant_name}</td>
-              <td>{item.quantity}</td>
-              <td>{formatCurrency(item.unit_price)}</td>
-              <td>{formatCurrency(item.line_total)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="receipt-items">
+        <p className="receipt-items-heading">Items</p>
+        {(sale.items || []).map((item) => (
+          <div className="receipt-item" key={item.id || item.variant_id}>
+            <p className="receipt-item-name">{item.variant_name}</p>
+            <div className="receipt-item-detail">
+              <span>{item.quantity} × {formatCurrency(item.unit_price)}</span>
+              <strong>{formatCurrency(item.line_total)}</strong>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <dl className="receipt-totals">
         <div><dt>Subtotal</dt><dd>{formatCurrency(sale.subtotal)}</dd></div>
@@ -71,10 +72,11 @@ function Receipt({ sale, shopName, shopLocation, cashierName }) {
       )}
 
       <footer className="receipt-footer">
-        <p>Thank you. Please come again.</p>
-        <small>Sale #{sale.id}</small>
+        <p>Thank you for your purchase</p>
+        <small>Please come again</small>
       </footer>
-    </section>
+    </section>,
+    document.body
   );
 }
 
