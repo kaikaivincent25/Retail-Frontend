@@ -8,6 +8,7 @@ import { getPaymentDestinations } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useToast } from "../../context/ToastContext";
+import Receipt from "../../components/Receipt/Receipt";
 import { toCents, fromCents, formatCurrency } from "../../utils/money";
 import "./Sales.css";
 
@@ -125,11 +126,8 @@ function Sales() {
         if (updated.status === "completed") {
           setMessage(null);
           setSaleComplete({
-            id: updated.id,
-            total: updated.total,
-            change: updated.change,
-            paymentMethod: "M-Pesa",
-            receiptNumber: updated.mpesa_receipt_number,
+            ...updated,
+            paymentLabel: "M-Pesa",
           });
           getPopularProducts().then(setPopular);
         } else if (updated.status === "failed") {
@@ -339,10 +337,8 @@ function Sales() {
         const sale = await completeSale(items, Number(received.toFixed(2)));
         setMessage(null);
         setSaleComplete({
-          id: sale.id,
-          total: sale.total,
-          change: sale.change,
-          paymentMethod: "Cash",
+          ...sale,
+          paymentLabel: "Cash",
           restoreCashFocus: true,
         });
       }
@@ -366,11 +362,8 @@ function Sales() {
       setManualSale(updated);
       setMessage(null);
       setSaleComplete({
-        id: updated.id,
-        total: updated.total,
-        change: updated.change,
-        paymentMethod: manualDestination?.label || "Manual M-Pesa",
-        receiptNumber: updated.mpesa_receipt_number,
+        ...updated,
+        paymentLabel: manualDestination?.label || "Manual M-Pesa",
       });
       setManualReceiptNumber("");
       getPopularProducts().then(setPopular);
@@ -802,48 +795,61 @@ function Sales() {
         </div>
       </div>
       {saleComplete && (
-        <div
-          className="sale-complete-overlay"
-          role="alertdialog"
-          aria-modal="true"
-          aria-labelledby="sale-complete-title"
-          aria-describedby="sale-complete-description"
-        >
-          <div className="sale-complete-card">
-            <div className="sale-complete-icon" aria-hidden="true">✓</div>
-            <p className="sale-complete-eyebrow">Payment received · {saleComplete.paymentMethod}</p>
-            <h2 id="sale-complete-title">Sale complete</h2>
-            <p id="sale-complete-description">
-              Sale #{saleComplete.id} has been recorded successfully.
-            </p>
-            <div className="sale-complete-total">
-              <span>Sale total</span>
-              <strong>{formatCurrency(saleComplete.total)}</strong>
-            </div>
-            <div className="sale-complete-change">
-              <span>{Number(saleComplete.change) > 0 ? "Change to give back" : "Change due"}</span>
-              <strong>{formatCurrency(saleComplete.change)}</strong>
-            </div>
-            {saleComplete.receiptNumber && (
-              <p className="sale-complete-receipt">
-                M-Pesa receipt <strong>{saleComplete.receiptNumber}</strong>
+        <>
+          <div
+            className="sale-complete-overlay"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="sale-complete-title"
+            aria-describedby="sale-complete-description"
+          >
+            <div className="sale-complete-card">
+              <div className="sale-complete-icon" aria-hidden="true">✓</div>
+              <p className="sale-complete-eyebrow">Payment received · {saleComplete.paymentLabel}</p>
+              <h2 id="sale-complete-title">Sale complete</h2>
+              <p id="sale-complete-description">
+                Sale #{saleComplete.id} has been recorded successfully.
               </p>
-            )}
-            <button
-              ref={saleCompleteButtonRef}
-              type="button"
-              className="sale-complete-done"
-              onClick={() => {
-                setSaleComplete(null);
-                if (saleComplete.restoreCashFocus) {
-                  requestAnimationFrame(() => amountInputRef.current?.focus());
-                }
-              }}
-            >
-              Done
-            </button>
+              <div className="sale-complete-total">
+                <span>Sale total</span>
+                <strong>{formatCurrency(saleComplete.total)}</strong>
+              </div>
+              <div className="sale-complete-change">
+                <span>{Number(saleComplete.change) > 0 ? "Change to give back" : "Change due"}</span>
+                <strong>{formatCurrency(saleComplete.change)}</strong>
+              </div>
+              {saleComplete.mpesa_receipt_number && (
+                <p className="sale-complete-receipt">
+                  M-Pesa receipt <strong>{saleComplete.mpesa_receipt_number}</strong>
+                </p>
+              )}
+              <div className="sale-complete-actions">
+                <button
+                  type="button"
+                  className="sale-complete-print"
+                  onClick={() => window.print()}
+                >
+                  <span aria-hidden="true">▤</span>
+                  Print receipt
+                </button>
+                <button
+                  ref={saleCompleteButtonRef}
+                  type="button"
+                  className="sale-complete-done"
+                  onClick={() => {
+                    setSaleComplete(null);
+                    if (saleComplete.restoreCashFocus) {
+                      requestAnimationFrame(() => amountInputRef.current?.focus());
+                    }
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+          <Receipt sale={saleComplete} />
+        </>
       )}
     </div>
   );

@@ -153,6 +153,19 @@
   cursor: pointer;
 }
 
+.sale-history-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.modal-card .sale-history-print {
+  color: #6f3540;
+  background: #fff;
+  font-weight: 700;
+}
+
 .manual-payment-history-actions,
 .mpesa-reconcile-history-actions {
   display: flex;
@@ -200,4 +213,11 @@
   color: #8b4651;
   font-size: 0.9rem;
   text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sale-complete-print span,
+  .sale-history-print span {
+    transition: none;
+  }
 }

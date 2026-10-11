@@ -10,6 +10,7 @@ import {
 } from "../../services/salesApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useAuth } from "../../context/AuthContext";
+import Receipt from "../../components/Receipt/Receipt";
 import "./SalesHistory.css";
 
 const PAYMENT_METHOD_LABELS = {
@@ -165,91 +166,111 @@ function SalesHistory() {
       </table>
 
       {selectedSale && (
-        <div className="modal-overlay" onClick={() => setSelectedSale(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <h3>Sale #{selectedSale.id}</h3>
-            <table className="sale-items-table">
-              <thead>
-                <tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Line Total</th></tr>
-              </thead>
-              <tbody>
-                {selectedSale.items.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.variant_name}</td>
-                    <td>{item.quantity}</td>
-                    <td>KSh {item.unit_price}</td>
-                    <td>KSh {item.line_total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="sale-detail-totals">
-              <div><span>Payment method</span><span>{PAYMENT_METHOD_LABELS[selectedSale.payment_method] || selectedSale.payment_method}</span></div>
-              <div><span>Status</span><span>{selectedSale.status}</span></div>
-              <div><span>Subtotal</span><span>KSh {selectedSale.subtotal}</span></div>
-              <div><span>Total</span><span>KSh {selectedSale.total}</span></div>
-              <div><span>Received</span><span>KSh {selectedSale.amount_received}</span></div>
-              <div><span>Change</span><span>KSh {selectedSale.change}</span></div>
-              {selectedSale.payment_destination_number && (
-                <div><span>Payment destination</span><span>{selectedSale.payment_destination_number}</span></div>
-              )}
-              {selectedSale.payment_account_number && (
-                <div><span>PayBill account</span><span>{selectedSale.payment_account_number}</span></div>
-              )}
-              {selectedSale.mpesa_receipt_number && (
-                <div><span>M-Pesa confirmation code</span><span>{selectedSale.mpesa_receipt_number}</span></div>
-              )}
-            </div>
-            {selectedSale.status === "pending" &&
-              ["pochi", "till", "paybill"].includes(selectedSale.payment_method) && (
-                <div className="manual-payment-history-actions">
-                  <p>
-                    Verify the customer's payment in M-Pesa and confirm the amount and destination before completing this sale.
-                  </p>
-                  <label htmlFor="history-mpesa-receipt">M-Pesa confirmation code</label>
-                  <input
-                    id="history-mpesa-receipt"
-                    value={receiptNumber}
-                    onChange={(e) => setReceiptNumber(e.target.value)}
-                    maxLength={30}
-                    placeholder="e.g. QGH123ABC"
-                  />
-                  {paymentActionError && <p className="payment-action-error">{paymentActionError}</p>}
-                  <div>
+        <>
+          <div className="modal-overlay" onClick={() => setSelectedSale(null)}>
+            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+              <h3>Sale #{selectedSale.id}</h3>
+              <table className="sale-items-table">
+                <thead>
+                  <tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Line Total</th></tr>
+                </thead>
+                <tbody>
+                  {selectedSale.items.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.variant_name}</td>
+                      <td>{item.quantity}</td>
+                      <td>KSh {item.unit_price}</td>
+                      <td>KSh {item.line_total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="sale-detail-totals">
+                <div><span>Payment method</span><span>{PAYMENT_METHOD_LABELS[selectedSale.payment_method] || selectedSale.payment_method}</span></div>
+                <div><span>Status</span><span>{selectedSale.status}</span></div>
+                <div><span>Subtotal</span><span>KSh {selectedSale.subtotal}</span></div>
+                <div><span>Total</span><span>KSh {selectedSale.total}</span></div>
+                <div><span>Received</span><span>KSh {selectedSale.amount_received}</span></div>
+                <div><span>Change</span><span>KSh {selectedSale.change}</span></div>
+                {selectedSale.payment_destination_number && (
+                  <div><span>Payment destination</span><span>{selectedSale.payment_destination_number}</span></div>
+                )}
+                {selectedSale.payment_account_number && (
+                  <div><span>PayBill account</span><span>{selectedSale.payment_account_number}</span></div>
+                )}
+                {selectedSale.mpesa_receipt_number && (
+                  <div><span>M-Pesa confirmation code</span><span>{selectedSale.mpesa_receipt_number}</span></div>
+                )}
+              </div>
+              {selectedSale.status === "pending" &&
+                ["pochi", "till", "paybill"].includes(selectedSale.payment_method) && (
+                  <div className="manual-payment-history-actions">
+                    <p>
+                      Verify the customer's payment in M-Pesa and confirm the amount and destination before completing this sale.
+                    </p>
+                    <label htmlFor="history-mpesa-receipt">M-Pesa confirmation code</label>
+                    <input
+                      id="history-mpesa-receipt"
+                      value={receiptNumber}
+                      onChange={(e) => setReceiptNumber(e.target.value)}
+                      maxLength={30}
+                      placeholder="e.g. QGH123ABC"
+                    />
+                    {paymentActionError && <p className="payment-action-error">{paymentActionError}</p>}
+                    <div>
+                      <button
+                        type="button"
+                        onClick={handleConfirmPayment}
+                        disabled={paymentActionBusy || !receiptNumber.trim()}
+                      >
+                        {paymentActionBusy ? "Processing..." : "Confirm payment received"}
+                      </button>
+                      <button type="button" onClick={handleCancelPayment} disabled={paymentActionBusy}>
+                        Cancel and release stock
+                      </button>
+                    </div>
+                  </div>
+                )}
+              {selectedSale.status === "pending" &&
+                selectedSale.payment_method === "mpesa" &&
+                user?.role !== "cashier" && (
+                  <div className="mpesa-reconcile-history-actions">
+                    <p>
+                      Check the payment with Daraja. If the result is unclear, the sale remains pending and its stock stays reserved.
+                    </p>
+                    {paymentActionError && <p className="payment-action-error">{paymentActionError}</p>}
+                    {paymentActionMessage && <p role="status">{paymentActionMessage}</p>}
                     <button
                       type="button"
-                      onClick={handleConfirmPayment}
-                      disabled={paymentActionBusy || !receiptNumber.trim()}
+                      onClick={handleReconcilePayment}
+                      disabled={paymentActionBusy}
                     >
-                      {paymentActionBusy ? "Processing..." : "Confirm payment received"}
-                    </button>
-                    <button type="button" onClick={handleCancelPayment} disabled={paymentActionBusy}>
-                      Cancel and release stock
+                      {paymentActionBusy ? "Checking..." : "Check Daraja payment status"}
                     </button>
                   </div>
-                </div>
-              )}
-            {selectedSale.status === "pending" &&
-              selectedSale.payment_method === "mpesa" &&
-              user?.role !== "cashier" && (
-                <div className="mpesa-reconcile-history-actions">
-                  <p>
-                    Check the payment with Daraja. If the result is unclear, the sale remains pending and its stock stays reserved.
-                  </p>
-                  {paymentActionError && <p className="payment-action-error">{paymentActionError}</p>}
-                  {paymentActionMessage && <p role="status">{paymentActionMessage}</p>}
+                )}
+              <div className="sale-history-modal-actions">
+                {selectedSale.status === "completed" && (
                   <button
                     type="button"
-                    onClick={handleReconcilePayment}
-                    disabled={paymentActionBusy}
+                    className="sale-history-print"
+                    onClick={() => window.print()}
                   >
-                    {paymentActionBusy ? "Checking..." : "Check Daraja payment status"}
+                    <span aria-hidden="true">▤</span>
+                    Print receipt
                   </button>
-                </div>
-              )}
-            <button onClick={() => setSelectedSale(null)}>Close</button>
+                )}
+                <button type="button" onClick={() => setSelectedSale(null)}>Close</button>
+              </div>
+            </div>
           </div>
-        </div>
+          {selectedSale.status === "completed" && (
+            <Receipt
+              sale={selectedSale}
+              cashierName={staff.find((member) => member.id === selectedSale.cashier_id)?.full_name}
+            />
+          )}
+        </>
       )}
     </div>
   );

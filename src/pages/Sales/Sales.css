@@ -1037,6 +1037,39 @@
   font-weight: 750;
 }
 
+.sale-complete-actions {
+  display: grid;
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.sale-complete-print,
+.sale-history-print {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 0 16px;
+  color: var(--sales-green-dark);
+  background: #fff;
+  border: 1px solid var(--sales-border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.sale-complete-print span,
+.sale-history-print span {
+  font-size: 18px;
+  transition: transform 180ms ease;
+}
+
+.sale-complete-print:hover span,
+.sale-history-print:hover span {
+  transform: translateY(-2px) scale(1.08);
+}
+
 .sale-complete-done:hover {
   background: var(--sales-green-dark);
   border-color: var(--sales-green-dark);
@@ -1077,6 +1110,12 @@
   color: var(--sales-muted);
   font-size: 13px;
   line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sale-complete-print span {
+    transition: none;
+  }
 }
 
 .bulk-prompt-card input {
