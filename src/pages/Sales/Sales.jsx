@@ -468,7 +468,8 @@ function Sales() {
           <input
             type="text"
             className="product-search-input"
-            placeholder="Search products..."
+            placeholder="Search by product or variant..."
+            aria-label="Search products"
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
           />
@@ -476,6 +477,7 @@ function Sales() {
 
         {message && <div className={`sale-message ${message.type}`}>{message.text}</div>}
 
+        <div className="sales-catalogue-hint">Select a product to add it to the basket</div>
         <div className="quick-sell-grid">
           {visibleItems.map((item) => (
             <button
@@ -486,6 +488,7 @@ function Sales() {
             >
               <span className="tile-name">{item.product_name}</span>
               <span className="tile-variant">{item.variant_name}</span>
+              <span className="tile-stock">{item.quantity_in_stock === 0 ? "Unavailable" : `${item.quantity_in_stock} ${item.unit || "in stock"}`}</span>
               <span className="tile-price">
                 {item.sale_mode === "bulk"
                   ? item.presets?.length > 0
@@ -607,7 +610,7 @@ function Sales() {
         </div>
 
         <div className="cart-lines">
-          {cart.length === 0 && <p className="empty-hint">Cart is empty</p>}
+          {cart.length === 0 && <div className="basket-empty-state"><span className="basket-empty-icon" aria-hidden="true">▤</span><strong>Your basket is empty</strong><p>Choose a product from the catalogue to start a sale.</p></div>}
           {cart.map((line) => (
             <div className="cart-line" key={line.variant.variant_id}>
               <div className="cart-line-info">
@@ -617,9 +620,9 @@ function Sales() {
 
               {line.variant.sale_mode === "fixed" ? (
                 <div className="cart-line-qty">
-                  <button onClick={() => updateQuantity(line.variant.variant_id, -1)}>-</button>
+                  <button type="button" aria-label={`Decrease quantity of ${line.variant.variant_name}`} onClick={() => updateQuantity(line.variant.variant_id, -1)}>−</button>
                   <span>{line.quantity}</span>
-                  <button onClick={() => updateQuantity(line.variant.variant_id, 1)}>+</button>
+                  <button type="button" aria-label={`Increase quantity of ${line.variant.variant_name}`} onClick={() => updateQuantity(line.variant.variant_id, 1)}>+</button>
                 </div>
               ) : (
                 <span className="cart-line-qty-bulk">{line.quantity} {line.variant.unit}</span>
@@ -628,7 +631,7 @@ function Sales() {
               <span className="cart-line-total">
                 {formatCurrency(line.variant.selling_price * line.quantity)}
               </span>
-              <button className="cart-line-remove" onClick={() => removeLine(line.variant.variant_id)}>×</button>
+              <button type="button" className="cart-line-remove" aria-label={`Remove ${line.variant.variant_name} from basket`} title="Remove item" onClick={() => removeLine(line.variant.variant_id)}>×</button>
             </div>
           ))}
         </div>
@@ -696,7 +699,7 @@ function Sales() {
               </label>
               <div className="denomination-row">
                 {DENOMINATIONS.map((d) => (
-                  <button key={d} onClick={() => tapDenomination(d)}>{formatCurrency(d)}</button>
+                  <button key={d} type="button" onClick={() => tapDenomination(d)}>{formatCurrency(d)}</button>
                 ))}
               </div>
 
@@ -709,7 +712,8 @@ function Sales() {
                 step="0.01"
                 value={amountReceived}
                 onChange={(e) => setAmountReceived(e.target.value)}
-                placeholder="Cash received"
+                placeholder="0.00"
+                inputMode="decimal"
               />
 
               {amountReceived !== "" && (
@@ -732,7 +736,7 @@ function Sales() {
                 autoComplete="tel"
                 value={mpesaPhone}
                 onChange={(e) => setMpesaPhone(e.target.value)}
-                placeholder="Customer M-Pesa number"
+                placeholder="e.g. 07XX XXX XXX"
                 aria-label="Customer M-Pesa phone number"
               />
               {toCents(total) % 100 !== 0 && (
@@ -1001,7 +1005,7 @@ function CloseTillModal({ session, onClose, onClosed }) {
               <p className="difference-note">
                 {result.difference < 0
                   ? "This shows a shortage — it's been logged for the owner to review."
-                  : "This shows an excess — it's been logged for the owner to review."}
+                  : "This shows an balance — it's been logged for the owner to review."}
               </p>
             )}
             <button className="primary" onClick={onClosed}>Done</button>
