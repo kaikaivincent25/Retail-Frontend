@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  getCurrentSession, openSession, getPopularProducts, browseVariants, completeSale,
+  getCurrentSession, openSession, getPopularProducts, browseVariants,
   startMpesaPayment, getSale, startManualMpesaPayment, confirmManualPayment,
   cancelManualPayment,
 } from "../../services/salesApi";
+import { queueSale } from "../../db";
 import { getMe, getPaymentDestinations, getReceiptProfile } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
 import { extractErrorMessage } from "../../services/errorHandling";
@@ -347,13 +348,12 @@ function Sales() {
           text: `Sale #${sale.id} is awaiting manual M-Pesa payment confirmation.`,
         });
       } else {
-        const sale = await completeSale(items, Number(received.toFixed(2)));
-        setMessage(null);
-        setSaleComplete({
-          ...sale,
-          paymentLabel: "Cash",
-          restoreCashFocus: true,
-        });
+        const salePayload = {
+          items,
+          amount_received: Number(received.toFixed(2)),
+        };
+        await queueSale(salePayload);
+        showToast("Sale completed", "success");
       }
       setCart([]);
       setAmountReceived("");
