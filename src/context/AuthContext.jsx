@@ -4,6 +4,7 @@ import api from "../services/api";
 import { clearCatalog, unsyncedCount } from "../db";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../services/errorHandling";
+import { syncOutbox } from "../sync";
 
 const AuthContext = createContext(null);
 
@@ -37,6 +38,9 @@ export function AuthProvider({ children }) {
     localStorage.setItem("token", access_token);
     setToken(access_token);
     setUser(decodeUser(access_token));
+    syncOutbox().catch((err) => {
+      console.error("Failed to resume syncing queued sales after login.", err);
+    });
     return decodeUser(access_token);
   }
 
@@ -46,6 +50,9 @@ export function AuthProvider({ children }) {
     localStorage.setItem("token", access_token);
     setToken(access_token);
     setUser(decodeUser(access_token));
+    syncOutbox().catch((err) => {
+      console.error("Failed to resume syncing queued sales after signup.", err);
+    });
     return decodeUser(access_token);
   }
 
@@ -55,7 +62,7 @@ export function AuthProvider({ children }) {
       if (
         count > 0 &&
         !window.confirm(
-          `There ${count === 1 ? "is" : "are"} ${count} unsynced sale${count === 1 ? "" : "s"} saved on this device. They will be kept, but will not reach the server until syncing is added. Log out anyway?`
+          `There ${count === 1 ? "is" : "are"} ${count} unsynced sale${count === 1 ? "" : "s"} saved on this device. They will be kept and sync after you log in again. Rejected sales will remain for review. Log out anyway?`
         )
       ) {
         return;

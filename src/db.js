@@ -8,6 +8,17 @@ db.version(1).stores({
   outbox: 'id, status, createdAt'
 })
 
+db.version(2).stores({
+  variants: 'id, name',
+  outbox: 'id, status, createdAt'
+}).upgrade(async (transaction) => {
+  await transaction.table('outbox').toCollection().modify((item) => {
+    if (item.status === 'syncing' || item.status === 'failed') {
+      item.status = 'pending'
+    }
+  })
+})
+
 // --- Catalog ---
 export async function refreshCatalog(items) {
   const records = items.map((item) => ({
@@ -38,7 +49,7 @@ export async function queueSale(payload) {
   const record = {
     id: crypto.randomUUID(),
     payload,                 // exactly what your POST /sales sends today
-    status: 'pending',       // pending -> syncing -> (deleted on success) or failed
+    status: 'pending',
     createdAt: Date.now(),
     attempts: 0,
   }
@@ -47,5 +58,5 @@ export async function queueSale(payload) {
 }
 
 export function unsyncedCount() {
-  return db.outbox.where('status').anyOf('pending', 'syncing', 'failed').count()
+  return db.outbox.where('status').anyOf('pending', 'rejected').count()
 }

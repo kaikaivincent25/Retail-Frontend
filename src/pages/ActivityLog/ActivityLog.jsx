@@ -62,7 +62,9 @@ function ActivityLog() {
             <div className="activity-main">
               <span className="activity-action">
                 {entry.is_high_risk && <span className="risk-dot" title="High-risk action">⚠</span>}
-                {ACTION_LABELS[entry.action] || entry.action}
+                {entry.entity_type === "sale_stock_conflict"
+                  ? "Stock discrepancy"
+                  : ACTION_LABELS[entry.action] || entry.action}
               </span>
               <span className="activity-user">{staffName(entry.user_id)}</span>
               <span className="activity-time">{new Date(entry.created_at).toLocaleString()}</span>

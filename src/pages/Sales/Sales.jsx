@@ -5,6 +5,7 @@ import {
   cancelManualPayment,
 } from "../../services/salesApi";
 import { queueSale } from "../../db";
+import { syncOutbox } from "../../sync";
 import { getMe, getPaymentDestinations, getReceiptProfile } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
 import { extractErrorMessage } from "../../services/errorHandling";
@@ -360,6 +361,9 @@ function Sales() {
         if (queueSalesEnabled) {
           await queueSale(salePayload);
           showToast("Sale completed", "success");
+          syncOutbox().catch((err) => {
+            console.error("Failed to sync the queued sale.", err);
+          });
         } else {
           const sale = await completeSale(items, salePayload.amount_received);
           setMessage(null);
