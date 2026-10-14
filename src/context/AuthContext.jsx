@@ -1,10 +1,14 @@
 import { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import api from "../services/api";
+import { clearCatalog, unsyncedCount } from "../db";
+import { useToast } from "./ToastContext";
+import { extractErrorMessage } from "../services/errorHandling";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const { showToast } = useToast();
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("token");
@@ -45,7 +49,22 @@ export function AuthProvider({ children }) {
     return decodeUser(access_token);
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      const count = await unsyncedCount();
+      if (
+        count > 0 &&
+        !window.confirm(
+          `There ${count === 1 ? "is" : "are"} ${count} unsynced sale${count === 1 ? "" : "s"} saved on this device. They will be kept, but will not reach the server until syncing is added. Log out anyway?`
+        )
+      ) {
+        return;
+      }
+      await clearCatalog();
+    } catch (err) {
+      showToast(extractErrorMessage(err), "error");
+      return;
+    }
     if ("caches" in window) {
       caches.delete("api-variants");
     }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  getCurrentSession, openSession, getPopularProducts, browseVariants,
+  getCurrentSession, openSession, getPopularProducts, browseVariants, completeSale,
   startMpesaPayment, getSale, startManualMpesaPayment, confirmManualPayment,
   cancelManualPayment,
 } from "../../services/salesApi";
@@ -14,6 +14,7 @@ import { toCents, fromCents, formatCurrency } from "../../utils/money";
 import "./Sales.css";
 
 const DENOMINATIONS = [100, 200, 500, 1000];
+const queueSalesEnabled = import.meta.env.VITE_QUEUE_SALES === "true";
 
 function Sales() {
   const { showToast } = useToast();
@@ -91,7 +92,11 @@ function Sales() {
     if (session) {
       getPopularProducts().then(setPopular);
     }
-  }, [session]);
+  }, [session, showToast]);
+
+  useEffect(() => {
+    browseVariants().catch((err) => showToast(extractErrorMessage(err), "error"));
+  }, [showToast]);
 
   useEffect(() => {
     if (!session) return;
@@ -352,12 +357,22 @@ function Sales() {
           items,
           amount_received: Number(received.toFixed(2)),
         };
-        await queueSale(salePayload);
-        showToast("Sale completed", "success");
+        if (queueSalesEnabled) {
+          await queueSale(salePayload);
+          showToast("Sale completed", "success");
+        } else {
+          const sale = await completeSale(items, salePayload.amount_received);
+          setMessage(null);
+          setSaleComplete({
+            ...sale,
+            paymentLabel: "Cash",
+            restoreCashFocus: true,
+          });
+        }
       }
       setCart([]);
       setAmountReceived("");
-      if (paymentMethod === "cash") {
+      if (paymentMethod === "cash" && !queueSalesEnabled) {
         getPopularProducts().then(setPopular); // refresh ranking for next customer
       }
     } catch (err) {

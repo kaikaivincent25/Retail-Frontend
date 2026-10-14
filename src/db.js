@@ -10,16 +10,27 @@ db.version(1).stores({
 
 // --- Catalog ---
 export async function refreshCatalog(items) {
+  const records = items.map((item) => ({
+    ...item,
+    id: item.variant_id,
+    name: item.variant_name,
+  }))
   await db.transaction('rw', db.variants, async () => {
     await db.variants.clear()
-    await db.variants.bulkPut(items)
+    await db.variants.bulkPut(records)
   })
+}
+
+export function clearCatalog() {
+  return db.variants.clear()
 }
 
 export function searchVariants(term) {
   const t = term.trim().toLowerCase()
   if (!t) return db.variants.toArray()
-  return db.variants.filter(v => v.name.toLowerCase().includes(t)).toArray()
+  return db.variants.filter(v =>
+    `${v.product_name} ${v.variant_name}`.toLowerCase().includes(t)
+  ).toArray()
 }
 
 // --- Outbox ---
