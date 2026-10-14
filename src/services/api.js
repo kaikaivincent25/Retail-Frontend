@@ -17,6 +17,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      if ("caches" in window) {
+        caches.delete("api-variants");
+      }
       localStorage.removeItem("token");
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";

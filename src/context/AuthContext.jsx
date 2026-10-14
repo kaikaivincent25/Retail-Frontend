@@ -46,6 +46,9 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
+    if ("caches" in window) {
+      caches.delete("api-variants");
+    }
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
