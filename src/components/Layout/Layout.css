@@ -54,6 +54,66 @@
   scrollbar-color: #DCE6DF transparent;
 }
 
+.app-status-strip {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 20px;
+  background: rgba(246, 243, 237, 0.94);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.sync-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.sync-wait {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.sync-off {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.sync-bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.sync-badge a,
+.sync-badge button {
+  border: 0;
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sync-badge a:focus-visible,
+.sync-badge button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 /* =========================================
    RESPONSIVE LAYOUT
 ========================================= */
@@ -70,5 +130,9 @@
     height: auto;
     min-height: 0;
     overflow: visible;
+  }
+
+  .app-status-strip {
+    padding: 8px 12px;
   }
 }

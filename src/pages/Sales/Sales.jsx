@@ -4,7 +4,7 @@ import {
   startMpesaPayment, getSale, startManualMpesaPayment, confirmManualPayment,
   cancelManualPayment,
 } from "../../services/salesApi";
-import { queueSale } from "../../db";
+import { queueSale, unsyncedCount } from "../../db";
 import { syncOutbox } from "../../sync";
 import { getMe, getPaymentDestinations, getReceiptProfile } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
@@ -948,6 +948,14 @@ function CloseTillModal({ session, onClose, onClosed }) {
     setError("");
     setSubmitting(true);
     try {
+      await syncOutbox();
+      const waiting = await unsyncedCount();
+      if (waiting > 0) {
+        setError(
+          `Cannot close the till while ${waiting} sale${waiting === 1 ? " is" : "s are"} waiting to sync. Reconnect and sync all sales first.`
+        );
+        return;
+      }
       const closed = await closeSession(fromCents(pendingClosingCash));
       setResult(closed);
     } catch (err) {

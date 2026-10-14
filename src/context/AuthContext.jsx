@@ -1,10 +1,11 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import api from "../services/api";
 import { clearCatalog, unsyncedCount } from "../db";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../services/errorHandling";
 import { syncOutbox } from "../sync";
+import { refreshCatalogFromServer } from "../services/salesApi";
 
 const AuthContext = createContext(null);
 
@@ -15,6 +16,20 @@ export function AuthProvider({ children }) {
     const stored = localStorage.getItem("token");
     return stored ? decodeUser(stored) : null;
   });
+
+  useEffect(() => {
+    if (!token) return undefined;
+
+    function refreshCatalog() {
+      refreshCatalogFromServer().catch((err) => {
+        console.error("Failed to refresh the product catalog.", err);
+      });
+    }
+
+    refreshCatalog();
+    window.addEventListener("online", refreshCatalog);
+    return () => window.removeEventListener("online", refreshCatalog);
+  }, [token]);
 
   function decodeUser(rawToken) {
     try {

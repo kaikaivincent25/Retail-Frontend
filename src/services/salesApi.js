@@ -5,6 +5,11 @@ export const getCurrentSession = () => api.get("/cash-sessions/current").then((r
 export const openSession = () =>
   api.post("/cash-sessions/open", {}).then((r) => r.data);
 export const getPopularProducts = () => api.get("/products/popular").then((r) => r.data);
+export async function refreshCatalogFromServer() {
+  const { data } = await api.get("/variants?limit=500");
+  await refreshCatalog(data);
+}
+
 export async function browseVariants(q = "") {
   try {
     const { data } = await api.get(`/variants?limit=500${q ? `&q=${encodeURIComponent(q)}` : ""}`);

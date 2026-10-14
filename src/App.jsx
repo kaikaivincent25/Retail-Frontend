@@ -17,6 +17,7 @@ import {ToastProvider} from "./context/ToastContext";
 import Profile from "./pages/Profile/Profile";
 import CashierDashboard from "./pages/Dashboard/CashierDashboard";
 import Expenses from "./pages/Expenses/Expenses";
+import SyncIssues from "./pages/SyncIssues";
 import "./App.css";
 
 function ProtectedRoute({ children, allowedRoles }) {
@@ -135,6 +136,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sync-issues"
+        element={
+          <ProtectedRoute>
+            <SyncIssues />
           </ProtectedRoute>
         }
       />
