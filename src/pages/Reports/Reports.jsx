@@ -196,7 +196,7 @@ function Reports() {
                     </div>
                     <div>
                       <span>Best sales day</span>
-                      <strong>{formatCurrency(Number(bestDay?.total || 0))}</strong>
+                      <strong>{formatCurrency(Number(bestDay?.net_sales || 0))}</strong>
                       {bestDay && <small>{formatShortDate(bestDay.date)}</small>}
                     </div>
                   </div>
