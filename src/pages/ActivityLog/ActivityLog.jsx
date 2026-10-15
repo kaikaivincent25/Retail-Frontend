@@ -37,47 +37,82 @@ function ActivityLog() {
   }
 
   return (
-    <div className="activity-page">
-      <h1>Activity Log</h1>
+    <main className="activity-page">
+      <header className="activity-header">
+        <p className="activity-eyebrow">Store operations <span>/</span> Audit trail</p>
+        <h1>Activity log</h1>
+        <p className="activity-intro">
+          A clear record of the actions taking place across your store.
+        </p>
+      </header>
 
       <div className="activity-controls">
-        <label className="risk-toggle">
-          <input
-            type="checkbox"
-            checked={highRiskOnly}
-            onChange={(e) => { setHighRiskOnly(e.target.checked); setSkip(0); }}
-          />
-          Show high-risk actions only
-        </label>
+        <div className="activity-filter-copy">
+          <span className="filter-kicker">Refine the record</span>
+          <span className="filter-description">Choose which activity to view</span>
+        </div>
 
-        <select value={userId} onChange={(e) => { setUserId(e.target.value); setSkip(0); }}>
-          <option value="">All staff</option>
-          {staff.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-        </select>
+        <div className="activity-filter-options">
+          <label className="risk-toggle">
+            <input
+              type="checkbox"
+              checked={highRiskOnly}
+              onChange={(e) => { setHighRiskOnly(e.target.checked); setSkip(0); }}
+            />
+            <span>High-risk only</span>
+          </label>
+
+          <label className="staff-filter">
+            <span className="sr-only">Filter by staff member</span>
+            <select value={userId} onChange={(e) => { setUserId(e.target.value); setSkip(0); }}>
+              <option value="">All staff</option>
+              {staff.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+            </select>
+          </label>
+        </div>
       </div>
 
-      <div className="activity-list">
-        {entries.map((entry) => (
-          <div className={`activity-row ${entry.is_high_risk ? "high-risk" : ""}`} key={entry.id}>
-            <div className="activity-main">
-              <span className="activity-action">
-                {entry.is_high_risk && <span className="risk-dot" title="High-risk action">⚠</span>}
-                {entry.entity_type === "sale_stock_conflict"
-                  ? "Stock discrepancy"
-                  : ACTION_LABELS[entry.action] || entry.action}
-              </span>
-              <span className="activity-user">{staffName(entry.user_id)}</span>
-              <span className="activity-time">{new Date(entry.created_at).toLocaleString()}</span>
-            </div>
-            {entry.description && <p className="activity-description">{entry.description}</p>}
+      <section className="activity-list" aria-label="Recent activity">
+        <div className="activity-list-header">
+          <div>
+            <span className="list-kicker">The record</span>
+            <h2>Recent activity</h2>
           </div>
+          <span className="list-order">Newest first</span>
+        </div>
+
+        {entries.map((entry) => (
+          <article className={`activity-row ${entry.is_high_risk ? "high-risk" : ""}`} key={entry.id}>
+            <div className="activity-marker" aria-hidden="true">
+              {entry.is_high_risk && <span className="risk-dot">!</span>}
+            </div>
+            <div className="activity-event">
+              <div className="activity-main">
+                <div className="activity-heading">
+                  <h3 className="activity-action">
+                    {entry.entity_type === "sale_stock_conflict"
+                      ? "Stock discrepancy"
+                      : ACTION_LABELS[entry.action] || entry.action}
+                  </h3>
+                  {entry.is_high_risk && <span className="risk-label">High risk</span>}
+                </div>
+                <time className="activity-time" dateTime={entry.created_at}>
+                  {new Date(entry.created_at).toLocaleString()}
+                </time>
+              </div>
+              <p className="activity-user">{staffName(entry.user_id)}</p>
+              {entry.description && <p className="activity-description">{entry.description}</p>}
+            </div>
+          </article>
         ))}
         {entries.length === 0 && (
-          <p className="empty-hint">
-            {highRiskOnly ? "No high-risk actions recorded." : "No activity recorded yet."}
-          </p>
+          <div className="empty-hint">
+            <span className="empty-mark" aria-hidden="true">—</span>
+            <p>{highRiskOnly ? "No high-risk actions recorded." : "No activity recorded yet."}</p>
+            <span>New store activity will appear here.</span>
+          </div>
         )}
-      </div>
+      </section>
 
       <div className="pagination">
         <button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - PAGE_SIZE))}>
@@ -87,7 +122,7 @@ function ActivityLog() {
           Older →
         </button>
       </div>
-    </div>
+    </main>
   );
 }
 
