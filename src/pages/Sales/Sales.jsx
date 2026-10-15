@@ -455,7 +455,7 @@ function Sales() {
         </div>
         <div className="sales-page-heading-actions">
           <span className="sales-session-chip"><span aria-hidden="true">●</span> Till open</span>
-          <button className="close-till-button" onClick={() => setClosingModalOpen(true)}>
+          <button type="button" className="close-till-button" onClick={() => setClosingModalOpen(true)}>
             Close till
           </button>
         </div>
@@ -494,7 +494,7 @@ function Sales() {
           />
         </div>
 
-        {message && <div className={`sale-message ${message.type}`}>{message.text}</div>}
+        {message && <div className={`sale-message ${message.type}`} role="status" aria-live="polite">{message.text}</div>}
 
         <div className="sales-catalogue-hint">Select a product to add it to the basket</div>
         <div className="quick-sell-grid">
@@ -502,6 +502,7 @@ function Sales() {
             <button
               key={item.variant_id}
               className="quick-sell-tile"
+              aria-label={`${item.product_name}, ${item.variant_name}${item.quantity_in_stock === 0 ? ", unavailable" : ""}. Select to add to basket`}
               disabled={item.quantity_in_stock === 0}
               onClick={() => handleTileTap(item)}
             >
