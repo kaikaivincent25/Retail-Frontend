@@ -21,6 +21,7 @@ const getErrorMessage = (err, fallback) =>
 function Products() {
   const [products, setProducts] = useState([]);
   const [productFilter, setProductFilter] = useState("active");
+  const [productSearch, setProductSearch] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const [variantsByProduct, setVariantsByProduct] = useState({});
 
@@ -139,90 +140,151 @@ function Products() {
     setVariantsByProduct((prev) => ({ ...prev, [productId]: variants }));
   }
 
-  const visibleProducts = products.filter((product) => (
-    productFilter === "all"
-      || (productFilter === "active" ? product.is_active : !product.is_active)
-  ));
+  const normalizedSearch = productSearch.trim().toLocaleLowerCase();
+  const visibleProducts = products.filter((product) => {
+    const matchesFilter = productFilter === "all"
+      || (productFilter === "active" ? product.is_active : !product.is_active);
+    const matchesSearch = !normalizedSearch
+      || `${product.name} ${product.category || ""}`.toLocaleLowerCase().includes(normalizedSearch);
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div className="products-page">
-      <h1>Products</h1>
+      <header className="products-page-heading">
+        <div>
+          <span className="products-eyebrow">INVENTORY</span>
+          <h1>Products</h1>
+          <p>Manage your catalog, pricing, and stock in one place.</p>
+        </div>
+        <div className="products-total">
+          <span>{products.length}</span>
+          <small>{products.length === 1 ? "product in catalog" : "products in catalog"}</small>
+        </div>
+      </header>
 
       <form className="new-product-form" onSubmit={handleCreateProduct}>
-        <div className="new-product-fields">
-          <input
-            placeholder="Product name (e.g. Sugar)"
-            value={newProductName}
-            onChange={(e) => setNewProductName(e.target.value)}
-            required
-          />
-          <input
-            placeholder="Category (optional)"
-            value={newProductCategory}
-            onChange={(e) => setNewProductCategory(e.target.value)}
-          />
+        <div className="form-card-heading">
+          <div className="form-card-icon" aria-hidden="true">+</div>
+          <div>
+            <h2>Add a product</h2>
+            <p>Start with the product name, then add its sellable variants and prices.</p>
+          </div>
         </div>
+        <div className="new-product-fields">
+          <label className="product-field">
+            <span>Product name <b>*</b></span>
+            <input
+              placeholder="e.g. Sugar"
+              value={newProductName}
+              onChange={(e) => setNewProductName(e.target.value)}
+              required
+            />
+          </label>
+          <label className="product-field">
+            <span>Category <small>Optional</small></span>
+            <input
+              placeholder="e.g. Pantry"
+              list="product-category-options"
+              value={newProductCategory}
+              onChange={(e) => setNewProductCategory(e.target.value)}
+            />
+          </label>
+        </div>
+        <datalist id="product-category-options">
+          {[...new Set(products.map((product) => product.category).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b))
+            .map((category) => <option key={category} value={category} />)}
+        </datalist>
 
         <div className="new-product-variants">
           <div className="new-product-section-heading">
-            <h2>Variants</h2>
-            <span>Add the sizes or types you sell.</span>
+            <div>
+              <h2>Sellable variants</h2>
+              <span>Add the sizes or types customers can buy.</span>
+            </div>
+            <span className="variant-count">{newProductVariants.length} {newProductVariants.length === 1 ? "variant" : "variants"}</span>
           </div>
           {newProductVariants.map((variant, index) => (
-            <div className="new-product-variant-row" key={index}>
-              <input
-                aria-label={`Variant ${index + 1} name`}
-                placeholder="Variant name (e.g. 2kg pack, Loose)"
-                value={variant.name}
-                onChange={(e) => updateNewVariant(index, "name", e.target.value)}
-                required
-              />
-              <select
-                aria-label={`Variant ${index + 1} unit`}
-                value={variant.unit}
-                onChange={(e) => updateNewVariant(index, "unit", e.target.value)}
-              >
-                {UNITS.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
-              </select>
-              <select
-                aria-label={`Variant ${index + 1} sale mode`}
-                value={variant.saleMode}
-                onChange={(e) => updateNewVariant(index, "saleMode", e.target.value)}
-              >
-                <option value="fixed">Fixed pack</option>
-                <option value="bulk">Bulk / measured</option>
-              </select>
-              {variant.saleMode === "fixed" && (
+            <div className={`new-product-variant-row ${variant.saleMode}-variant-row`} key={index}>
+              <label className="product-field variant-name-field">
+                <span>Variant name <b>*</b></span>
                 <input
-                  aria-label={`Variant ${index + 1} pack size`}
-                  type="number"
-                  min="1"
-                  step="1"
-                  placeholder="Pack size"
-                  value={variant.unitQuantity}
-                  onChange={(e) => updateNewVariant(index, "unitQuantity", e.target.value)}
+                  aria-label={`Variant ${index + 1} name`}
+                  placeholder="e.g. 2kg pack, Loose"
+                  value={variant.name}
+                  onChange={(e) => updateNewVariant(index, "name", e.target.value)}
                   required
                 />
+              </label>
+              <label className="product-field variant-unit-field">
+                <span>Unit</span>
+                <select
+                  aria-label={`Variant ${index + 1} unit`}
+                  value={variant.unit}
+                  onChange={(e) => updateNewVariant(index, "unit", e.target.value)}
+                >
+                  {UNITS.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+                </select>
+              </label>
+              <label className="product-field variant-mode-field">
+                <span>Sale type</span>
+                <select
+                  aria-label={`Variant ${index + 1} sale mode`}
+                  value={variant.saleMode}
+                  onChange={(e) => updateNewVariant(index, "saleMode", e.target.value)}
+                >
+                  <option value="fixed">Fixed pack</option>
+                  <option value="bulk">Bulk / measured</option>
+                </select>
+              </label>
+              {variant.saleMode === "fixed" && (
+                <label className="product-field variant-quantity-field">
+                  <span>Pack size <b>*</b></span>
+                  <input
+                    aria-label={`Variant ${index + 1} pack size`}
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="e.g. 2"
+                    value={variant.unitQuantity}
+                    onChange={(e) => updateNewVariant(index, "unitQuantity", e.target.value)}
+                    required
+                  />
+                </label>
               )}
-              <input
-                aria-label={`Variant ${index + 1} selling price`}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder={variant.saleMode === "bulk" ? `Price per ${variant.unit}` : "Selling price"}
-                value={variant.sellingPrice}
-                onChange={(e) => updateNewVariant(index, "sellingPrice", e.target.value)}
-                required
-              />
-              <input
-                aria-label={`Variant ${index + 1} cost price`}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Cost (optional)"
-                value={variant.costPrice}
-                onChange={(e) => updateNewVariant(index, "costPrice", e.target.value)}
-              />
+              <label className="product-field price-field variant-selling-field">
+                <span>Selling price <b>*</b></span>
+                <div className="money-input">
+                  <span>KSh</span>
+                  <input
+                    aria-label={`Variant ${index + 1} selling price`}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={variant.sellingPrice}
+                    onChange={(e) => updateNewVariant(index, "sellingPrice", e.target.value)}
+                    required
+                  />
+                  {variant.saleMode === "bulk" && <small>/{variant.unit}</small>}
+                </div>
+              </label>
+              <label className="product-field price-field variant-cost-field">
+                <span>Cost price <small>Optional</small></span>
+                <div className="money-input">
+                  <span>KSh</span>
+                  <input
+                    aria-label={`Variant ${index + 1} cost price`}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={variant.costPrice}
+                    onChange={(e) => updateNewVariant(index, "costPrice", e.target.value)}
+                  />
+                </div>
+              </label>
               {newProductVariants.length > 1 && (
                 <button
                   className="remove-new-variant"
@@ -240,48 +302,80 @@ function Products() {
             type="button"
             onClick={() => setNewProductVariants((prev) => [...prev, createEmptyVariant()])}
           >
-            + Add another variant
+            + Add variant
           </button>
         </div>
 
         <div className="new-product-submit">
           <button type="submit" disabled={isCreatingProduct}>
-            {isCreatingProduct ? "Saving..." : "Save Product"}
+            {isCreatingProduct ? "Saving..." : "Save product"}
           </button>
         </div>
       </form>
-      {error && <div className="form-error">{error}</div>}
+      {error && <div className="form-error" role="alert">{error}</div>}
 
-      <div className="product-filters" aria-label="Filter products">
-        {[
-          ["active", "Active"],
-          ["inactive", "Deactivated"],
-          ["all", "All"],
-        ].map(([filter, label]) => (
-          <button
-            key={filter}
-            type="button"
-            className={productFilter === filter ? "selected" : ""}
-            aria-pressed={productFilter === filter}
-            onClick={() => setProductFilter(filter)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <section className="inventory-section" aria-label="Product inventory">
+        <div className="inventory-toolbar">
+          <div>
+            <h2>Product inventory</h2>
+            <p>Search your catalog or filter by product status.</p>
+          </div>
+          <label className="product-search">
+            <span className="search-icon" aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              aria-label="Search products"
+              placeholder="Search products or categories"
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+            />
+            {productSearch && (
+              <button type="button" onClick={() => setProductSearch("")} aria-label="Clear search">×</button>
+            )}
+          </label>
+        </div>
+        <div className="inventory-controls">
+          <div className="product-filters" aria-label="Filter products">
+            {[
+              ["active", "Active"],
+              ["inactive", "Deactivated"],
+              ["all", "All"],
+            ].map(([filter, label]) => (
+              <button
+                key={filter}
+                type="button"
+                className={productFilter === filter ? "selected" : ""}
+                aria-pressed={productFilter === filter}
+                onClick={() => setProductFilter(filter)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <span className="result-count">{visibleProducts.length} {visibleProducts.length === 1 ? "product" : "products"}</span>
+        </div>
 
       <div className="product-list">
         {visibleProducts.map((product) => (
           <div className={`product-card${product.is_active ? "" : " inactive-product"}`} key={product.id}>
-            <div className="product-card-header" onClick={() => toggleExpand(product.id)}>
-              <div>
-                <span className="product-name">{product.name}</span>
-                {product.category && <span className="product-category">{product.category}</span>}
+            <div className="product-card-header">
+              <button
+                type="button"
+                className="product-card-identity product-expand-trigger"
+                onClick={() => toggleExpand(product.id)}
+                aria-expanded={expandedId === product.id}
+              >
+                <span className="product-avatar" aria-hidden="true">{product.name.slice(0, 1).toLocaleUpperCase()}</span>
+                <div className="product-details">
+                  <span className="product-name">{product.name}</span>
+                  {product.category && <span className="product-category">{product.category}</span>}
+                </div>
                 {!product.is_active && <span className="product-status">Deactivated</span>}
-              </div>
+              </button>
               <div className="product-card-actions">
                 {product.is_active ? (
                   <button
+                    type="button"
                     className="danger"
                     onClick={(e) => { e.stopPropagation(); handleDeactivateProduct(product.id); }}
                   >
@@ -290,12 +384,14 @@ function Products() {
                 ) : (
                   <>
                     <button
+                      type="button"
                       className="restore-product"
                       onClick={(e) => { e.stopPropagation(); handleReactivateProduct(product.id); }}
                     >
                       Reactivate
                     </button>
                     <button
+                      type="button"
                       className="danger"
                       onClick={(e) => { e.stopPropagation(); handlePermanentlyDeleteProduct(product); }}
                     >
@@ -303,7 +399,15 @@ function Products() {
                     </button>
                   </>
                 )}
-                <span className="expand-arrow">{expandedId === product.id ? "▲" : "▼"}</span>
+                <button
+                  type="button"
+                  className="expand-arrow"
+                  aria-label={`${expandedId === product.id ? "Collapse" : "Expand"} ${product.name}`}
+                  aria-expanded={expandedId === product.id}
+                  onClick={() => toggleExpand(product.id)}
+                >
+                  {expandedId === product.id ? "−" : "+"}
+                </button>
               </div>
             </div>
 
@@ -318,12 +422,15 @@ function Products() {
         ))}
         {visibleProducts.length === 0 && (
           <p className="empty-hint">
-            {productFilter === "active" && products.length === 0
+            {productSearch
+              ? `No products match “${productSearch}”.`
+              : productFilter === "active" && products.length === 0
               ? "No products yet — add your first one above."
               : `No ${productFilter === "inactive" ? "deactivated " : ""}products found.`}
           </p>
         )}
       </div>
+      </section>
     </div>
   );
 }
@@ -417,12 +524,12 @@ function VariantsPanel({ productId, variants, onChange }) {
       <table className="variants-table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Mode</th>
-            <th>Unit</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th></th>
+            <th scope="col">Name</th>
+            <th scope="col">Mode</th>
+            <th scope="col">Unit</th>
+            <th scope="col">Price</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -436,7 +543,15 @@ function VariantsPanel({ productId, variants, onChange }) {
               </td>
               <td>{v.unit}</td>
               <td>KSh {v.selling_price}{v.sale_mode === "bulk" && ` / ${v.unit}`}</td>
-              <td>{v.quantity ?? "—"}</td>
+              <td>
+                {v.quantity == null ? (
+                  <span className="stock-indicator stock-untracked">Not tracked</span>
+                ) : v.quantity <= 0 ? (
+                  <span className="stock-indicator stock-out">Out of stock <b>0</b></span>
+                ) : (
+                  <span className="stock-indicator stock-available"><i aria-hidden="true" />{v.quantity} {v.quantity === 1 ? "unit" : "units"}</span>
+                )}
+              </td>
               <td>
                 {v.is_active && (
                   <div className="variant-row-actions">
@@ -466,7 +581,7 @@ function VariantsPanel({ productId, variants, onChange }) {
       {expandedPresetVariant && (
         <div className="presets-panel">
           <h4>Portions for this item</h4>
-          {presetError && <div className="form-error">{presetError}</div>}
+          {presetError && <div className="form-error" role="alert">{presetError}</div>}
           <div className="preset-chips">
             {(presetsByVariant[expandedPresetVariant] || []).map((preset) => (
               <span className="preset-chip" key={preset.id}>
@@ -556,7 +671,7 @@ function VariantsPanel({ productId, variants, onChange }) {
 
         <button type="submit">Add Variant</button>
       </form>
-      {error && <div className="form-error">{error}</div>}
+      {error && <div className="form-error" role="alert">{error}</div>}
     </div>
   );
 }
