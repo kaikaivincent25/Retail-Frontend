@@ -123,7 +123,7 @@ function Profile() {
   if (!me) {
     return (
       <div className="profile-page">
-        <div className="profile-loading">
+        <div className="profile-loading" role="status" aria-live="polite">
           <div className="profile-loading-spinner" />
           <span>Loading your account...</span>
         </div>
@@ -147,7 +147,7 @@ function Profile() {
           </div>
 
           <div className="profile-header-badge">
-            <div className="profile-avatar">
+            <div className="profile-avatar" aria-hidden="true">
               {fullName?.charAt(0)?.toUpperCase() || "U"}
             </div>
 
@@ -160,43 +160,43 @@ function Profile() {
 
         {/* Quick Overview */}
         <div className="profile-overview">
-          <div className="overview-item">
-            <div className="overview-icon">👤</div>
+          <a className="overview-item" href="#profile-details">
+            <div className="overview-icon" aria-hidden="true">👤</div>
             <div>
               <span>Account</span>
               <strong>Personal details</strong>
             </div>
-          </div>
+          </a>
 
           <div className="overview-divider" />
 
-          <div className="overview-item">
-            <div className="overview-icon">🔐</div>
+          <a className="overview-item" href="#profile-security">
+            <div className="overview-icon" aria-hidden="true">🔐</div>
             <div>
               <span>Security</span>
               <strong>Password protection</strong>
             </div>
-          </div>
+          </a>
 
           {user?.role === "admin" && (
             <>
               <div className="overview-divider" />
 
-              <div className="overview-item">
-                <div className="overview-icon">🏪</div>
+              <a className="overview-item" href="#profile-shop-settings">
+                <div className="overview-icon" aria-hidden="true">🏪</div>
                 <div>
                   <span>Business</span>
                   <strong>Shop information</strong>
                 </div>
-              </div>
+              </a>
             </>
           )}
         </div>
 
         {/* Personal Details */}
-        <section className="profile-card">
+        <section className="profile-card" id="profile-details">
           <div className="profile-card-header">
-            <div className="section-icon personal-icon">👤</div>
+            <div className="section-icon personal-icon" aria-hidden="true">👤</div>
 
             <div>
               <h2>Your Details</h2>
@@ -262,9 +262,9 @@ function Profile() {
         </section>
 
         {/* Password */}
-        <section className="profile-card">
+        <section className="profile-card" id="profile-security">
           <div className="profile-card-header">
-            <div className="section-icon security-icon">🔐</div>
+            <div className="section-icon security-icon" aria-hidden="true">🔐</div>
 
             <div>
               <h2>Account Security</h2>
@@ -350,9 +350,9 @@ function Profile() {
 
         {/* Shop Settings - Admin Only */}
         {user?.role === "admin" && shop && (
-          <section className="profile-card shop-card">
+          <section className="profile-card shop-card" id="profile-shop-settings">
             <div className="profile-card-header">
-              <div className="section-icon shop-icon">🏪</div>
+              <div className="section-icon shop-icon" aria-hidden="true">🏪</div>
 
               <div>
                 <div className="section-label">ADMINISTRATOR</div>
