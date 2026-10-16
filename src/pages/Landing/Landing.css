@@ -11,14 +11,15 @@
   --lp-muted: var(--muted, #718297);
   --lp-line: var(--line, #dce6f0);
   --lp-line-strong: var(--line-strong, #cbd8e6);
-  --lp-display: var(--heading, var(--sans, system-ui, sans-serif));
+  --lp-display: "Times New Roman", Times, serif;
+  --lp-ui: Aptos, "Segoe UI", Arial, sans-serif;
   --lp-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --lp-wrap: min(1180px, calc(100% - 64px));
 
   min-height: 100vh;
   overflow: hidden;
   color: var(--lp-ink);
-  font-family: inherit;
+  font-family: var(--lp-ui);
   background:
     radial-gradient(ellipse at 85% 6%, rgba(40, 120, 199, 0.1), transparent 36rem),
     var(--lp-paper);
