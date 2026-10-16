@@ -20,6 +20,7 @@ import Expenses from "./pages/Expenses/Expenses";
 import SyncIssues from "./pages/SyncIssues";
 import "./App.css";
 import "./design.css";
+import "./pages/Landing/Landing.css";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
