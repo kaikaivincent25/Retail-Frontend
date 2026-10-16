@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./Landing.css";
@@ -7,270 +6,267 @@ function Landing() {
   const { user } = useAuth();
 
   return (
-    <div className="landing-page">
-      <nav className="landing-nav">
-        <Link to="/" className="landing-brand" aria-label="RISA home">
-          <span className="brand-mark">R</span>
-          <span className="brand-accent">RISA</span>
+    <div className="lp-page">
+      <nav className="lp-nav">
+        <Link to="/" className="lp-brand" aria-label="RISA home">
+          <span className="lp-brand-mark">R</span>
+          <span className="lp-brand-name">RISA</span>
         </Link>
 
-        <div className="landing-nav-right">
-          <span className="nav-tagline">Made for everyday retail</span>
+        <div className="lp-nav-links">
+          <a href="#features">What you get</a>
+          <a href="#how">How it works</a>
+        </div>
+
+        <div className="lp-nav-right">
           {user ? (
             <Link
               to={user.role === "cashier" ? "/sales" : "/dashboard"}
-              className="landing-cta-small"
+              className="lp-btn lp-btn-small"
             >
-              Go to your dashboard <span aria-hidden="true">→</span>
+              Go to your dashboard
             </Link>
           ) : (
-            <Link to="/login" className="landing-cta-small">
-              Log in <span aria-hidden="true">→</span>
+            <Link to="/login" className="lp-btn lp-btn-small">
+              Log in
             </Link>
           )}
         </div>
       </nav>
 
       <main>
-        <section className="landing-hero">
-          <div className="hero-copy">
-            <div className="hero-eyebrow">
-              <span className="eyebrow-dot" />
-              RETAIL, MADE SIMPLER
-            </div>
+        <section className="lp-hero">
+          <div className="lp-hero-copy">
+            <p className="lp-hero-kicker">Made for everyday retail in Kenya</p>
 
-            <h1>
-              Your shop deserves
-              <span> a clearer way to sell.</span>
-            </h1>
+            <h1>Know what you sold, what is left, and what is in the till.</h1>
 
-            <p className="hero-description">
-              From loose sugar and measured portions to everyday packaged goods,
-              RISA is designed around how Kenyan shops actually work.
-              Record sales, keep an eye on stock, and understand how your day is going.
+            <p className="lp-hero-lead">
+              RISA is the shop system built around how Kenyan shops really sell:
+              loose sugar by the quarter kilo, packaged goods by the piece. Record
+              every sale at the counter and see your stock and cash clearly, all
+              day long.
             </p>
 
             {!user && (
-              <div className="landing-ctas">
-                <Link to="/signup" className="landing-cta-primary">
-                  Create your shop <span aria-hidden="true">→</span>
+              <div className="lp-ctas">
+                <Link to="/signup" className="lp-btn lp-btn-primary">
+                  Create your shop
                 </Link>
-                <Link to="/login" className="landing-cta-secondary">
+                <Link to="/login" className="lp-btn lp-btn-ghost">
                   I already have an account
                 </Link>
               </div>
             )}
 
-            <div className="hero-reassurance">
-              <span className="reassurance-check">✓</span>
-              <span>Works on phones, tablets, and desktops</span>
-              <span className="reassurance-divider">·</span>
-              <span>No barcode scanner required</span>
-            </div>
+            <ul className="lp-assurances">
+              <li>
+                <span className="lp-tick" aria-hidden="true">✓</span>
+                Works on phones, tablets and desktops
+              </li>
+              <li>
+                <span className="lp-tick" aria-hidden="true">✓</span>
+                No barcode scanner needed
+              </li>
+            </ul>
           </div>
 
-          <div className="hero-visual" aria-label="Illustration of a shop sales summary">
-            <div className="visual-orbit orbit-one" />
-            <div className="visual-orbit orbit-two" />
+          <div
+            className="lp-hero-visual"
+            role="img"
+            aria-label="Illustration of a sample sales slip from a RISA shop"
+          >
+            <div className="lp-slip">
+              <div className="lp-slip-paper">
+                <div className="lp-slip-head">
+                  <span className="lp-slip-mark">R</span>
+                  <div>
+                    <strong>RISA</strong>
+                    <small>Sales slip (sample)</small>
+                  </div>
+                </div>
 
-            <div className="shop-preview">
-              <div className="preview-topbar">
-                <div className="preview-brand">
-                  <span className="preview-brand-mark">R</span>
-                  <span>RISA</span>
-                </div>
-                <span className="preview-status">
-                  <span /> Shop overview
-                </span>
-              </div>
+                <ul className="lp-slip-lines">
+                  <li>
+                    <span>
+                      Sugar, loose
+                      <small>¼ kg</small>
+                    </span>
+                    <span>55</span>
+                  </li>
+                  <li>
+                    <span>
+                      Maize flour
+                      <small>2 kg pack</small>
+                    </span>
+                    <span>180</span>
+                  </li>
+                  <li>
+                    <span>
+                      Cooking oil
+                      <small>1 litre</small>
+                    </span>
+                    <span>340</span>
+                  </li>
+                </ul>
 
-              <div className="preview-greeting">
-                <span className="preview-kicker">A BETTER VIEW OF YOUR DAY</span>
-                <h3>Your shop, at a glance.</h3>
-                <p>Keep the important things in reach.</p>
-              </div>
+                <div className="lp-slip-total">
+                  <span>Total (KES)</span>
+                  <strong>575</strong>
+                </div>
 
-              <div className="preview-summary">
-                <div className="preview-summary-card">
-                  <span className="summary-icon sales-icon">↗</span>
-                  <span className="summary-label">Sales</span>
-                  <strong>Today’s activity</strong>
-                  <small>Track each completed sale</small>
-                </div>
-                <div className="preview-summary-card">
-                  <span className="summary-icon stock-icon">▦</span>
-                  <span className="summary-label">Stock</span>
-                  <strong>Know what remains</strong>
-                  <small>Keep stock changes visible</small>
-                </div>
-              </div>
-
-              <div className="preview-activity">
-                <div className="preview-activity-heading">
-                  <strong>Built for the counter</strong>
-                  <span>Simple workflow</span>
-                </div>
-                <div className="preview-step">
-                  <span className="step-number">01</span>
-                  <span className="step-copy">
-                    <strong>Select a product</strong>
-                    <small>Choose what the customer is buying</small>
-                  </span>
-                  <span className="step-check">✓</span>
-                </div>
-                <div className="preview-step">
-                  <span className="step-number">02</span>
-                  <span className="step-copy">
-                    <strong>Record the payment</strong>
-                    <small>Make checkout straightforward</small>
-                  </span>
-                  <span className="step-check">✓</span>
-                </div>
-                <div className="preview-step">
-                  <span className="step-number">03</span>
-                  <span className="step-copy">
-                    <strong>Keep your records</strong>
-                    <small>See sales and stock activity</small>
-                  </span>
-                  <span className="step-check">✓</span>
-                </div>
+                <p className="lp-slip-foot">Sale recorded. Stock and sales updated.</p>
               </div>
             </div>
 
-            <div className="floating-note note-top">
-              <span className="note-icon">✓</span>
-              <span><strong>Less guesswork</strong><small>More visibility</small></span>
-            </div>
-            <div className="floating-note note-bottom">
-              <span className="note-icon note-icon-light">◷</span>
-              <span><strong>Made for daily use</strong><small>At your shop’s pace</small></span>
+            <div className="lp-stock-tag">
+              <strong>Stock updated</strong>
+              <small>Sugar, loose: ¼ kg sold</small>
             </div>
           </div>
         </section>
 
-        <section className="landing-trust-strip" aria-label="Product highlights">
+        <section className="lp-strip" aria-label="Product highlights">
           <div>
-            <span className="trust-icon">⌂</span>
-            <span>Designed for Kenyan shops</span>
+            <span className="lp-strip-icon" aria-hidden="true">⌂</span>
+            Designed for Kenyan shops
           </div>
           <div>
-            <span className="trust-icon">▤</span>
-            <span>Packaged and loose goods</span>
+            <span className="lp-strip-icon" aria-hidden="true">▤</span>
+            Sells packaged and loose goods
           </div>
           <div>
-            <span className="trust-icon">◎</span>
-            <span>Clearer daily records</span>
+            <span className="lp-strip-icon" aria-hidden="true">◎</span>
+            Clear records, every day
           </div>
         </section>
 
-        <section className="landing-intro">
-          <span className="section-eyebrow">THE EVERYDAY CHALLENGE</span>
-          <h2>Running a shop is already a lot of work.</h2>
-          <p>
-            Your sales, stock, staff, and cash all need attention. RISA brings
-            essential shop tasks into one practical system, so you can spend less
-            time working around your records and more time serving customers.
-          </p>
-        </section>
-
-        <section className="landing-features">
-          <article className="feature-card">
-            <div className="feature-icon feature-icon-green">↗</div>
-            <span className="feature-number">01 / SALES</span>
-            <h3>Serve customers without the extra steps</h3>
+        <section className="lp-features" id="features">
+          <header className="lp-section-head">
+            <h2>Built around the questions shop owners ask every day.</h2>
             <p>
-              Select a product, record the payment, and move to the next customer.
-              No barcode scanner is required.
+              Your sales, stock, staff and cash all need attention. RISA brings
+              them into one practical system, so you spend less time chasing
+              records and more time serving customers.
             </p>
-          </article>
+          </header>
 
-          <article className="feature-card">
-            <div className="feature-icon feature-icon-sand">⚖</div>
-            <span className="feature-number">02 / LOOSE GOODS</span>
-            <h3>Sell measured goods with confidence</h3>
-            <p>
-              Set portions such as ¼ kg for goods sold by measure, helping attendants
-              follow a consistent selling process.
-            </p>
-          </article>
+          <div className="lp-bento">
+            <article className="lp-card lp-card-sales">
+              <h3>Customers waiting? Keep the line moving.</h3>
+              <p>
+                Select a product, record the payment, and call the next customer.
+                No barcode scanner is needed.
+              </p>
+              <div className="lp-flow" aria-hidden="true">
+                <span>Select product</span>
+                <span className="lp-flow-main">Record payment</span>
+                <span>Next customer</span>
+              </div>
+            </article>
 
-          <article className="feature-card">
-            <div className="feature-icon feature-icon-blue">▦</div>
-            <span className="feature-number">03 / INVENTORY</span>
-            <h3>Know what is happening to your stock</h3>
-            <p>
-              Keep a record of stock changes, including purchases, sales, damage,
-              and corrections.
-            </p>
-          </article>
+            <article className="lp-card lp-card-loose">
+              <h3>Selling sugar by the quarter kilo?</h3>
+              <p>
+                Set portions such as ¼ kg for goods sold by measure, so every
+                attendant sells the same way.
+              </p>
+              <div className="lp-portions" aria-hidden="true">
+                <span className="lp-portion-on">¼ kg</span>
+                <span>½ kg</span>
+                <span>1 kg</span>
+              </div>
+            </article>
 
-          <article className="feature-card">
-            <div className="feature-icon feature-icon-rose">◉</div>
-            <span className="feature-number">04 / ACCOUNTABILITY</span>
-            <h3>Keep shop activity more visible</h3>
-            <p>
-              Review cash session counts and staff activity to help you follow
-              what happens during the working day.
-            </p>
-          </article>
-        </section>
+            <article className="lp-card lp-card-stock">
+              <h3>Stock not matching the shelf?</h3>
+              <p>
+                Every purchase, sale, damage and correction is recorded, so you
+                can see why a number changed.
+              </p>
+              <ul className="lp-ledger" aria-hidden="true">
+                <li><span>Purchase</span><span>+20 kg</span></li>
+                <li><span>Sale</span><span>−¼ kg</span></li>
+                <li><span>Damage</span><span>−1 kg</span></li>
+                <li><span>Correction</span><span>+½ kg</span></li>
+              </ul>
+            </article>
 
-        <section className="landing-workflow">
-          <div className="workflow-copy">
-            <span className="section-eyebrow">A PRACTICAL FIT FOR YOUR SHOP</span>
-            <h2>Simple enough for the counter. Useful beyond the sale.</h2>
-            <p>
-              RISA is designed to support the flow of a real retail day—from
-              serving a customer to checking stock and reviewing shop activity.
-            </p>
+            <article className="lp-card lp-card-people">
+              <h3>Cash short at closing time?</h3>
+              <p>
+                Review cash session counts and staff activity to follow what
+                happened during the working day.
+              </p>
+              <ul className="lp-checks" aria-hidden="true">
+                <li><span>Cash session count</span><em>Recorded</em></li>
+                <li><span>Staff activity</span><em>Recorded</em></li>
+              </ul>
+            </article>
           </div>
+        </section>
 
-          <div className="workflow-points">
-            <div className="workflow-point">
-              <span>01</span>
-              <div>
-                <strong>At the counter</strong>
-                <p>Record everyday sales, including loose and packaged products.</p>
-              </div>
+        <section className="lp-how" id="how">
+          <div className="lp-how-inner">
+            <div className="lp-how-copy">
+              <h2>Simple at the counter. Useful long after the sale.</h2>
+              <p>
+                RISA follows a real retail day, from serving a customer to
+                checking stock and reviewing what happened in your shop.
+              </p>
             </div>
-            <div className="workflow-point">
-              <span>02</span>
-              <div>
-                <strong>During the day</strong>
-                <p>Keep stock movements and staff actions recorded.</p>
-              </div>
-            </div>
-            <div className="workflow-point">
-              <span>03</span>
-              <div>
-                <strong>When reviewing</strong>
-                <p>Use your records to get a clearer picture of shop activity.</p>
-              </div>
-            </div>
+
+            <ol className="lp-steps">
+              <li>
+                <span className="lp-step-num">1</span>
+                <div>
+                  <strong>At the counter</strong>
+                  <p>Record everyday sales, loose and packaged products alike.</p>
+                </div>
+              </li>
+              <li>
+                <span className="lp-step-num">2</span>
+                <div>
+                  <strong>During the day</strong>
+                  <p>Stock movements and staff actions are kept on record as they happen.</p>
+                </div>
+              </li>
+              <li>
+                <span className="lp-step-num">3</span>
+                <div>
+                  <strong>When you review</strong>
+                  <p>Use your records to see clearly how the day went.</p>
+                </div>
+              </li>
+            </ol>
           </div>
         </section>
 
         {!user && (
-          <section className="landing-final-cta">
-            <div>
-              <span className="section-eyebrow">TAKE THE NEXT STEP</span>
-              <h2>Make your shop easier to keep track of.</h2>
-              <p>Set up your shop and explore a more organised way to manage daily retail.</p>
+          <section className="lp-final">
+            <div className="lp-final-copy">
+              <h2>Give your shop a clearer way to sell.</h2>
+              <p>
+                Create your shop and start recording sales the way your customers
+                actually buy.
+              </p>
             </div>
-            <div className="final-cta-actions">
-              <Link to="/signup" className="landing-cta-primary">
-                Create your shop <span aria-hidden="true">→</span>
+            <div className="lp-final-actions">
+              <Link to="/signup" className="lp-btn lp-btn-primary">
+                Create your shop
               </Link>
-              <span>Already using RISA? <Link to="/login">Log in</Link></span>
+              <span>
+                Already using RISA? <Link to="/login">Log in</Link>
+              </span>
             </div>
           </section>
         )}
       </main>
 
-      <footer className="landing-footer">
-        <Link to="/" className="footer-brand">RISA</Link>
+      <footer className="lp-footer">
+        <Link to="/" className="lp-footer-brand">RISA</Link>
         <p>Built for Kenyan micro-retail.</p>
-        <span className="footer-note">A clearer view of your everyday business.</span>
+        <span className="lp-footer-note">A clearer view of your everyday business.</span>
       </footer>
     </div>
   );
