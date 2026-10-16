@@ -174,7 +174,7 @@
     padding: 0 !important;
     color: #000 !important;
     background: #fff !important;
-    font-family: Arial, sans-serif !important;
+    font-family: var(--sans) !important;
     font-size: 9px !important;
     line-height: 1.3 !important;
     animation: none !important;

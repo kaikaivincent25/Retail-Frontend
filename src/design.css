@@ -854,7 +854,7 @@ tbody tr:hover {
   --risa-background: #f3f7fb;
   --risa-white: #fff;
   --risa-border: #dce6f0;
-  --risa-display: var(--sans);
+  --risa-display: var(--heading);
   --risa-ui: var(--sans);
 }
 

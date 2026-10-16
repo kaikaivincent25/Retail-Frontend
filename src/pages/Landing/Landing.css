@@ -11,8 +11,8 @@
   --lp-muted: var(--muted, #718297);
   --lp-line: var(--line, #dce6f0);
   --lp-line-strong: var(--line-strong, #cbd8e6);
-  --lp-display: "Times New Roman", Times, serif;
-  --lp-ui: Aptos, "Segoe UI", Arial, sans-serif;
+  --lp-display: var(--heading);
+  --lp-ui: var(--sans);
   --lp-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --lp-wrap: min(1180px, calc(100% - 64px));
 

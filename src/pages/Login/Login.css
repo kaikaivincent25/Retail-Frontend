@@ -16,8 +16,8 @@
   --risa-border: #E8D9CC;
   --risa-danger: #C0392B;
   --risa-danger-bg: #FEF2F0;
-  --risa-display: "Times New Roman", Times, serif;
-  --risa-ui: "Aptos", "Trebuchet MS", sans-serif;
+  --risa-display: var(--heading);
+  --risa-ui: var(--sans);
 }
 
 /* Page */
