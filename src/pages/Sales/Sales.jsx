@@ -10,7 +10,7 @@ import { getMe, getPaymentDestinations, getReceiptProfile } from "../../services
 import { closeSession } from "../../services/cashSessionApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useToast } from "../../context/ToastContext";
-import Receipt from "../../components/Receipt/Receipt";
+import Receipt, { printReceipt } from "../../components/Receipt/Receipt";
 import { toCents, fromCents, formatCurrency } from "../../utils/money";
 import "./Sales.css";
 
@@ -923,7 +923,7 @@ function Sales() {
                 <button
                   type="button"
                   className="sale-complete-print"
-                  onClick={() => window.print()}
+                  onClick={printReceipt}
                 >
                   <span aria-hidden="true">▤</span>
                   Print receipt

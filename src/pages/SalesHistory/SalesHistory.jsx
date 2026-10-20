@@ -12,7 +12,7 @@ import { getMe, getReceiptProfile } from "../../services/profileApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
-import Receipt from "../../components/Receipt/Receipt";
+import Receipt, { printReceipt } from "../../components/Receipt/Receipt";
 import "./SalesHistory.css";
 
 const PAYMENT_METHOD_LABELS = {
@@ -268,7 +268,7 @@ function SalesHistory() {
                   <button
                     type="button"
                     className="sale-history-print"
-                    onClick={() => window.print()}
+                    onClick={printReceipt}
                   >
                     <span aria-hidden="true">▤</span>
                     Print receipt
