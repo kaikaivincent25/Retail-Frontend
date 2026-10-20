@@ -1312,22 +1312,53 @@ h1, h2, h3, h4, h5, h6,
 .sales-page,
 .login-page,
 .signup-page {
-  background-color: var(--canvas);
+  background-color: transparent;
 }
 
 .landing-page,
 .lp-page {
   background-color: var(--canvas);
+  background-image:
+    linear-gradient(rgba(237, 245, 252, 0.92), rgba(237, 245, 252, 0.92)),
+    url("./assets/W5.jpg");
+  background-size: auto, 520px auto;
+  background-position: 0 0, 0 0;
+  background-repeat: repeat, repeat;
+}
+
+.login-page,
+.signup-page {
+  background-color: var(--canvas);
+  background-image:
+    linear-gradient(rgba(237, 245, 252, 0.92), rgba(237, 245, 252, 0.92)),
+    url("./assets/W5.jpg");
+  background-size: auto, 480px auto;
+  background-position: 0 0, 0 0;
+  background-repeat: repeat, repeat;
 }
 
 .app-status-strip {
   background: rgba(237, 245, 252, 0.94);
 }
 
+.app-content {
+  background-color: #edf5fc;
+  background-image:
+    linear-gradient(rgba(237, 245, 252, 0.92), rgba(237, 245, 252, 0.92)),
+    url("./assets/W5.jpg");
+  background-size: auto, 480px auto;
+  background-position: 0 0, 0 0;
+  background-repeat: repeat, repeat;
+  background-attachment: scroll, fixed;
+}
+
 .dashboard-header {
   background:
-    linear-gradient(105deg, rgba(25, 66, 104, 0.92), rgba(57, 127, 189, 0.72)),
-    url("./assets/W7.jpg") center 46% / cover;
+    linear-gradient(105deg, rgba(25, 66, 104, 0.9), rgba(57, 127, 189, 0.72)),
+    url("./assets/W8.jpg");
+  background-size: auto, 520px auto;
+  background-position: 0 0, 0 0;
+  background-repeat: repeat, repeat;
   box-shadow: 0 18px 42px rgba(37, 92, 141, 0.2);
 }
 
@@ -1396,8 +1427,13 @@ h1, h2, h3, h4, h5, h6,
   z-index: 25;
   padding: 20px 14px 16px;
   color: var(--sidebar-ink);
-  background: #f8fbff;
-  background-image: none;
+  background-color: #f8fbff;
+  background-image:
+    linear-gradient(rgba(248, 251, 255, 0.92), rgba(248, 251, 255, 0.92)),
+    url("./assets/W5.jpg");
+  background-position: 0 0, 0 0;
+  background-size: auto, 480px auto;
+  background-repeat: repeat, repeat;
   border-right: 1px solid var(--sidebar-line);
   box-shadow: 5px 0 22px rgba(29, 72, 112, 0.045);
 }
@@ -1524,8 +1560,13 @@ h1, h2, h3, h4, h5, h6,
 @media (max-width: 650px) {
   .sidebar.sidebar--modern,
   .sidebar.sidebar--modern.is-collapsed {
-    background: #f8fbff;
-    background-image: none;
+    background-color: #f8fbff;
+    background-image:
+      linear-gradient(rgba(248, 251, 255, 0.92), rgba(248, 251, 255, 0.92)),
+      url("./assets/W5.jpg");
+    background-size: auto, 480px auto;
+    background-position: 0 0, 0 0;
+    background-repeat: repeat, repeat;
     border-bottom-color: var(--line);
     box-shadow: 0 5px 20px rgba(29, 72, 112, 0.06);
   }
