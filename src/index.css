@@ -13,7 +13,7 @@
     rgba(22, 51, 81, 0.04) 0 3px 8px -2px;
 
   --sans: Aptos, "Segoe UI", Arial, sans-serif;
-  --heading: "Times New Roman", Times, serif;
+  --heading: var(--sans);
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/145% var(--sans);

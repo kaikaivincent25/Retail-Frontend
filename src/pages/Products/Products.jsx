@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  listProducts, createProduct, deactivateProduct, reactivateProduct,
+  listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
   listVariants, createVariant, deactivateVariant,
 } from "../../services/catalogApi";
@@ -24,9 +24,12 @@ function Products() {
   const [productSearch, setProductSearch] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const [variantsByProduct, setVariantsByProduct] = useState({});
+  const [editingImageId, setEditingImageId] = useState(null);
+  const [imageUrlDraft, setImageUrlDraft] = useState("");
 
   const [newProductName, setNewProductName] = useState("");
   const [newProductCategory, setNewProductCategory] = useState("");
+  const [newProductImageUrl, setNewProductImageUrl] = useState("");
   const [newProductVariants, setNewProductVariants] = useState([createEmptyVariant()]);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +54,7 @@ function Products() {
       const product = await createProduct({
         name: newProductName,
         category: newProductCategory || null,
+        image_url: newProductImageUrl.trim() || null,
         variants: newProductVariants.map((variant) => ({
           name: variant.name,
           unit: variant.unit,
@@ -62,6 +66,7 @@ function Products() {
       });
       setNewProductName("");
       setNewProductCategory("");
+      setNewProductImageUrl("");
       setNewProductVariants([createEmptyVariant()]);
       setVariantsByProduct((prev) => ({ ...prev, [product.id]: product.variants }));
       setExpandedId(product.id);
@@ -103,6 +108,17 @@ function Products() {
       await refreshProducts();
     } catch (err) {
       setError(getErrorMessage(err, "Could not reactivate product."));
+    }
+  }
+
+  async function handleSaveProductImage(productId) {
+    setError("");
+    try {
+      const updated = await updateProduct(productId, { image_url: imageUrlDraft.trim() || null });
+      setProducts((current) => current.map((product) => product.id === productId ? updated : product));
+      setEditingImageId(null);
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not update product image."));
     }
   }
 
@@ -179,6 +195,15 @@ function Products() {
               value={newProductName}
               onChange={(e) => setNewProductName(e.target.value)}
               required
+            />
+          </label>
+          <label className="product-field product-image-url-field">
+            <span>Product image <small>Optional · shared by variants</small></span>
+            <input
+              type="url"
+              placeholder="https://…"
+              value={newProductImageUrl}
+              onChange={(e) => setNewProductImageUrl(e.target.value)}
             />
           </label>
           <label className="product-field">
@@ -365,7 +390,22 @@ function Products() {
                 onClick={() => toggleExpand(product.id)}
                 aria-expanded={expandedId === product.id}
               >
-                <span className="product-avatar" aria-hidden="true">{product.name.slice(0, 1).toLocaleUpperCase()}</span>
+                {product.image_url ? (
+                  <img
+                    className="product-avatar product-avatar-image"
+                    src={product.image_url}
+                    alt=""
+                    loading="lazy"
+                    onError={(event) => {
+                      const fallback = document.createElement("span");
+                      fallback.className = "product-avatar";
+                      fallback.textContent = product.name.slice(0, 1).toLocaleUpperCase();
+                      event.currentTarget.replaceWith(fallback);
+                    }}
+                  />
+                ) : (
+                  <span className="product-avatar" aria-hidden="true">{product.name.slice(0, 1).toLocaleUpperCase()}</span>
+                )}
                 <div className="product-details">
                   <span className="product-name">{product.name}</span>
                   {product.category && <span className="product-category">{product.category}</span>}
@@ -373,6 +413,16 @@ function Products() {
                 {!product.is_active && <span className="product-status">Deactivated</span>}
               </button>
               <div className="product-card-actions">
+                <button
+                  type="button"
+                  className="restore-product"
+                  onClick={() => {
+                    setEditingImageId(editingImageId === product.id ? null : product.id);
+                    setImageUrlDraft(product.image_url || "");
+                  }}
+                >
+                  {product.image_url ? "Change image" : "Add image"}
+                </button>
                 {product.is_active ? (
                   <button
                     type="button"
@@ -410,6 +460,25 @@ function Products() {
                 </button>
               </div>
             </div>
+
+            {editingImageId === product.id && (
+              <form
+                className="product-image-editor"
+                onSubmit={(event) => { event.preventDefault(); handleSaveProductImage(product.id); }}
+              >
+                <label className="product-field">
+                  <span>Image URL <small>applies to every variant of this product</small></span>
+                  <input
+                    type="url"
+                    placeholder="https://…"
+                    value={imageUrlDraft}
+                    onChange={(event) => setImageUrlDraft(event.target.value)}
+                  />
+                </label>
+                <button type="submit">Save image</button>
+                <button type="button" className="restore-product" onClick={() => setEditingImageId(null)}>Cancel</button>
+              </form>
+            )}
 
             {expandedId === product.id && (
               <VariantsPanel

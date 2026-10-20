@@ -24,8 +24,8 @@ export async function browseVariants(q = "") {
 export const searchProducts = (q) => api.get(`/products?q=${encodeURIComponent(q)}`).then((r) => r.data);
 export const getVariantsForProduct = (productId) =>
   api.get(`/products/${productId}/variants`).then((r) => r.data);
-export const completeSale = (items, amountReceived) =>
-  api.post("/sales", { items, amount_received: amountReceived }).then((r) => r.data);
+export const completeSale = (items, amountReceived, clientId) =>
+  api.post("/sales", { items, amount_received: amountReceived, client_id: clientId }).then((r) => r.data);
 export const startMpesaPayment = (items, phoneNumber) =>
   api.post("/sales/mpesa", { items, phone_number: phoneNumber }).then((r) => r.data);
 export const startManualMpesaPayment = (items, paymentMethod) =>

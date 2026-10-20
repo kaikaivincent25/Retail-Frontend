@@ -19,6 +19,12 @@ db.version(2).stores({
   })
 })
 
+db.version(3).stores({
+  variants: 'id, name',
+  outbox: 'id, status, createdAt',
+  settings: 'key'
+})
+
 // --- Catalog ---
 export async function refreshCatalog(items) {
   const records = items.map((item) => ({
@@ -44,10 +50,27 @@ export function searchVariants(term) {
   ).toArray()
 }
 
+export async function getCachedSession() {
+  const entry = await db.settings.get('active-session')
+  return entry?.token === localStorage.getItem('token') ? entry.session : null
+}
+
+export async function cacheSession(session) {
+  if (!session) {
+    await db.settings.delete('active-session')
+    return
+  }
+  await db.settings.put({
+    key: 'active-session',
+    token: localStorage.getItem('token'),
+    session,
+  })
+}
+
 // --- Outbox ---
-export async function queueSale(payload) {
+export async function queueSale(payload, id = crypto.randomUUID()) {
   const record = {
-    id: crypto.randomUUID(),
+    id,
     payload,                 // exactly what your POST /sales sends today
     status: 'pending',
     createdAt: Date.now(),

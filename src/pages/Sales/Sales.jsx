@@ -4,7 +4,7 @@ import {
   startMpesaPayment, getSale, startManualMpesaPayment, confirmManualPayment,
   cancelManualPayment,
 } from "../../services/salesApi";
-import { queueSale, unsyncedCount } from "../../db";
+import { cacheSession, getCachedSession, queueSale } from "../../db";
 import { syncOutbox } from "../../sync";
 import { getMe, getPaymentDestinations, getReceiptProfile } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
@@ -15,7 +15,6 @@ import { toCents, fromCents, formatCurrency } from "../../utils/money";
 import "./Sales.css";
 
 const DENOMINATIONS = [100, 200, 500, 1000];
-const queueSalesEnabled = import.meta.env.VITE_QUEUE_SALES === "true";
 
 function Sales() {
   const { showToast } = useToast();
@@ -47,7 +46,15 @@ function Sales() {
   const saleCompleteButtonRef = useRef(null);
 
   useEffect(() => {
-    getCurrentSession().then(setSession);
+    let active = true;
+    getCurrentSession().then(async (current) => {
+      await cacheSession(current);
+      if (active) setSession(current);
+    }).catch(async () => {
+      const cached = await getCachedSession();
+      if (active) setSession(cached);
+    });
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
@@ -91,7 +98,13 @@ function Sales() {
 
   useEffect(() => {
     if (session) {
-      getPopularProducts().then(setPopular);
+      getPopularProducts().then(setPopular).catch(async () => {
+        try {
+          setPopular(await browseVariants());
+        } catch {
+          setPopular([]);
+        }
+      });
     }
   }, [session, showToast]);
 
@@ -358,26 +371,29 @@ function Sales() {
           items,
           amount_received: Number(received.toFixed(2)),
         };
-        if (queueSalesEnabled) {
-          await queueSale(salePayload);
-          showToast("Sale completed", "success");
-          syncOutbox().catch((err) => {
-            console.error("Failed to sync the queued sale.", err);
-          });
+        const clientId = crypto.randomUUID();
+        if (navigator.onLine) {
+          try {
+            const sale = await completeSale(items, salePayload.amount_received, clientId);
+            setMessage(null);
+            setSaleComplete({ ...sale, paymentLabel: "Cash", restoreCashFocus: true });
+          } catch (error) {
+            if (error.response && error.response.status < 500) throw error;
+            await queueSale(salePayload, clientId);
+            showToast("Sale saved on this device. It will sync when your connection is available.", "success");
+            syncOutbox().catch((syncError) => {
+              console.error("Failed to sync the queued sale.", syncError);
+            });
+          }
         } else {
-          const sale = await completeSale(items, salePayload.amount_received);
-          setMessage(null);
-          setSaleComplete({
-            ...sale,
-            paymentLabel: "Cash",
-            restoreCashFocus: true,
-          });
+          await queueSale(salePayload, clientId);
+          showToast("Sale saved on this device. It will sync when your connection is available.", "success");
         }
       }
       setCart([]);
       setAmountReceived("");
-      if (paymentMethod === "cash" && !queueSalesEnabled) {
-        getPopularProducts().then(setPopular); // refresh ranking for next customer
+      if (paymentMethod === "cash" && navigator.onLine) {
+        getPopularProducts().then(setPopular).catch(() => {});
       }
     } catch (err) {
       showToast(extractErrorMessage(err), "error");
@@ -506,6 +522,23 @@ function Sales() {
               disabled={item.quantity_in_stock === 0}
               onClick={() => handleTileTap(item)}
             >
+              {item.image_url ? (
+                <span className="tile-image-wrap">
+                  <img
+                    className="tile-image"
+                    src={item.image_url}
+                    alt=""
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.parentElement.textContent = item.product_name?.slice(0, 1)?.toLocaleUpperCase() || "P";
+                    }}
+                  />
+                </span>
+              ) : (
+                <span className="tile-image-wrap tile-image-placeholder" aria-hidden="true">
+                  {item.product_name?.slice(0, 1)?.toLocaleUpperCase() || "P"}
+                </span>
+              )}
               <span className="tile-name">{item.product_name}</span>
               <span className="tile-variant">{item.variant_name}</span>
               <span className="tile-stock">{item.quantity_in_stock === 0 ? "Unavailable" : `${item.quantity_in_stock} ${item.unit || "in stock"}`}</span>

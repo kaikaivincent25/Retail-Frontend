@@ -13,15 +13,17 @@ Run `npm run lint` and `npm run build` to check the frontend. Do not place
 credentials or other secrets in `VITE_*` variables; Vite includes them in the
 browser bundle.
 
-The sales outbox is experimental and disabled by default: cash sales continue
-to POST to the server. To test local queuing, set `VITE_QUEUE_SALES=true` in
-`.env.local` and restart the Vite dev server. Queued sales remain on this
-browser and are not sent to the server until the sync engine is implemented;
-do not enable this for the live shop.
+Cash sales are saved in the browser's IndexedDB outbox when the device is
+offline or a request loses its connection. The app sends them when the server
+is reachable again and uses a stable client ID to avoid duplicate sales.
+Offline checkout requires a previously cached active till and product catalog.
+M-Pesa checkout and catalog or till changes still require a connection.
+
+Product images are stored as an optional URL on each product and are shared by
+its variants. Add or change an image from the Products page; use a stable,
+publicly reachable HTTPS image URL.
 
 To inspect the local database in Chrome, open the app from `npm run dev`, then
 open DevTools > Application > IndexedDB > `dukaos`. The `variants` store is
-populated after the Sales page loads while online. Enable the Network panel's
-Offline option, use All Items to search, and queue a cash sale with
-`VITE_QUEUE_SALES=true` to inspect a pending outbox record. Reloading the page
-preserves IndexedDB data.
+populated after the Sales page loads while online. The `outbox` store holds
+cash sales until sync succeeds. Reloading the page preserves IndexedDB data.

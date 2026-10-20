@@ -1125,3 +1125,157 @@ tbody tr:hover {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Shared visual language across authenticated pages and controls. */
+.cashier-dashboard-page,
+.login-page,
+.signup-page,
+.landing-page {
+  color: var(--ink);
+}
+
+.cashier-dashboard-page h1,
+.cashier-dashboard-page h2,
+.cashier-dashboard-page h3,
+.expenses-page h1,
+.sales-page h1,
+.sync-issues-page h1 {
+  color: var(--navy);
+  font-family: var(--sans);
+}
+
+.products-page .new-product-fields {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.product-avatar-image {
+  display: block;
+  object-fit: cover;
+}
+
+.product-image-editor {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  padding: 12px 16px 16px;
+  background: #f7faff;
+  border-top: 1px solid var(--line);
+}
+
+.product-image-editor .product-field {
+  flex: 1;
+}
+
+.product-image-editor button {
+  min-height: 40px;
+}
+
+.product-image-url-field {
+  grid-column: span 2;
+}
+
+.quick-sell-grid {
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 13px;
+}
+
+.quick-sell-tile {
+  min-height: 230px;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 10px;
+  background: var(--surface);
+  border-color: var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.quick-sell-tile::before {
+  display: none;
+}
+
+.quick-sell-tile:hover {
+  background: var(--surface);
+  border-color: #a9cbea;
+  box-shadow: var(--shadow-pop);
+  transform: translateY(-2px);
+}
+
+.tile-image-wrap {
+  display: grid;
+  width: 100%;
+  height: 122px;
+  flex: 0 0 122px;
+  place-items: center;
+  overflow: hidden;
+  color: var(--brand-strong);
+  background: linear-gradient(145deg, #f5f9fd, #eaf3fc);
+  border-radius: 10px;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.tile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.tile-name {
+  width: 100%;
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--navy);
+  font-size: 13px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tile-variant {
+  min-height: 1.3em;
+}
+
+.tile-price {
+  margin-top: auto;
+  padding-top: 4px;
+  color: var(--brand-strong);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.35px;
+}
+
+.tile-stock {
+  color: var(--muted);
+}
+
+@media (max-width: 650px) {
+  .product-image-url-field {
+    grid-column: auto;
+  }
+
+  .product-image-editor {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .quick-sell-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .quick-sell-tile {
+    min-height: 210px;
+    padding: 9px;
+  }
+
+  .tile-image-wrap {
+    height: 105px;
+    flex-basis: 105px;
+  }
+
+  .tile-price {
+    font-size: 17px;
+  }
+}
