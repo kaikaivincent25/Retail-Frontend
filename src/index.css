@@ -1,9 +1,9 @@
 :root {
   --text: #516477;
   --text-h: #142b45;
-  --bg: #f3f7fb;
-  --border: #dce6f0;
-  --code-bg: #eaf1f8;
+  --bg: #edf5fc;
+  --border: #d7e5f2;
+  --code-bg: #e4f0fa;
   --accent: #2878c7;
   --accent-bg: rgba(40, 120, 199, 0.1);
   --accent-border: rgba(40, 120, 199, 0.35);
@@ -12,8 +12,8 @@
     rgba(22, 51, 81, 0.08) 0 10px 24px -8px,
     rgba(22, 51, 81, 0.04) 0 3px 8px -2px;
 
-  --sans: Aptos, "Segoe UI", Arial, sans-serif;
-  --heading: var(--sans);
+  --sans: "Times New Roman", Times, serif;
+  --heading: Georgia, "Times New Roman", serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/145% var(--sans);

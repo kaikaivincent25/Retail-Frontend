@@ -1,14 +1,14 @@
 :root {
-  --brand: #2878c7;
-  --brand-strong: #1c5e9f;
-  --brand-soft: #eaf3fc;
-  --navy: #142b45;
-  --ink: #23384e;
-  --muted: #718297;
+  --brand: #397fbd;
+  --brand-strong: #245f96;
+  --brand-soft: #e4f1fb;
+  --navy: #183551;
+  --ink: #304a63;
+  --muted: #71869b;
   --surface: #ffffff;
-  --canvas: #f3f7fb;
-  --line: #dce6f0;
-  --line-strong: #cbd8e6;
+  --canvas: #edf5fc;
+  --line: #d7e5f2;
+  --line-strong: #c5d9eb;
   --success: #17865b;
   --danger: #c6474e;
   --shadow-card: 0 5px 20px rgba(22, 51, 81, 0.045);
@@ -1277,5 +1277,112 @@ tbody tr:hover {
 
   .tile-price {
     font-size: 17px;
+  }
+}
+
+/* Shared premium light-blue theme and motion */
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Times New Roman", Times, serif;
+}
+
+h1, h2, h3, h4, h5, h6,
+.sidebar-brand-name {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.app-layout,
+.app-content,
+.app-status-strip,
+.dashboard-page,
+.cashier-dashboard,
+.inventory-page,
+.expenses-page,
+.reports-page,
+.staff-page,
+.activity-page,
+.sales-history-page,
+.cash-sessions-page,
+.profile-page,
+.sync-issues-page,
+.products-page,
+.sales-page,
+.login-page,
+.signup-page {
+  background-color: var(--canvas);
+}
+
+.landing-page,
+.lp-page {
+  background-color: var(--canvas);
+}
+
+.app-status-strip {
+  background: rgba(237, 245, 252, 0.94);
+}
+
+.dashboard-header {
+  background:
+    linear-gradient(105deg, rgba(25, 66, 104, 0.92), rgba(57, 127, 189, 0.72)),
+    url("./assets/W7.jpg") center 46% / cover;
+  box-shadow: 0 18px 42px rgba(37, 92, 141, 0.2);
+}
+
+.dashboard-loading,
+.cashier-dashboard-loading {
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  color: var(--muted);
+  text-align: center;
+  animation: workspace-fade-in 380ms ease both;
+}
+
+.cashier-dashboard-loading p {
+  margin: 0;
+}
+
+.loading-spinner,
+.cashier-loading-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid #d8e9f7;
+  border-top-color: var(--brand);
+  border-right-color: #83b8e2;
+  border-radius: 50%;
+  animation: dashboard-spin 850ms cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+  box-shadow: 0 0 0 7px rgba(57, 127, 189, 0.06);
+}
+
+.cashier-dashboard-loading p::after {
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: loading-dots 1.2s steps(4, end) infinite;
+  content: "...";
+}
+
+@keyframes loading-dots {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes workspace-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

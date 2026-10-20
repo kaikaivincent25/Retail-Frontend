@@ -28,7 +28,12 @@ function CashierDashboard() {
   }
 
   if (!summary) {
-    return <main className="cashier-dashboard"><p>Loading your dashboard…</p></main>;
+    return (
+      <main className="cashier-dashboard cashier-dashboard-loading" aria-busy="true" aria-live="polite">
+        <span className="cashier-loading-spinner" aria-hidden="true" />
+        <p>Preparing your dashboard</p>
+      </main>
+    );
   }
 
   const activeSession = summary.current_session;
