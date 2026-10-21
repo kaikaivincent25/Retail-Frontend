@@ -19,8 +19,8 @@ import CashierDashboard from "./pages/Dashboard/CashierDashboard";
 import Expenses from "./pages/Expenses/Expenses";
 import SyncIssues from "./pages/SyncIssues";
 import "./App.css";
-import "./design.css";
 import "./pages/Landing/Landing.css";
+import "./design.css";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();

@@ -1768,3 +1768,448 @@ h1, h2, h3, h4, h5, h6,
     background: #e7f2fb;
   }
 }
+
+/* Responsive finish across shared workspace, forms, tables, and dialogs. */
+*,
+*::before,
+*::after {
+  min-width: 0;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+.app-content,
+.app-layout,
+.sales-page,
+.dashboard-page,
+.cashier-dashboard,
+.inventory-page,
+.expenses-page,
+.reports-page,
+.staff-page,
+.activity-page,
+.sales-history-page,
+.cash-sessions-page,
+.profile-page,
+.sync-issues-page,
+.products-page {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.summary-card,
+.inventory-panel,
+.dashboard-section,
+.expenses-summary,
+.expenses-form-panel,
+.expenses-list-panel,
+.cash-deposit-panel,
+.activity-panel,
+.staff-panel,
+.reports-panel,
+.profile-card,
+.history-panel,
+.sales-grid-panel,
+.cart-panel {
+  min-width: 0;
+}
+
+.modal-overlay,
+.bulk-prompt-overlay {
+  padding: 12px;
+}
+
+.modal-card,
+.bulk-prompt-card {
+  width: min(100%, 540px);
+  max-width: 100%;
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+}
+
+.sale-history-modal-actions,
+.manual-payment-history-actions > div,
+.history-filters {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1100px) {
+  .reports-summary-grid,
+  .summary-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cashier-dashboard,
+  .dashboard-page,
+  .inventory-page,
+  .expenses-page,
+  .reports-page,
+  .staff-page,
+  .activity-page,
+  .sales-history-page,
+  .cash-sessions-page,
+  .profile-page,
+  .sync-issues-page,
+  .products-page {
+    padding-right: clamp(16px, 2.5vw, 28px);
+    padding-left: clamp(16px, 2.5vw, 28px);
+  }
+}
+
+@media (max-width: 800px) {
+  .dashboard-page,
+  .inventory-page,
+  .expenses-page,
+  .reports-page,
+  .staff-page,
+  .activity-page,
+  .sales-history-page,
+  .cash-sessions-page,
+  .profile-page,
+  .sync-issues-page,
+  .products-page {
+    padding-top: 22px;
+    padding-bottom: 30px;
+  }
+
+  .cash-deposit-header,
+  .expenses-header,
+  .expenses-list-heading {
+    align-items: flex-start;
+  }
+
+  .reports-header,
+  .dashboard-header,
+  .inventory-header,
+  .staff-header,
+  .activity-header {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .reports-chart-grid,
+  .report-content-grid,
+  .reports-content-grid,
+  .reports-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cash-deposit-form {
+    align-items: stretch;
+  }
+
+  .cash-deposit-form > label:not(.deposit-all-option),
+  .cash-deposit-form button {
+    flex: 1 1 190px;
+  }
+}
+
+@media (max-width: 650px) {
+  .app-layout {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .app-content {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .sidebar.sidebar--modern,
+  .sidebar.sidebar--modern.is-collapsed {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    max-height: none;
+    padding: 9px 12px 7px;
+    background-color: rgba(248, 252, 255, 0.97);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(16px);
+  }
+
+  .sidebar.sidebar--modern .sidebar-brand {
+    min-height: 44px;
+    padding: 0 2px 7px;
+  }
+
+  .sidebar.sidebar--modern .sidebar-brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .sidebar.sidebar--modern .sidebar-brand-name {
+    font-size: 16px;
+  }
+
+  .sidebar.sidebar--modern .sidebar-brand-caption,
+  .sidebar.sidebar--modern .sidebar-footer {
+    display: none;
+  }
+
+  .sidebar.sidebar--modern .sidebar-section-label {
+    display: none;
+  }
+
+  .sidebar.sidebar--modern .sidebar-nav {
+    gap: 6px;
+    padding: 3px 1px 7px;
+  }
+
+  .sidebar.sidebar--modern .sidebar-link {
+    min-height: 40px;
+    padding-inline: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  .sidebar.sidebar--modern .sidebar-bottom {
+    margin-top: 4px;
+    padding-top: 6px;
+  }
+
+  .sidebar.sidebar--modern.is-collapsed {
+    max-height: none;
+  }
+
+  .sidebar.sidebar--modern.is-collapsed .sidebar-brand {
+    padding-bottom: 0;
+  }
+
+  .app-status-strip {
+    min-height: 42px;
+    padding: 6px 12px;
+  }
+
+  .dashboard-page,
+  .inventory-page,
+  .expenses-page,
+  .reports-page,
+  .staff-page,
+  .activity-page,
+  .sales-history-page,
+  .cash-sessions-page,
+  .profile-page,
+  .sync-issues-page,
+  .products-page {
+    padding: 18px 14px 26px;
+  }
+
+  .dashboard-page h1,
+  .inventory-page h1,
+  .expenses-page h1,
+  .reports-page h1,
+  .staff-page h1,
+  .activity-page h1,
+  .sales-history-page h1,
+  .cash-sessions-page h1,
+  .profile-page h1 {
+    font-size: clamp(24px, 7vw, 32px);
+    line-height: 1.15;
+  }
+
+  .summary-cards,
+  .cashier-dashboard-cards,
+  .reports-summary-grid,
+  .profile-overview,
+  .profile-form-grid,
+  .inventory-form-grid,
+  .signup-benefits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expenses-header,
+  .cash-deposit-header,
+  .expenses-list-heading {
+    flex-direction: column;
+  }
+
+  .expenses-sales-link,
+  .cash-deposit-balance {
+    align-self: flex-start;
+    text-align: left;
+  }
+
+  .expenses-session-status {
+    margin-left: 0;
+  }
+
+  .cash-deposit-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    min-height: 42px;
+    font-size: 16px;
+  }
+
+  .cash-sessions-page,
+  .sales-history-page {
+    overflow-x: hidden;
+  }
+
+  .sessions-table,
+  .sales-table,
+  .staff-table,
+  .variants-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 8px;
+  }
+
+  .modal-card,
+  .bulk-prompt-card {
+    width: min(100%, 540px);
+    max-height: min(88dvh, 720px);
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .sale-items-table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .login-page,
+  .signup-page,
+  .lp-page {
+    background-attachment: scroll;
+  }
+
+  .lp-hero {
+    gap: 24px;
+    padding: 44px 0 52px;
+  }
+
+  .lp-hero-visual {
+    min-height: clamp(300px, 90vw, 440px);
+  }
+
+  .lp-how-inner {
+    gap: 28px;
+    padding: 52px 0;
+  }
+
+  .lp-final {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    margin-block: 48px;
+    padding: 28px 22px;
+  }
+
+  .lp-final-actions {
+    flex-wrap: wrap;
+  }
+
+  .signup-layout {
+    padding-top: 30px;
+    padding-bottom: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  #root {
+    min-width: 320px;
+  }
+
+  .summary-cards,
+  .cashier-dashboard-cards,
+  .reports-summary-grid,
+  .profile-overview,
+  .form-grid,
+  .inventory-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .signup-benefits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .summary-card {
+    min-height: 116px;
+  }
+
+  .cash-sessions-page,
+  .sales-history-page {
+    padding-inline: 11px;
+  }
+
+  .expenses-summary {
+    flex-wrap: wrap;
+    padding: 14px;
+  }
+
+  .expenses-session-status {
+    flex-basis: 100%;
+  }
+
+  .history-filters > *,
+  .history-filters label,
+  .history-filters input,
+  .history-filters select {
+    width: 100%;
+  }
+
+  .sale-history-modal-actions > button,
+  .manual-payment-history-actions > div > button,
+  .mpesa-reconcile-history-actions > div > button {
+    flex: 1 1 130px;
+    min-height: 42px;
+  }
+
+  .lp-hero h1 {
+    font-size: clamp(2.2rem, 11vw, 3rem);
+  }
+
+  .lp-hero-visual {
+    min-height: 300px;
+    border-radius: 22px;
+  }
+
+  .login-shell {
+    width: calc(100% - 24px);
+  }
+
+  .signup-shell {
+    width: calc(100% - 28px);
+  }
+}
+
+@media (max-width: 360px) {
+  .sidebar.sidebar--modern .sidebar-link {
+    padding-inline: 8px;
+    font-size: 11px;
+  }
+
+  .sidebar.sidebar--modern .sidebar-link-icon {
+    display: none;
+  }
+
+  .dashboard-page,
+  .inventory-page,
+  .expenses-page,
+  .reports-page,
+  .staff-page,
+  .activity-page,
+  .profile-page,
+  .sync-issues-page,
+  .products-page {
+    padding-inline: 10px;
+  }
+}
