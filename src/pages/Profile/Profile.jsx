@@ -19,11 +19,13 @@ function Profile() {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const [shop, setShop] = useState(null);
   const [shopName, setShopName] = useState("");
@@ -34,6 +36,7 @@ function Profile() {
   const [shopPaybillNumber, setShopPaybillNumber] = useState("");
   const [shopPaybillAccountNumber, setShopPaybillAccountNumber] = useState("");
   const [savingShop, setSavingShop] = useState(false);
+  const [editingShop, setEditingShop] = useState(false);
 
   useEffect(() => {
     getMe().then((data) => {
@@ -62,6 +65,7 @@ function Profile() {
     try {
       const updated = await updateMe({ full_name: fullName, username });
       setMe(updated);
+      setEditingProfile(false);
       showToast("Profile updated.", "success");
     } catch (err) {
       showToast(extractErrorMessage(err), "error");
@@ -86,6 +90,7 @@ function Profile() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      setChangingPassword(false);
       showToast("Password changed.", "success");
     } catch (err) {
       showToast(extractErrorMessage(err), "error");
@@ -112,6 +117,7 @@ function Profile() {
       setShopTillNumber(updated.mpesa_till_number || "");
       setShopPaybillNumber(updated.mpesa_paybill_number || "");
       setShopPaybillAccountNumber(updated.mpesa_paybill_account_number || "");
+      setEditingShop(false);
       showToast("Shop settings updated.", "success");
     } catch (err) {
       showToast(extractErrorMessage(err), "error");
@@ -201,14 +207,44 @@ function Profile() {
             <div>
               <h2>Your Details</h2>
               <p>
-                Keep your account information accurate so your Duka POS
+                Keep your account information accurate so your RIS
                 profile stays up to date.
               </p>
             </div>
           </div>
 
           <div className="profile-card-content">
-            <form onSubmit={handleProfileSubmit}>
+            {!editingProfile ? (
+              <>
+                <div className="profile-readonly-grid">
+                  <div className="profile-readonly-item">
+                    <span>Full name</span>
+                    <strong>{me.full_name}</strong>
+                  </div>
+                  <div className="profile-readonly-item">
+                    <span>Username</span>
+                    <strong>@{me.username}</strong>
+                  </div>
+                  <div className="profile-readonly-item">
+                    <span>Account role</span>
+                    <strong className="role-badge">{me.role}</strong>
+                  </div>
+                </div>
+                <div className="profile-action-row">
+                  <p>Make changes to your name or username.</p>
+                  <button
+                    type="button"
+                    className="primary-button profile-action-button"
+                    aria-expanded={editingProfile}
+                    aria-controls="profile-edit-form"
+                    onClick={() => setEditingProfile(true)}
+                  >
+                    Update profile
+                  </button>
+                </div>
+              </>
+            ) : (
+            <form id="profile-edit-form" onSubmit={handleProfileSubmit}>
               <div className="form-grid">
                 <div className="profile-field">
                   <label htmlFor="profile-full-name">Full name</label>
@@ -250,6 +286,14 @@ function Profile() {
 
               <div className="form-actions">
                 <button
+                  type="button"
+                  className="secondary-button"
+                  disabled={savingProfile}
+                  onClick={() => { setEditingProfile(false); setFullName(me.full_name); setUsername(me.username); }}
+                >
+                  Cancel
+                </button>
+                <button
                   type="submit"
                   className="primary-button"
                   disabled={savingProfile}
@@ -258,6 +302,7 @@ function Profile() {
                 </button>
               </div>
             </form>
+            )}
           </div>
         </section>
 
@@ -276,7 +321,30 @@ function Profile() {
           </div>
 
           <div className="profile-card-content">
-            <form onSubmit={handlePasswordSubmit}>
+            {!changingPassword ? (
+              <div className="profile-security-prompt">
+                <div className="security-notice">
+                  <span className="security-notice-icon">✓</span>
+                  <div>
+                    <strong>Password protection</strong>
+                    <p>Keep your account secure by choosing a strong password that you do not share with other staff.</p>
+                  </div>
+                </div>
+                <div className="profile-action-row">
+                  <p>Your current password is required to make this change.</p>
+                  <button
+                    type="button"
+                    className="primary-button profile-action-button"
+                    aria-expanded={changingPassword}
+                    aria-controls="password-change-form"
+                    onClick={() => setChangingPassword(true)}
+                  >
+                    Change password
+                  </button>
+                </div>
+              </div>
+            ) : (
+            <form id="password-change-form" onSubmit={handlePasswordSubmit}>
               <div className="security-notice">
                 <span className="security-notice-icon">✓</span>
                 <div>
@@ -337,14 +405,23 @@ function Profile() {
 
               <div className="form-actions">
                 <button
-                  type="submit"
+                  type="button"
                   className="secondary-button"
+                  disabled={savingPassword}
+                  onClick={() => { setChangingPassword(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary-button"
                   disabled={savingPassword}
                 >
                   {savingPassword ? "Saving..." : "Update Password"}
                 </button>
               </div>
             </form>
+            )}
           </div>
         </section>
 
@@ -379,7 +456,21 @@ function Profile() {
                 </div>
               </div>
 
-              <form onSubmit={handleShopSubmit}>
+              {!editingShop ? (
+                <div className="profile-action-row">
+                  <p>Review or update your shop identity and payment details.</p>
+                  <button
+                    type="button"
+                    className="primary-button profile-action-button"
+                    aria-expanded={editingShop}
+                    aria-controls="shop-settings-form"
+                    onClick={() => setEditingShop(true)}
+                  >
+                    Manage shop settings
+                  </button>
+                </div>
+              ) : (
+              <form id="shop-settings-form" onSubmit={handleShopSubmit}>
                 <div className="form-grid">
                   <div className="profile-field">
                     <label htmlFor="shop-name">Shop name</label>
@@ -481,6 +572,23 @@ function Profile() {
 
                 <div className="form-actions">
                   <button
+                    type="button"
+                    className="secondary-button"
+                    disabled={savingShop}
+                    onClick={() => {
+                      setEditingShop(false);
+                      setShopName(shop.name);
+                      setShopLocation(shop.location || "");
+                      setShopCurrency(shop.currency);
+                      setShopPochiNumber(shop.mpesa_pochi_number || "");
+                      setShopTillNumber(shop.mpesa_till_number || "");
+                      setShopPaybillNumber(shop.mpesa_paybill_number || "");
+                      setShopPaybillAccountNumber(shop.mpesa_paybill_account_number || "");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
                     type="submit"
                     className="primary-button"
                     disabled={savingShop}
@@ -491,12 +599,13 @@ function Profile() {
                   </button>
                 </div>
               </form>
+              )}
             </div>
           </section>
         )}
 
         <div className="profile-footer">
-          <span>DUKA POS</span>
+          <span>RIS</span>
           <p>Your account and shop settings are managed securely.</p>
         </div>
       </div>
