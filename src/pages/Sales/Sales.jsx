@@ -4,7 +4,7 @@ import {
   startMpesaPayment, getSale, startManualMpesaPayment, confirmManualPayment,
   cancelManualPayment,
 } from "../../services/salesApi";
-import { cacheSession, getCachedSession, queueSale } from "../../db";
+import { cacheSession, getCachedSession, queueSale, unsyncedCount } from "../../db";
 import { syncOutbox } from "../../sync";
 import { getMe, getPaymentDestinations, getReceiptProfile } from "../../services/profileApi";
 import { closeSession } from "../../services/cashSessionApi";
@@ -645,7 +645,8 @@ function Sales() {
           <CloseTillModal
             session={session}
             onClose={() => setClosingModalOpen(false)}
-            onClosed={() => {
+            onClosed={async () => {
+              await cacheSession(null);
               setClosingModalOpen(false);
               setSession(null);
             }}
@@ -964,6 +965,7 @@ function CloseTillModal({ session, onClose, onClosed }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const difference = Number(result?.difference ?? 0);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -1058,17 +1060,17 @@ function CloseTillModal({ session, onClose, onClosed }) {
             <h3 id="close-till-title">Session Closed</h3>
             <div className="close-result-row"><span>Expected</span><span>{formatCurrency(result.expected_cash)}</span></div>
             <div className="close-result-row"><span>Counted</span><span>{formatCurrency(result.closing_cash)}</span></div>
-            <div className={`close-result-row difference ${Number(result.difference) < 0 ? "negative" : Number(result.difference) > 0 ? "positive" : ""}`}>
+            <div className={`close-result-row difference ${difference < 0 ? "negative" : difference > 0 ? "positive" : ""}`}>
               <span>Difference</span>
-              <span>{Number(result.difference) > 0 ? "+" : ""}{formatCurrency(result.difference)}</span>
+              <span>{difference > 0 ? "+" : ""}{formatCurrency(difference)}</span>
             </div>
-            {result.difference !== 0 && (
-              <p className="difference-note">
-                {result.difference < 0
-                  ? "This shows a shortage — it's been logged for the owner to review."
-                  : "This shows an balance — it's been logged for the owner to review."}
-              </p>
-            )}
+            <p className="difference-note">
+              {difference < 0
+                ? `Short by ${formatCurrency(Math.abs(difference))}. This has been logged for the owner to review.`
+                : difference > 0
+                  ? `Over by ${formatCurrency(difference)}. This surplus has been logged for the owner to review.`
+                  : "The counted cash matches the expected amount."}
+            </p>
             <button className="primary" onClick={onClosed}>Done</button>
           </>
         )}
