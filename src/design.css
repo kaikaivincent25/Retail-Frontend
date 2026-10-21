@@ -2058,7 +2058,6 @@ video {
 
   .sessions-table,
   .sales-table,
-  .staff-table,
   .variants-table {
     display: block;
     width: 100%;
@@ -2211,5 +2210,199 @@ video {
   .sync-issues-page,
   .products-page {
     padding-inline: 10px;
+  }
+}
+
+/* Premium analytics presentation */
+.reports-page {
+  --reports-accent: #2878c7;
+  --reports-accent-dark: #1d639f;
+  --reports-accent-soft: #e8f3fc;
+  --reports-ink: #173b5d;
+  --reports-muted: #6e8499;
+  --reports-border: #d9e7f3;
+}
+
+.reports-hero {
+  min-height: 238px;
+  border-radius: 25px;
+  background-image:
+    linear-gradient(105deg, rgba(17, 48, 78, 0.96) 0%, rgba(24, 76, 116, 0.86) 55%, rgba(32, 111, 161, 0.48) 100%),
+    url("./assets/W7.jpg");
+  box-shadow: 0 22px 48px rgba(24, 67, 103, 0.17);
+}
+
+.reports-hero-note {
+  align-items: flex-start;
+  padding: 12px 15px;
+  border-radius: 14px;
+}
+
+.reports-note-dot {
+  margin-top: 5px;
+}
+
+.reports-note-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.reports-note-copy strong {
+  color: #fff;
+  font-size: 12px;
+}
+
+.reports-note-copy small {
+  color: #c8e2f7;
+  font-size: 10px;
+}
+
+.reports-section-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 27px 2px 13px;
+}
+
+.reports-section-intro span {
+  color: var(--brand-strong);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.35px;
+}
+
+.reports-section-intro h2 {
+  margin: 4px 0 0;
+  color: var(--navy);
+  font-size: 20px;
+  letter-spacing: -0.45px;
+}
+
+.reports-section-intro p {
+  margin: 0 0 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.reports-page .summary-cards {
+  gap: 13px;
+}
+
+.reports-page .summary-card {
+  position: relative;
+  min-height: 145px;
+  padding: 18px 19px;
+  border: 1px solid #dce9f4;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 252, 255, 0.95));
+  box-shadow: 0 8px 22px rgba(27, 71, 106, 0.055);
+}
+
+.reports-page .summary-card::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 2px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, #8ec5ed, #d9edfb);
+  content: "";
+}
+
+.reports-page .summary-card:hover {
+  transform: translateY(-3px);
+  border-color: #c5dced;
+  box-shadow: 0 15px 30px rgba(27, 71, 106, 0.1);
+}
+
+.reports-page .metric-net_sales {
+  background: linear-gradient(145deg, #f0f8ff, #ffffff 80%);
+  border-color: #c7e0f4;
+}
+
+.reports-page .metric-net_sales::before {
+  background: linear-gradient(90deg, #2878c7, #8ec5ed);
+}
+
+.reports-page .metric-net_sales .card-value {
+  color: #1d639f;
+}
+
+.reports-page .report-section {
+  padding: 25px;
+  border: 1px solid #dce8f2;
+  border-radius: 19px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 9px 26px rgba(27, 71, 106, 0.055);
+}
+
+.reports-page .section-kicker {
+  color: #4b88bb;
+}
+
+.reports-page .sales-insights {
+  border-color: #e5eef6;
+  background: linear-gradient(100deg, #f3f8fd, #fbfdff);
+}
+
+.reports-page .chart-bar {
+  background: linear-gradient(180deg, #74b6e9, #2878c7);
+  box-shadow: 0 4px 10px rgba(40, 120, 199, 0.18);
+}
+
+.reports-page .product-rank-row {
+  transition: background-color 150ms ease;
+}
+
+.reports-page .product-rank-row:hover {
+  background: #f8fbfe;
+}
+
+.reports-page .product-progress span {
+  background: linear-gradient(90deg, #91c9ef, #2878c7);
+}
+
+.reports-page .report-shortcut {
+  border-color: #dce8f2;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.reports-page .report-shortcut:hover {
+  border-color: #bad8ef;
+  box-shadow: 0 12px 26px rgba(27, 71, 106, 0.09);
+}
+
+.reports-page .report-shortcut:focus-visible,
+.reports-page .preset-list button:focus-visible,
+.reports-page .date-fields input:focus-visible {
+  outline-color: rgba(40, 120, 199, 0.38);
+}
+
+@media (max-width: 650px) {
+  .reports-section-intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 22px;
+  }
+
+  .reports-page .reports-hero {
+    min-height: 200px;
+    border-radius: 20px;
+  }
+
+  .reports-page .report-section {
+    padding: 19px 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .reports-page .summary-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reports-page .summary-card {
+    min-height: 118px;
   }
 }

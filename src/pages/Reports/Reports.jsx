@@ -100,7 +100,10 @@ function Reports() {
         </div>
         <div className="reports-hero-note">
           <span className="reports-note-dot" />
-          <span>Sales after expenses</span>
+          <span className="reports-note-copy">
+            <strong>Sales after expenses</strong>
+            <small>{formatShortDate(startDate)} - {formatShortDate(endDate)}</small>
+          </span>
         </div>
       </section>
 
@@ -159,6 +162,13 @@ function Reports() {
 
       {!loading && report && (
         <>
+          <div className="reports-section-intro">
+            <div>
+              <span>PERFORMANCE SNAPSHOT</span>
+              <h2>Business at a glance</h2>
+            </div>
+            <p>Key figures for the selected reporting period.</p>
+          </div>
           <section className="summary-cards" aria-label="Key performance indicators">
             {METRICS.map((metric) => (
               <article className={`summary-card metric-${metric.key}`} key={metric.key}>

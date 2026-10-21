@@ -49,66 +49,143 @@ function Staff() {
     refresh();
   }
 
+  const activeStaffCount = staff.filter((member) => member.is_active).length;
+  const inactiveStaffCount = staff.length - activeStaffCount;
+
   return (
     <div className="staff-page">
-      <h1>Staff</h1>
+      <header className="staff-header">
+        <div className="staff-heading-copy">
+          <span className="staff-eyebrow">TEAM MANAGEMENT</span>
+          <h1>Staff</h1>
+          <p>Manage access and roles for the people who keep your shop running.</p>
+        </div>
+        <div className="staff-header-note">
+          <span className="staff-header-note-mark" aria-hidden="true">R</span>
+          <span><strong>{staff.length} team members</strong><small>Access managed by you</small></span>
+        </div>
+      </header>
 
-      <form className="new-staff-form" onSubmit={handleCreate}>
-        <input placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-        <input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-        <input
-          type="password"
-          placeholder="Password (min. 6 characters)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={6}
-        />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-        </select>
-        <button type="submit">Add Staff Member</button>
-      </form>
-      {error && <div className="form-error">{error}</div>}
+      <section className="staff-metrics" aria-label="Team overview">
+        <article className="staff-metric-card">
+          <span className="staff-metric-icon" aria-hidden="true">T</span>
+          <div><small>Total team</small><strong>{staff.length}</strong></div>
+        </article>
+        <article className="staff-metric-card is-active-metric">
+          <span className="staff-metric-icon" aria-hidden="true">A</span>
+          <div><small>Active</small><strong>{activeStaffCount}</strong></div>
+        </article>
+        <article className="staff-metric-card is-inactive-metric">
+          <span className="staff-metric-icon" aria-hidden="true">D</span>
+          <div><small>Deactivated</small><strong>{inactiveStaffCount}</strong></div>
+        </article>
+      </section>
 
-      <table className="staff-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {staff.map((member) => (
-            <tr key={member.id} className={!member.is_active ? "inactive-row" : ""}>
-              <td>{member.full_name} {member.id === currentUser.id && <span className="you-badge">you</span>}</td>
-              <td>{member.username}</td>
-              <td>
-                <select
-                  value={member.role}
-                  disabled={member.id === currentUser.id}
-                  onChange={(e) => handleRoleChange(member, e.target.value)}
-                >
-                  {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </td>
-              <td>{member.is_active ? "Active" : "Deactivated"}</td>
-              <td>
-                <button
-                  className={member.is_active ? "danger small" : "primary small"}
-                  disabled={member.id === currentUser.id}
-                  onClick={() => handleToggleActive(member)}
-                >
-                  {member.is_active ? "Deactivate" : "Reactivate"}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <section className="staff-create-card">
+        <div className="staff-section-heading">
+          <div className="staff-section-icon" aria-hidden="true">+</div>
+          <div>
+            <span className="staff-section-kicker">GROW YOUR TEAM</span>
+            <h2>Add a staff member</h2>
+            <p>Create an account and assign the right level of access.</p>
+          </div>
+        </div>
+
+        <form className="new-staff-form" onSubmit={handleCreate}>
+          <label>
+            Full name
+            <input placeholder="e.g. Amina Wanjiku" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          </label>
+          <label>
+            Username
+            <input placeholder="Choose a username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+          </label>
+          <label>
+            Temporary password
+            <input
+              type="password"
+              placeholder="At least 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </label>
+          <label>
+            Role
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </label>
+          <button type="submit"><span aria-hidden="true">+</span> Add staff member</button>
+        </form>
+        {error && <div className="form-error" role="alert">{error}</div>}
+      </section>
+
+      <section className="staff-list-card">
+        <div className="staff-list-heading">
+          <div>
+            <span className="staff-section-kicker">ACCESS &amp; PERMISSIONS</span>
+            <h2>Your team</h2>
+            <p>Update roles or deactivate access when responsibilities change.</p>
+          </div>
+          <span className="staff-count-badge">{staff.length} members</span>
+        </div>
+
+        {staff.length === 0 ? (
+          <div className="staff-empty-state">
+            <span aria-hidden="true">T</span>
+            <strong>Your team will appear here</strong>
+            <p>Add a staff member above to get started.</p>
+          </div>
+        ) : (
+          <div className="staff-table-wrap">
+            <table className="staff-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th><span className="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {staff.map((member) => (
+                  <tr key={member.id} className={!member.is_active ? "inactive-row" : ""}>
+                    <td>
+                      <span className="staff-name-mark" aria-hidden="true">{member.full_name?.charAt(0)?.toUpperCase() || "S"}</span>
+                      <span className="staff-name-cell">{member.full_name} {member.id === currentUser.id && <span className="you-badge">You</span>}</span>
+                    </td>
+                    <td>@{member.username}</td>
+                    <td>
+                      <select
+                        value={member.role}
+                        disabled={member.id === currentUser.id}
+                        aria-label={`Role for ${member.full_name}`}
+                        onChange={(e) => handleRoleChange(member, e.target.value)}
+                      >
+                        {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </td>
+                    <td><span className={`staff-status ${member.is_active ? "is-active" : "is-inactive"}`}>{member.is_active ? "Active" : "Deactivated"}</span></td>
+                    <td>
+                      <button
+                        type="button"
+                        className={`staff-toggle-button ${member.is_active ? "is-deactivate" : "is-reactivate"}`}
+                        disabled={member.id === currentUser.id}
+                        onClick={() => handleToggleActive(member)}
+                      >
+                        {member.is_active ? "Deactivate" : "Reactivate"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
