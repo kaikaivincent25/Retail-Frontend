@@ -151,8 +151,8 @@ function Sidebar({ collapsed, onToggle }) {
         <div className="sidebar-brand-logo" aria-hidden="true">R</div>
 
         <div className="sidebar-brand-text">
-          <span className="sidebar-brand-name">RISA</span>
-          <span className="sidebar-brand-caption">RETAIL WORKSPACE</span>
+          <span className="sidebar-brand-name">RIS</span>
+          <span className="sidebar-brand-caption">RETAIL INFORMATION SYSTEM</span>
         </div>
         <button
           className="sidebar-toggle"
@@ -262,7 +262,7 @@ function Sidebar({ collapsed, onToggle }) {
         </button>
 
         <div className="sidebar-footer">
-          <span>RISA</span>
+          <span>RIS</span>
           <span>Made for the way you work.</span>
         </div>
       </div>

@@ -41,8 +41,8 @@ function Login() {
           <div className="brand-header">
             <div className="brand-logo">R</div>
             <div className="brand-name">
-              <h2>RISA</h2>
-              <span>RETAIL INTELLIGENCE</span>
+              <h2>RIS</h2>
+              <span>RETAIL INFORMATION SYSTEM</span>
             </div>
           </div>
 
@@ -91,7 +91,7 @@ function Login() {
 
           <div className="brand-footer">
             <span>Built for everyday retail.</span>
-            <span>© 2026 RISA</span>
+            <span>© 2026 RIS</span>
           </div>
         </section>
 
@@ -100,7 +100,7 @@ function Login() {
           <div className="login-form-container">
             <div className="mobile-brand">
               <div className="brand-logo">R</div>
-              <span>RISA</span>
+              <span>RIS</span>
             </div>
 
             <div className="login-heading">
@@ -147,7 +147,7 @@ function Login() {
               </div>
 
               <button type="submit" disabled={loading}>
-                <span>{loading ? "Signing in..." : "Sign in to RISA"}</span>
+                <span>{loading ? "Signing in..." : "Sign in to RIS"}</span>
                 {!loading && <span className="button-arrow">→</span>}
               </button>
             </form>
@@ -163,7 +163,7 @@ function Login() {
           </div>
 
           <div className="login-bottom">
-            <span>RISA Retail Management System</span>
+            <span>RIS Retail Information System</span>
             <span>Simple. Reliable. Efficient.</span>
           </div>
         </section>

@@ -40,9 +40,9 @@ function Signup() {
     <div className="signup-page">
       <div className="signup-shell">
         <header className="signup-topbar">
-          <Link to="/" className="signup-brand" aria-label="RISA home">
+          <Link to="/" className="signup-brand" aria-label="RIS home">
             <span className="signup-brand-mark">R</span>
-            <span>RISA</span>
+            <span>RIS</span>
           </Link>
           <div className="signup-topbar-note">
             Already registered?
@@ -224,7 +224,7 @@ function Signup() {
                 </button>
 
                 <p className="signup-form-note">
-                  By creating an account, you are setting up your shop on RISA.
+                  By creating an account, you are setting up your shop on RIS.
                 </p>
               </form>
 
@@ -236,7 +236,7 @@ function Signup() {
         </main>
 
         <footer className="signup-footer">
-          <span>© RISA</span>
+          <span>© RIS</span>
           <span>Built for Kenyan micro-retail.</span>
         </footer>
       </div>

@@ -7,9 +7,9 @@ function Landing() {
   return (
     <div className="lp-page">
       <nav className="lp-nav">
-        <Link to="/" className="lp-brand" aria-label="RISA home">
+        <Link to="/" className="lp-brand" aria-label="RIS home">
           <span className="lp-brand-mark">R</span>
-          <span className="lp-brand-name">RISA</span>
+          <span className="lp-brand-name">RIS</span>
         </Link>
 
         <div className="lp-nav-links">
@@ -41,7 +41,7 @@ function Landing() {
             <h1>Know what you sold, what is left, and what is in the till.</h1>
 
             <p className="lp-hero-lead">
-              RISA is the shop system built around how Kenyan shops really sell:
+              RIS is the shop system built around how Kenyan shops really sell:
               loose sugar by the quarter kilo, packaged goods by the piece. Record
               every sale at the counter and see your stock and cash clearly, all
               day long.
@@ -73,14 +73,14 @@ function Landing() {
           <div
             className="lp-hero-visual"
             role="img"
-            aria-label="Illustration of a sample sales slip from a RISA shop"
+            aria-label="Illustration of a sample sales slip from an RIS shop"
           >
             <div className="lp-slip">
               <div className="lp-slip-paper">
                 <div className="lp-slip-head">
                   <span className="lp-slip-mark">R</span>
                   <div>
-                    <strong>RISA</strong>
+                    <strong>RIS</strong>
                     <small>Sales slip (sample)</small>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ function Landing() {
           <header className="lp-section-head">
             <h2>Built around the questions shop owners ask every day.</h2>
             <p>
-              Your sales, stock, staff and cash all need attention. RISA brings
+              Your sales, stock, staff and cash all need attention. RIS brings
               them into one practical system, so you spend less time chasing
               records and more time serving customers.
             </p>
@@ -210,7 +210,7 @@ function Landing() {
             <div className="lp-how-copy">
               <h2>Simple at the counter. Useful long after the sale.</h2>
               <p>
-                RISA follows a real retail day, from serving a customer to
+                RIS follows a real retail day, from serving a customer to
                 checking stock and reviewing what happened in your shop.
               </p>
             </div>
@@ -255,7 +255,7 @@ function Landing() {
                 Create your shop
               </Link>
               <span>
-                Already using RISA? <Link to="/login">Log in</Link>
+                Already using RIS? <Link to="/login">Log in</Link>
               </span>
             </div>
           </section>
@@ -263,7 +263,7 @@ function Landing() {
       </main>
 
       <footer className="lp-footer">
-        <Link to="/" className="lp-footer-brand">RISA</Link>
+        <Link to="/" className="lp-footer-brand">RIS</Link>
         <p>Built for Kenyan micro-retail.</p>
         <span className="lp-footer-note">A clearer view of your everyday business.</span>
       </footer>
