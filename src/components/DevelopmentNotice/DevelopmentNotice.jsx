@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import "./DevelopmentNotice.css";
 
-const ACCEPTANCE_KEY = "retail-development-terms-v1";
-
 const terms = [
   {
     title: "Development preview only",
@@ -39,13 +37,7 @@ const terms = [
 ];
 
 export default function DevelopmentNotice({ children }) {
-  const [accepted, setAccepted] = useState(() => {
-    try {
-      return window.localStorage.getItem(ACCEPTANCE_KEY) === "accepted";
-    } catch {
-      return false;
-    }
-  });
+  const [accepted, setAccepted] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
 
   useEffect(() => {
@@ -60,11 +52,6 @@ export default function DevelopmentNotice({ children }) {
 
   function acceptTerms() {
     if (!acknowledged) return;
-    try {
-      window.localStorage.setItem(ACCEPTANCE_KEY, "accepted");
-    } catch {
-      // Keep the current visit usable if browser storage is unavailable.
-    }
     setAccepted(true);
   }
 
@@ -105,6 +92,7 @@ export default function DevelopmentNotice({ children }) {
               <label className="dev-notice-check">
                 <input
                   type="checkbox"
+                  autoFocus
                   checked={acknowledged}
                   onChange={(event) => setAcknowledged(event.target.checked)}
                 />
@@ -121,8 +109,9 @@ export default function DevelopmentNotice({ children }) {
                 Accept and continue
               </button>
               <p className="dev-notice-footnote">
-                Your acceptance is saved in this browser. If you do not agree,
-                close this page without proceeding.
+                You will be asked to accept again the next time you visit or
+                refresh this page. If you do not agree, close this page without
+                proceeding.
               </p>
             </footer>
           </section>

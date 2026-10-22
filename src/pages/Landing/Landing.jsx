@@ -33,6 +33,14 @@ function Landing() {
         </div>
       </nav>
 
+      <div className="lp-preview-banner" role="status">
+        <span className="lp-preview-dot" aria-hidden="true" />
+        <strong>Development preview</strong>
+        <span>Sample data only</span>
+        <span className="lp-preview-divider" aria-hidden="true" />
+        <span>No real sales or payments are processed</span>
+      </div>
+
       <main>
         <section className="lp-hero">
           <div className="lp-hero-copy">
