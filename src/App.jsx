@@ -21,6 +21,7 @@ import SyncIssues from "./pages/SyncIssues";
 import "./App.css";
 import "./pages/Landing/Landing.css";
 import "./design.css";
+import DevelopmentNotice from "./components/DevelopmentNotice/DevelopmentNotice";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
@@ -159,7 +160,9 @@ function App() {
     <ToastProvider>
       <AuthProvider>
         <BrowserRouter>
-          <AppRoutes />
+          <DevelopmentNotice>
+            <AppRoutes />
+          </DevelopmentNotice>
         </BrowserRouter>
       </AuthProvider>
     </ToastProvider>
