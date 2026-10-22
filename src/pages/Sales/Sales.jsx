@@ -35,6 +35,9 @@ function Sales() {
   const [manualSale, setManualSale] = useState(null);
   const [manualReceiptNumber, setManualReceiptNumber] = useState("");
   const amountInputRef = useRef(null);
+  const mpesaPhoneInputRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const completeSaleButtonRef = useRef(null);
   const bulkInputRef = useRef(null);
   const [bulkPromptVariant, setBulkPromptVariant] = useState(null);
   const [bulkPresetVariant, setBulkPresetVariant] = useState(null);
@@ -43,6 +46,7 @@ function Sales() {
   const [saleComplete, setSaleComplete] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [closingModalOpen, setClosingModalOpen] = useState(false);
+  const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false);
   const saleCompleteButtonRef = useRef(null);
 
   useEffect(() => {
@@ -81,6 +85,7 @@ function Sales() {
   useEffect(() => {
     function handleEscape(e) {
       if (e.key === "Escape") {
+        setKeyboardHelpOpen(false);
         setBulkPromptVariant(null);
         setBulkPresetVariant(null);
         setClosingModalOpen(false);
@@ -95,6 +100,64 @@ function Sales() {
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [saleComplete]);
+
+  useEffect(() => {
+    function handlePosShortcuts(event) {
+      const target = event.target;
+      const isTyping = target instanceof HTMLElement && (
+        target.matches("input, textarea, select, [contenteditable='true']") || target.isContentEditable
+      );
+
+      if (event.key === "Escape") return;
+
+      if (event.key === "?") {
+        if (isTyping) return;
+        if (!keyboardHelpOpen && (saleComplete || closingModalOpen || bulkPromptVariant || bulkPresetVariant || !session)) return;
+        event.preventDefault();
+        setKeyboardHelpOpen((open) => !open);
+        return;
+      }
+
+      if (
+        keyboardHelpOpen || saleComplete || closingModalOpen ||
+        bulkPromptVariant || bulkPresetVariant || !session
+      ) return;
+
+      if (event.key === "F2") {
+        event.preventDefault();
+        setViewMode("all");
+        searchInputRef.current?.focus();
+      } else if (event.key === "F4") {
+        event.preventDefault();
+        if (manualSale?.status === "pending") return;
+        setPaymentMethod("cash");
+        requestAnimationFrame(() => amountInputRef.current?.focus());
+      } else if (event.key === "F6") {
+        event.preventDefault();
+        if (manualSale?.status !== "pending") setPaymentMethod("cash");
+      } else if (event.key === "F7") {
+        event.preventDefault();
+        if (manualSale?.status !== "pending") {
+          setPaymentMethod("mpesa");
+          requestAnimationFrame(() => mpesaPhoneInputRef.current?.focus());
+        }
+      } else if (event.key === "F9") {
+        event.preventDefault();
+        completeSaleButtonRef.current?.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handlePosShortcuts);
+    return () => window.removeEventListener("keydown", handlePosShortcuts);
+  }, [
+    bulkPresetVariant,
+    bulkPromptVariant,
+    closingModalOpen,
+    keyboardHelpOpen,
+    manualSale?.status,
+    saleComplete,
+    session,
+  ]);
 
   useEffect(() => {
     if (session) {
@@ -467,20 +530,36 @@ function Sales() {
             {receiptProfile?.name || "Retail workspace"}
           </p>
           <h1>Point of sale</h1>
-          <p>Build a basket, take payment, and keep checkout moving.</p>
+          <p>Choose the products, take payment, and finish the sale. Use a mouse, touch screen, or keyboard.</p>
         </div>
         <div className="sales-page-heading-actions">
           <span className="sales-session-chip"><span aria-hidden="true">●</span> Till open</span>
           <button type="button" className="close-till-button" onClick={() => setClosingModalOpen(true)}>
             Close till
           </button>
+          <button
+            type="button"
+            className="sales-shortcuts-button"
+            onClick={() => setKeyboardHelpOpen(true)}
+            aria-keyshortcuts="?"
+          >
+            Keyboard help <kbd>?</kbd>
+          </button>
         </div>
       </header>
+      <div className="sales-steps" aria-label="Sale steps">
+        <span><b>1</b> Choose products</span>
+        <span className="sales-step-arrow" aria-hidden="true">›</span>
+        <span><b>2</b> Take payment</span>
+        <span className="sales-step-arrow" aria-hidden="true">›</span>
+        <span><b>3</b> Finish sale</span>
+        <span className="sales-step-hint">Press <kbd>?</kbd> for keyboard help</span>
+      </div>
       <div className="sales-grid-panel">
         <div className="sales-header-row">
           <div>
             <span className="sales-section-label">Your catalogue</span>
-            <h2>Find products</h2>
+            <h2>Choose products</h2>
           </div>
           <span className="sales-item-count">{visibleItems.length} items</span>
         </div>
@@ -501,10 +580,12 @@ function Sales() {
             </button>
           </div>
           <input
+            ref={searchInputRef}
             type="text"
             className="product-search-input"
-            placeholder="Search by product or variant..."
+            placeholder="Type a product name to find it... (F2)"
             aria-label="Search products"
+            aria-keyshortcuts="F2"
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
           />
@@ -512,7 +593,7 @@ function Sales() {
 
         {message && <div className={`sale-message ${message.type}`} role="status" aria-live="polite">{message.text}</div>}
 
-        <div className="sales-catalogue-hint">Select a product to add it to the basket</div>
+        <div className="sales-catalogue-hint">Tap or click a product to add it to the customer's order. Use Tab and Enter with a keyboard.</div>
         <div className="quick-sell-grid">
           {visibleItems.map((item) => (
             <button
@@ -657,14 +738,14 @@ function Sales() {
       <div className="cart-panel">
         <div className="cart-panel-heading">
           <div>
-            <span className="sales-section-label">Current order</span>
-            <h2>Basket</h2>
+            <span className="sales-section-label">Step 2 · Review items</span>
+            <h2>Customer's order</h2>
           </div>
           <span className="cart-item-count">{itemCount} {itemCount === 1 ? "item" : "items"}</span>
         </div>
 
         <div className="cart-lines">
-          {cart.length === 0 && <div className="basket-empty-state"><span className="basket-empty-icon" aria-hidden="true">▤</span><strong>Your basket is empty</strong><p>Choose a product from the catalogue to start a sale.</p></div>}
+          {cart.length === 0 && <div className="basket-empty-state"><span className="basket-empty-icon" aria-hidden="true">▣</span><strong>No items added yet</strong><p>Choose a product from the list to begin.</p></div>}
           {cart.map((line) => (
             <div className="cart-line" key={line.variant.variant_id}>
               <div className="cart-line-info">
@@ -697,7 +778,7 @@ function Sales() {
           </div>
 
           <div className="payment-section-heading">
-            <span>Payment method</span>
+            <span>Step 3 · How will the customer pay?</span>
             <span>Choose how the customer is paying</span>
           </div>
           <div className="payment-method-options" role="group" aria-label="Payment method">
@@ -705,26 +786,28 @@ function Sales() {
               type="button"
               className={`payment-method-card cash${paymentMethod === "cash" ? " active" : ""}`}
               aria-pressed={paymentMethod === "cash"}
+              aria-keyshortcuts="F6"
               disabled={manualSale?.status === "pending"}
               onClick={() => setPaymentMethod("cash")}
             >
               <span className="payment-method-icon" aria-hidden="true">KSh</span>
               <span className="payment-method-copy">
                 <strong>Cash</strong>
-                <small>Pay in person</small>
+                <small>Pay in person · F6</small>
               </span>
             </button>
             <button
               type="button"
               className={`payment-method-card mpesa${paymentMethod === "mpesa" ? " active" : ""}`}
               aria-pressed={paymentMethod === "mpesa"}
+              aria-keyshortcuts="F7"
               disabled={manualSale?.status === "pending"}
               onClick={() => setPaymentMethod("mpesa")}
             >
               <span className="payment-method-icon" aria-hidden="true">M</span>
               <span className="payment-method-copy">
                 <strong>M-Pesa</strong>
-                <small>Send STK prompt</small>
+                <small>Send STK prompt · F7</small>
               </span>
             </button>
             {paymentDestinations.map((destination) => (
@@ -748,8 +831,8 @@ function Sales() {
           {paymentMethod === "cash" ? (
             <>
               <label className="checkout-field-label" htmlFor="cash-received">
-                Cash received
-                <span>Enter the amount handed over</span>
+                Cash received from customer
+                <span>Enter the amount handed over · F4</span>
               </label>
               <div className="denomination-row">
                 {DENOMINATIONS.map((d) => (
@@ -760,6 +843,7 @@ function Sales() {
               <input
                 ref={amountInputRef}
                 id="cash-received"
+                aria-keyshortcuts="F4"
                 className="amount-received-input"
                 type="number"
                 min="0"
@@ -784,7 +868,14 @@ function Sales() {
             </>
           ) : paymentMethod === "mpesa" ? (
             <>
+              <label className="checkout-field-label" htmlFor="mpesa-phone">
+                Customer's M-Pesa phone number
+                <span>A payment prompt will be sent to this number</span>
+              </label>
               <input
+                ref={mpesaPhoneInputRef}
+                id="mpesa-phone"
+                aria-keyshortcuts="F7"
                 className="amount-received-input"
                 type="tel"
                 autoComplete="tel"
@@ -808,6 +899,8 @@ function Sales() {
           )}
 
           <button
+            ref={completeSaleButtonRef}
+            aria-keyshortcuts="F9 Enter"
             className="complete-sale-button"
             disabled={
               cart.length === 0 ||
@@ -831,6 +924,7 @@ function Sales() {
               ? `Create pending sale · ${formatCurrency(total)}`
               : "Complete Sale"}
           </button>
+          <p className="sales-complete-hint">Keyboard: press <kbd>F9</kbd>, then <kbd>Enter</kbd> to finish.</p>
           {mpesaSale?.status === "pending" && (
             <div className="mpesa-pending-message" role="status">
               Waiting for M-Pesa confirmation for sale #{mpesaSale.id}.
@@ -891,6 +985,32 @@ function Sales() {
           )}
         </div>
       </div>
+      {keyboardHelpOpen && (
+        <div
+          className="sales-help-overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setKeyboardHelpOpen(false);
+          }}
+        >
+          <section className="sales-help-card" role="dialog" aria-modal="true" aria-labelledby="sales-help-title">
+            <button type="button" className="sales-help-close" onClick={() => setKeyboardHelpOpen(false)} aria-label="Close keyboard help">×</button>
+            <span className="sales-section-label">Quick guide</span>
+            <h2 id="sales-help-title">Keyboard shortcuts</h2>
+            <p className="sales-help-intro">You can also use the on-screen buttons. Press Tab to move between buttons and Enter to select one.</p>
+            <dl className="sales-shortcut-list">
+              <div><dt><kbd>F2</kbd></dt><dd>Find a product</dd></div>
+              <div><dt><kbd>F4</kbd></dt><dd>Choose cash and enter the amount received</dd></div>
+              <div><dt><kbd>F6</kbd></dt><dd>Choose cash payment</dd></div>
+              <div><dt><kbd>F7</kbd></dt><dd>Choose M-Pesa payment</dd></div>
+              <div><dt><kbd>F9</kbd></dt><dd>Move to the finish sale button; press Enter to continue</dd></div>
+              <div><dt><kbd>Esc</kbd></dt><dd>Close this guide or a dialog</dd></div>
+              <div><dt><kbd>?</kbd></dt><dd>Open or close this guide</dd></div>
+            </dl>
+            <button type="button" className="sales-help-done" autoFocus onClick={() => setKeyboardHelpOpen(false)}>Got it</button>
+          </section>
+        </div>
+      )}
+
       {saleComplete && (
         <>
           <div
