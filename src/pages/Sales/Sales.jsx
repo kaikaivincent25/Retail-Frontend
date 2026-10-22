@@ -37,6 +37,7 @@ function Sales() {
   const amountInputRef = useRef(null);
   const mpesaPhoneInputRef = useRef(null);
   const searchInputRef = useRef(null);
+  const cartPanelRef = useRef(null);
   const completeSaleButtonRef = useRef(null);
   const bulkInputRef = useRef(null);
   const [bulkPromptVariant, setBulkPromptVariant] = useState(null);
@@ -47,6 +48,7 @@ function Sales() {
   const [submitting, setSubmitting] = useState(false);
   const [closingModalOpen, setClosingModalOpen] = useState(false);
   const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false);
+  const [cartPanelInView, setCartPanelInView] = useState(false);
   const saleCompleteButtonRef = useRef(null);
 
   useEffect(() => {
@@ -207,6 +209,18 @@ function Sales() {
     const timer = setTimeout(() => setMessage(null), 4000);
     return () => clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    const panel = cartPanelRef.current;
+    if (!panel || typeof IntersectionObserver === "undefined") return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setCartPanelInView(entry.isIntersecting),
+      { threshold: 0, rootMargin: "-84px 0px -72px 0px" }
+    );
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, [session]);
 
   useEffect(() => {
     if (!mpesaSale || mpesaSale.status !== "pending") return undefined;
@@ -735,7 +749,7 @@ function Sales() {
         )}
       </div>
 
-      <div className="cart-panel">
+      <div className="cart-panel" ref={cartPanelRef}>
         <div className="cart-panel-heading">
           <div>
             <span className="sales-section-label">Step 2 · Review items</span>
@@ -985,6 +999,21 @@ function Sales() {
           )}
         </div>
       </div>
+      {itemCount > 0 && !cartPanelInView && (
+        <button
+          type="button"
+          className="mobile-order-shortcut"
+          onClick={() => cartPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          aria-label={`Review order, ${itemCount} items, total ${formatCurrency(total)}`}
+        >
+          <span className="mobile-order-shortcut-copy">
+            <strong>Review order</strong>
+            <small>{itemCount} {itemCount === 1 ? "item" : "items"}</small>
+          </span>
+          <strong>{formatCurrency(total)}</strong>
+          <span aria-hidden="true">↓</span>
+        </button>
+      )}
       {keyboardHelpOpen && (
         <div
           className="sales-help-overlay"
