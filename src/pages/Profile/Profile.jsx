@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { extractErrorMessage } from "../../services/errorHandling";
@@ -8,11 +9,13 @@ import {
   changePassword,
   getShop,
   updateShop,
+  deleteShop,
 } from "../../services/profileApi";
 import "./Profile.css";
 
 function Profile() {
-  const { user } = useAuth();
+  const { user, completeShopDeletion } = useAuth();
+  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const [me, setMe] = useState(null);
@@ -37,6 +40,10 @@ function Profile() {
   const [shopPaybillAccountNumber, setShopPaybillAccountNumber] = useState("");
   const [savingShop, setSavingShop] = useState(false);
   const [editingShop, setEditingShop] = useState(false);
+  const [showDeleteShop, setShowDeleteShop] = useState(false);
+  const [deleteShopName, setDeleteShopName] = useState("");
+  const [deleteShopPassword, setDeleteShopPassword] = useState("");
+  const [deletingShop, setDeletingShop] = useState(false);
 
   useEffect(() => {
     getMe().then((data) => {
@@ -123,6 +130,23 @@ function Profile() {
       showToast(extractErrorMessage(err), "error");
     } finally {
       setSavingShop(false);
+    }
+  }
+
+  async function handleDeleteShop(e) {
+    e.preventDefault();
+    setDeletingShop(true);
+    try {
+      await deleteShop({
+        shop_name: deleteShopName,
+        current_password: deleteShopPassword,
+      });
+      await completeShopDeletion();
+      navigate("/", { replace: true });
+    } catch (err) {
+      showToast(extractErrorMessage(err), "error");
+    } finally {
+      setDeletingShop(false);
     }
   }
 
@@ -427,6 +451,7 @@ function Profile() {
 
         {/* Shop Settings - Admin Only */}
         {user?.role === "admin" && shop && (
+          <>
           <section className="profile-card shop-card" id="profile-shop-settings">
             <div className="profile-card-header">
               <div className="section-icon shop-icon" aria-hidden="true">🏪</div>
@@ -602,6 +627,54 @@ function Profile() {
               )}
             </div>
           </section>
+          <section className="profile-card danger-card" id="profile-danger-zone" aria-labelledby="danger-zone-title">
+            <div className="profile-card-header danger-card-header">
+              <div className="section-icon danger-icon" aria-hidden="true">!</div>
+              <div>
+                <div className="danger-label">PERMANENT ACTION</div>
+                <h2 id="danger-zone-title">Danger zone</h2>
+                <p>Deleting this shop permanently removes its business records and every staff account.</p>
+              </div>
+            </div>
+            <div className="profile-card-content danger-content">
+              <div>
+                <strong>Delete {shop.name}</strong>
+                <p>This cannot be undone. Sales, inventory, reports, cash sessions, expenses, and shop user accounts will be deleted. Download any records you need first.</p>
+              </div>
+              <button type="button" className="danger-button" onClick={() => setShowDeleteShop(true)}>
+                Delete shop and account
+              </button>
+            </div>
+          </section>
+          </>
+        )}
+
+        {showDeleteShop && shop && (
+          <div className="delete-dialog-backdrop" onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !deletingShop) setShowDeleteShop(false);
+          }}>
+            <section className="delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description">
+              <div className="danger-label">PERMANENT DELETION</div>
+              <h2 id="delete-dialog-title">Delete {shop.name}?</h2>
+              <p id="delete-dialog-description">This permanently deletes the shop, all sales and financial history, inventory, cash sessions, expenses, and all accounts for this shop. You will be signed out. This action cannot be reversed.</p>
+              <form onSubmit={handleDeleteShop}>
+                <div className="profile-field">
+                  <label htmlFor="confirm-shop-name">Type <strong>{shop.name}</strong> to confirm</label>
+                  <input id="confirm-shop-name" value={deleteShopName} onChange={(event) => setDeleteShopName(event.target.value)} maxLength={150} autoComplete="off" required />
+                </div>
+                <div className="profile-field">
+                  <label htmlFor="delete-current-password">Your current password</label>
+                  <input id="delete-current-password" type="password" value={deleteShopPassword} onChange={(event) => setDeleteShopPassword(event.target.value)} autoComplete="current-password" required />
+                </div>
+                <div className="delete-dialog-actions">
+                  <button type="button" className="secondary-button" disabled={deletingShop} onClick={() => { setShowDeleteShop(false); setDeleteShopName(""); setDeleteShopPassword(""); }}>Cancel</button>
+                  <button type="submit" className="danger-button" disabled={deletingShop || deleteShopName !== shop.name}>
+                    {deletingShop ? "Deleting shop..." : "Permanently delete shop"}
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
         )}
 
         <div className="profile-footer">

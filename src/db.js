@@ -42,6 +42,14 @@ export function clearCatalog() {
   return db.variants.clear()
 }
 
+export async function clearShopData() {
+  await db.transaction('rw', db.variants, db.outbox, db.settings, async () => {
+    await db.variants.clear()
+    await db.outbox.clear()
+    await db.settings.clear()
+  })
+}
+
 export function searchVariants(term) {
   const t = term.trim().toLowerCase()
   if (!t) return db.variants.toArray()

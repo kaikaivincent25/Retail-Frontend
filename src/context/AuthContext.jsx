@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import api from "../services/api";
-import { clearCatalog, unsyncedCount } from "../db";
+import { clearCatalog, clearShopData, unsyncedCount } from "../db";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../services/errorHandling";
 import { syncOutbox } from "../sync";
@@ -95,8 +95,25 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function completeShopDeletion() {
+    try {
+      await clearShopData();
+    } catch (err) {
+      console.error("Could not clear all local shop data after deletion.", err);
+    } finally {
+      if ("caches" in window) {
+        caches.delete("api-variants").catch((err) => {
+          console.error("Could not clear the cached product catalog.", err);
+        });
+      }
+      localStorage.removeItem("token");
+      setToken(null);
+      setUser(null);
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ token, user, login, logout, signup }}>
+    <AuthContext.Provider value={{ token, user, login, logout, signup, completeShopDeletion }}>
       {children}
     </AuthContext.Provider>
   );
