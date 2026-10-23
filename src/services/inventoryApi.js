@@ -2,6 +2,7 @@ import api from "./api";
 
 export const listInventory = () => api.get("/inventory").then((r) => r.data);
 export const listLowStock = () => api.get("/inventory/low-stock").then((r) => r.data);
+export const listInventoryCosts = () => api.get("/inventory/costs").then((r) => r.data);
 export const adjustStock = (variantId, data) =>
   api.post(`/inventory/${variantId}/adjust`, data).then((r) => r.data);
 export const recordStaffConsumption = (variantId, data) =>

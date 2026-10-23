@@ -1,9 +1,11 @@
 
 import { useEffect, useState } from "react";
 import { formatCurrency } from "../../utils/money";
+import { useAuth } from "../../context/AuthContext";
 import {
   listInventory,
   listLowStock,
+  listInventoryCosts,
   adjustStock,
   getMovements,
   recordStaffConsumption,
@@ -17,8 +19,10 @@ const MOVEMENT_TYPES = [
 ];
 
 function Inventory() {
+  const { user } = useAuth();
   const [tab, setTab] = useState("all");
   const [variants, setVariants] = useState([]);
+  const [variantCosts, setVariantCosts] = useState({});
   const [adjustingVariant, setAdjustingVariant] = useState(null);
   const [consumingVariant, setConsumingVariant] = useState(null);
   const [historyVariant, setHistoryVariant] = useState(null);
@@ -26,10 +30,17 @@ function Inventory() {
 
   useEffect(() => {
     refresh();
-  }, [tab]);
+  }, [tab, user]);
 
   function refresh() {
-    (tab === "all" ? listInventory() : listLowStock()).then(setVariants);
+    const inventoryRequest = tab === "all" ? listInventory() : listLowStock();
+    const costRequest = ["admin", "manager"].includes(user?.role)
+      ? listInventoryCosts()
+      : Promise.resolve([]);
+    Promise.all([inventoryRequest, costRequest]).then(([items, costs]) => {
+      setVariants(items);
+      setVariantCosts(Object.fromEntries(costs.map((item) => [item.id, item])));
+    });
   }
 
   async function openHistory(variant) {
@@ -97,6 +108,7 @@ function Inventory() {
                 <th>Product Variant</th>
                 <th>Sale Mode</th>
                 <th>Available Quantity</th>
+                <th>Average Cost</th>
                 <th>Reorder Level</th>
                 <th className="actions-heading">Actions</th>
               </tr>
@@ -130,6 +142,14 @@ function Inventory() {
                   </td>
 
                   <td>
+                    <span>
+                      {variantCosts[v.id]?.cost_price_is_known
+                        ? formatCurrency(Number(variantCosts[v.id].cost_price))
+                        : "Cost not recorded"}
+                    </span>
+                  </td>
+
+                  <td>
                     <span className="reorder-value">{v.reorder_level}</span>
                   </td>
 
@@ -160,7 +180,7 @@ function Inventory() {
 
               {variants.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="empty-hint">
+                  <td colSpan={6} className="empty-hint">
                     <div className="inventory-empty">
                       <span className="inventory-empty-icon">▤</span>
                       <strong>
@@ -231,6 +251,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
   const [direction, setDirection] = useState("add");
   const [movementType, setMovementType] = useState("purchase");
   const [amount, setAmount] = useState("");
+  const [unitCost, setUnitCost] = useState("");
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
 
@@ -245,10 +266,16 @@ function AdjustModal({ variant, onClose, onSaved }) {
     }
 
     try {
+      if (movementType === "purchase" && (!unitCost || Number(unitCost) < 0)) {
+        setError("Enter the purchase cost per unit.");
+        return;
+      }
+
       await adjustStock(variant.id, {
         delta: direction === "add" ? parsed : -parsed,
         movement_type: movementType,
         reason: reason || null,
+        unit_cost: movementType === "purchase" ? Number(unitCost) : null,
       });
       onSaved();
     } catch (err) {
@@ -289,7 +316,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
             <button
               type="button"
               className={direction === "add" ? "active add-active" : ""}
-              onClick={() => setDirection("add")}
+              onClick={() => { setDirection("add"); if (movementType === "adjustment") setMovementType("purchase"); }}
             >
               <span>+</span>
               Add stock
@@ -298,7 +325,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
             <button
               type="button"
               className={direction === "remove" ? "active remove-active" : ""}
-              onClick={() => setDirection("remove")}
+              onClick={() => { setDirection("remove"); if (movementType === "purchase") setMovementType("adjustment"); }}
             >
               <span>−</span>
               Remove stock
@@ -328,12 +355,29 @@ function AdjustModal({ variant, onClose, onSaved }) {
             value={movementType}
             onChange={(e) => setMovementType(e.target.value)}
           >
-            {MOVEMENT_TYPES.map((t) => (
+            {MOVEMENT_TYPES.filter((t) => direction === "add" || t.value !== "purchase").map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
               </option>
             ))}
           </select>
+
+          {direction === "add" && movementType === "purchase" && (
+            <>
+              <label htmlFor="stock-unit-cost">Purchase cost per {unitLabel}</label>
+              <input
+                id="stock-unit-cost"
+                className="modal-input"
+                type="number"
+                min="0"
+                step="0.01"
+                value={unitCost}
+                onChange={(e) => setUnitCost(e.target.value)}
+                required
+              />
+              <small>Used to update the weighted average inventory cost.</small>
+            </>
+          )}
 
           <label htmlFor="stock-notes">Notes <span>(optional)</span></label>
 
@@ -402,7 +446,7 @@ function HistoryModal({ variant, movements, onClose }) {
                 <th>Movement Type</th>
                 <th>Change</th>
                 <th>Before → After</th>
-                <th>Staff-use cost</th>
+                <th>Recorded unit cost</th>
                 <th>Reason</th>
               </tr>
             </thead>

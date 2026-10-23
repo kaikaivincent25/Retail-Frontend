@@ -23,12 +23,14 @@ const PRESETS = [
 ];
 
 const METRICS = [
-  { key: "total_sales", label: "Gross sales", symbol: "↗", format: formatCurrency },
+  { key: "total_sales", label: "Sales revenue", symbol: "↗", format: formatCurrency },
+  { key: "cost_of_goods_sold", label: "Cost of goods sold", symbol: "−", format: formatCurrency },
+  { key: "gross_profit", label: "Gross profit", symbol: "◈", format: formatCurrency },
   { key: "expense_total", label: "Expenses", symbol: "−", format: formatCurrency },
   { key: "staff_consumption_total", label: "Staff consumption cost", symbol: "↘", format: formatCurrency },
-  { key: "net_sales", label: "Net sales", symbol: "=", format: formatCurrency },
+  { key: "damage_total", label: "Stock write-offs", symbol: "−", format: formatCurrency },
   { key: "transaction_count", label: "Transactions", symbol: "#", format: (value) => value.toLocaleString() },
-  { key: "estimated_profit", label: "Estimated profit", symbol: "◈", format: formatCurrency },
+  { key: "estimated_profit", label: "Estimated net profit", symbol: "=", format: formatCurrency },
   { key: "low_stock_count", label: "Low stock items", symbol: "!", format: (value) => value.toLocaleString() },
 ];
 
@@ -77,6 +79,7 @@ function Reports() {
 
   const dailyBreakdown = report?.daily_breakdown ?? [];
   const topProducts = report?.top_products ?? [];
+  const lossMakingProducts = report?.loss_making_products ?? [];
   const maxDaily = Math.max(...dailyBreakdown.map((day) => Math.abs(Number(day.net_sales || 0))), 1);
   const bestDay = dailyBreakdown.reduce(
     (best, day) => (Number(day.net_sales || 0) > Number(best?.net_sales || 0) ? day : best),
@@ -98,12 +101,22 @@ function Reports() {
           <h1 id="reports-title">Reports &amp; insights</h1>
           <p>Understand sales, cash expenses, and staff stock use as separate business costs.</p>
         </div>
-        <div className="reports-hero-note">
-          <span className="reports-note-dot" />
-          <span className="reports-note-copy">
-            <strong>Sales after expenses</strong>
-            <small>{formatShortDate(startDate)} - {formatShortDate(endDate)}</small>
-          </span>
+        <div className="reports-hero-actions">
+          <div className="reports-hero-note">
+            <span className="reports-note-dot" />
+            <span className="reports-note-copy">
+              <strong>Sales after expenses</strong>
+              <small>{formatShortDate(startDate)} - {formatShortDate(endDate)}</small>
+            </span>
+          </div>
+          <button
+            className="reports-print-button"
+            type="button"
+            onClick={() => window.print()}
+            disabled={loading || !report}
+          >
+            Print report
+          </button>
         </div>
       </section>
 
@@ -169,6 +182,71 @@ function Reports() {
             </div>
             <p>Key figures for the selected reporting period.</p>
           </div>
+          <section
+            className={`profit-status profit-status--${report.cost_data_complete ? report.profit_status : "incomplete"}`}
+            aria-live="polite"
+          >
+            <strong>
+              {!report.cost_data_complete ? "Profit or loss is incomplete" :
+                report.profit_status === "profit" ? "This period shows a profit" :
+                  report.profit_status === "loss" ? "This period shows a loss" : "This period breaks even"}
+            </strong>
+            <span>
+              {!report.cost_data_complete
+                ? "Some sold items had no recorded cost. Update stock costs for a reliable result."
+                : "Estimated net profit includes cost of goods sold, recorded expenses, staff use, and stock write-offs."}
+            </span>
+          </section>
+          <section className="period-comparison" aria-label="Comparison with the previous period">
+            <div>
+              <span className="comparison-eyebrow">PREVIOUS EQUAL PERIOD</span>
+              <strong>{formatShortDate(report.comparison.start_date)} - {formatShortDate(report.comparison.end_date)}</strong>
+            </div>
+            <div>
+              <span>Sales</span>
+              <strong className={Number(report.comparison.sales_change) >= 0 ? "comparison-positive" : "comparison-negative"}>
+                {Number(report.comparison.sales_change) >= 0 ? "+" : "−"}{formatCurrency(Math.abs(Number(report.comparison.sales_change)))}
+              </strong>
+              <small>{report.comparison.sales_change_percent == null
+                ? "No earlier sales to compare"
+                : `${Number(report.comparison.sales_change_percent) >= 0 ? "+" : "−"}${Math.abs(Number(report.comparison.sales_change_percent)).toFixed(1)}%`}</small>
+            </div>
+            <div>
+              <span>Estimated net profit</span>
+              <strong className={report.cost_data_complete && report.comparison.cost_data_complete
+                ? Number(report.comparison.profit_change) >= 0 ? "comparison-positive" : "comparison-negative"
+                : "comparison-unavailable"}>
+                {report.cost_data_complete && report.comparison.cost_data_complete
+                  ? `${Number(report.comparison.profit_change) >= 0 ? "+" : "−"}${formatCurrency(Math.abs(Number(report.comparison.profit_change)))}`
+                  : "Incomplete cost data"}
+              </strong>
+              {(!report.cost_data_complete || !report.comparison.cost_data_complete) && (
+                <small>Both periods need recorded costs for comparison</small>
+              )}
+            </div>
+          </section>
+
+          {(report.low_stock_count > 0 || lossMakingProducts.length > 0) && (
+            <section className="report-actions-panel" aria-label="Business actions">
+              <strong>Items to review</strong>
+              {report.low_stock_count > 0 && (
+                <p>
+                  {report.low_stock_count} item{report.low_stock_count === 1 ? " is" : "s are"} at or below reorder level.
+                  <a href="/inventory"> Review inventory</a>
+                </p>
+              )}
+              {lossMakingProducts.length > 0 && (
+                <div>
+                  <span>Sold below recorded cost:</span>
+                  {lossMakingProducts.map((product) => (
+                    <span className="loss-product-chip" key={product.variant_id}>
+                      {product.variant_name} ({formatCurrency(Number(product.gross_profit))} gross loss)
+                    </span>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
           <section className="summary-cards" aria-label="Key performance indicators">
             {METRICS.map((metric) => (
               <article className={`summary-card metric-${metric.key}`} key={metric.key}>
@@ -189,7 +267,7 @@ function Reports() {
               <div className="section-heading">
                 <div>
                   <span className="section-kicker">DAILY CASH POSITION</span>
-                  <h2>Daily net sales</h2>
+                  <h2>Sales less cash expenses</h2>
                   <p>Gross sales less cash expenses. Staff stock use is reported separately.</p>
                 </div>
                 <span className="section-period">{formatShortDate(startDate)} – {formatShortDate(endDate)}</span>
@@ -239,7 +317,7 @@ function Reports() {
                 <div>
                   <span className="section-kicker">WHAT CUSTOMERS LOVE</span>
                   <h2>Top products</h2>
-                  <p>Your best performers, ranked by units sold.</p>
+                  <p>Ranked by units sold, with revenue and gross profit.</p>
                 </div>
                 <span className="ranking-badge">{topProducts.length} products</span>
               </div>
@@ -258,6 +336,14 @@ function Reports() {
                           <div className="product-rank-label">
                             <strong>{product.variant_name}</strong>
                             <span>{quantity.toLocaleString()} sold</span>
+                          </div>
+                          <div className="product-profitline">
+                            <span>Revenue {formatCurrency(Number(product.revenue || 0))}</span>
+                            <span className={Number(product.gross_profit) < 0 ? "comparison-negative" : "comparison-positive"}>
+                              {product.cost_data_complete
+                                ? `Gross profit ${formatCurrency(Number(product.gross_profit || 0))} · ${product.gross_margin_percent == null ? "Margin n/a" : `${Number(product.gross_margin_percent).toFixed(1)}% margin`}`
+                                : "Margin incomplete"}
+                            </span>
                           </div>
                           <div className="product-progress" aria-hidden="true">
                             <span style={{ width: `${(quantity / maxProductQuantity) * 100}%` }} />

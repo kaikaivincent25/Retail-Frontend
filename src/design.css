@@ -2406,3 +2406,61 @@ video {
     min-height: 118px;
   }
 }
+
+/* Keep the shared workspace inside narrow phone viewports. */
+@media (max-width: 480px) {
+  html,
+  body,
+  #root,
+  .app-layout,
+  .app-content {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  #root {
+    min-width: 0;
+  }
+
+  .app-layout,
+  .app-content {
+    overflow-x: clip;
+  }
+
+  .app-status-strip {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .dashboard-page,
+  .cashier-dashboard,
+  .inventory-page,
+  .expenses-page,
+  .reports-page,
+  .staff-page,
+  .activity-page,
+  .sales-history-page,
+  .cash-sessions-page,
+  .profile-page,
+  .sync-issues-page,
+  .products-page,
+  .sales-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .reports-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .reports-hero-actions {
+    width: 100%;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
