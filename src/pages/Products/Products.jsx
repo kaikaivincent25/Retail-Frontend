@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
@@ -8,7 +8,29 @@ import api from "../../services/api";
 import { toCents, fromCents } from "../../utils/money";
 import "./Products.css";
 
-const UNITS = ["piece", "packet", "gram", "kg", "ml", "litre"];
+const UNITS = ["piece", "each", "pair", "set", "packet", "pack", "box", "case", "dozen", "bottle", "can", "sheet", "roll", "gram", "kg", "ml", "litre", "metre", "centimetre"];
+const EMPTY_ATTRIBUTE = () => ({ key: "", value: "" });
+
+function attributesToObject(rows) {
+  const result = {};
+  for (const { key, value } of rows) {
+    const cleanKey = key.trim();
+    const cleanValue = value.trim();
+    if (!cleanKey && !cleanValue) continue;
+    if (!cleanKey || !cleanValue) throw new Error("Complete or remove each custom attribute row.");
+    if (Object.keys(result).some((existing) => existing.toLocaleLowerCase() === cleanKey.toLocaleLowerCase())) {
+      throw new Error(`The attribute “${cleanKey}” is listed more than once.`);
+    }
+    result[cleanKey] = cleanValue;
+  }
+  if (Object.keys(result).length > 20) throw new Error("A product can have up to 20 custom attributes.");
+  return result;
+}
+
+function attributeRows(attributes = {}) {
+  const rows = Object.entries(attributes || {}).map(([key, value]) => ({ key, value }));
+  return rows.length ? rows : [EMPTY_ATTRIBUTE()];
+}
 
 const createPreset = (variantId, data) =>
   api.post(`/variants/${variantId}/presets`, data).then((r) => r.data);
@@ -16,7 +38,7 @@ const listPresets = (variantId) =>
   api.get(`/variants/${variantId}/presets`).then((r) => r.data);
 const deactivatePreset = (presetId) => api.delete(`/presets/${presetId}`);
 const getErrorMessage = (err, fallback) =>
-  err.response?.data?.detail || fallback;
+  err.response?.data?.detail || err.message || fallback;
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -26,21 +48,28 @@ function Products() {
   const [variantsByProduct, setVariantsByProduct] = useState({});
   const [editingImageId, setEditingImageId] = useState(null);
   const [imageUrlDraft, setImageUrlDraft] = useState("");
+  const [editingProduct, setEditingProduct] = useState(null);
 
   const [newProductName, setNewProductName] = useState("");
   const [newProductCategory, setNewProductCategory] = useState("");
+  const [newProductBrand, setNewProductBrand] = useState("");
+  const [newProductDescription, setNewProductDescription] = useState("");
+  const [newProductAttributes, setNewProductAttributes] = useState([EMPTY_ATTRIBUTE()]);
   const [newProductImageUrl, setNewProductImageUrl] = useState("");
   const [newProductVariants, setNewProductVariants] = useState([createEmptyVariant()]);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    refreshProducts();
-  }, []);
+    const timer = setTimeout(() => refreshProducts(productSearch), productSearch ? 250 : 0);
+    return () => clearTimeout(timer);
+  }, [productSearch]);
 
-  async function refreshProducts() {
+  async function refreshProducts(searchTerm = productSearch) {
     try {
-      setProducts(await listProducts("?include_inactive=true"));
+      const params = new URLSearchParams({ include_inactive: "true" });
+      if (searchTerm.trim()) params.set("q", searchTerm.trim());
+      setProducts(await listProducts(`?${params.toString()}`));
     } catch (err) {
       setError(getErrorMessage(err, "Could not load products."));
     }
@@ -54,6 +83,9 @@ function Products() {
       const product = await createProduct({
         name: newProductName,
         category: newProductCategory || null,
+        brand: newProductBrand.trim() || null,
+        description: newProductDescription.trim() || null,
+        attributes: attributesToObject(newProductAttributes),
         image_url: newProductImageUrl.trim() || null,
         variants: newProductVariants.map((variant) => ({
           name: variant.name,
@@ -62,10 +94,15 @@ function Products() {
           unit_quantity: variant.saleMode === "bulk" ? 1 : parseInt(variant.unitQuantity, 10),
           selling_price: fromCents(toCents(variant.sellingPrice)),
           cost_price: fromCents(toCents(variant.costPrice || "0")),
+          sku: variant.sku.trim() || null,
+          barcode: variant.barcode.trim() || null,
         })),
       });
       setNewProductName("");
       setNewProductCategory("");
+      setNewProductBrand("");
+      setNewProductDescription("");
+      setNewProductAttributes([EMPTY_ATTRIBUTE()]);
       setNewProductImageUrl("");
       setNewProductVariants([createEmptyVariant()]);
       setVariantsByProduct((prev) => ({ ...prev, [product.id]: product.variants }));
@@ -122,6 +159,38 @@ function Products() {
     }
   }
 
+  function startEditingProduct(product) {
+    setEditingProduct({
+      id: product.id,
+      name: product.name,
+      category: product.category || "",
+      brand: product.brand || "",
+      description: product.description || "",
+      image_url: product.image_url || "",
+      attributes: attributeRows(product.attributes),
+    });
+  }
+
+  async function handleSaveProductDetails(event) {
+    event.preventDefault();
+    const draft = editingProduct;
+    try {
+      const updated = await updateProduct(draft.id, {
+        name: draft.name,
+        category: draft.category.trim() || null,
+        brand: draft.brand.trim() || null,
+        description: draft.description.trim() || null,
+        image_url: draft.image_url.trim() || null,
+        attributes: attributesToObject(draft.attributes),
+      });
+      setProducts((current) => current.map((product) => product.id === draft.id ? updated : product));
+      setEditingProduct(null);
+      setError("");
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not update product details."));
+    }
+  }
+
   async function handlePermanentlyDeleteProduct(product) {
     if (!window.confirm(`Permanently delete "${product.name}"? This cannot be undone.`)) return;
     setError("");
@@ -156,13 +225,10 @@ function Products() {
     setVariantsByProduct((prev) => ({ ...prev, [productId]: variants }));
   }
 
-  const normalizedSearch = productSearch.trim().toLocaleLowerCase();
   const visibleProducts = products.filter((product) => {
     const matchesFilter = productFilter === "all"
       || (productFilter === "active" ? product.is_active : !product.is_active);
-    const matchesSearch = !normalizedSearch
-      || `${product.name} ${product.category || ""}`.toLocaleLowerCase().includes(normalizedSearch);
-    return matchesFilter && matchesSearch;
+    return matchesFilter;
   });
 
   return (
@@ -215,7 +281,16 @@ function Products() {
               onChange={(e) => setNewProductCategory(e.target.value)}
             />
           </label>
+          <label className="product-field">
+            <span>Brand <small>Optional</small></span>
+            <input placeholder="e.g. Samsung, Oxford" value={newProductBrand} onChange={(e) => setNewProductBrand(e.target.value)} maxLength={100} />
+          </label>
+          <label className="product-field product-description-field">
+            <span>Description <small>Optional</small></span>
+            <textarea placeholder="Useful product details" value={newProductDescription} onChange={(e) => setNewProductDescription(e.target.value)} maxLength={2000} rows={2} />
+          </label>
         </div>
+        <AttributeEditor rows={newProductAttributes} onChange={setNewProductAttributes} label="Product attributes" examples="ISBN, author, model, colour, storage" />
         <datalist id="product-category-options">
           {[...new Set(products.map((product) => product.category).filter(Boolean))]
             .sort((a, b) => a.localeCompare(b))
@@ -231,7 +306,8 @@ function Products() {
             <span className="variant-count">{newProductVariants.length} {newProductVariants.length === 1 ? "variant" : "variants"}</span>
           </div>
           {newProductVariants.map((variant, index) => (
-            <div className={`new-product-variant-row ${variant.saleMode}-variant-row`} key={index}>
+            <Fragment key={index}>
+            <div className={`new-product-variant-row ${variant.saleMode}-variant-row`}>
               <label className="product-field variant-name-field">
                 <span>Variant name <b>*</b></span>
                 <input
@@ -321,6 +397,17 @@ function Products() {
                 </button>
               )}
             </div>
+            <div className="variant-identifiers-row">
+              <label className="product-field">
+                <span>SKU <small>Optional</small></span>
+                <input aria-label={`Variant ${index + 1} SKU`} value={variant.sku} onChange={(e) => updateNewVariant(index, "sku", e.target.value)} maxLength={50} />
+              </label>
+              <label className="product-field">
+                <span>Barcode <small>Optional</small></span>
+                <input aria-label={`Variant ${index + 1} barcode`} inputMode="numeric" value={variant.barcode} onChange={(e) => updateNewVariant(index, "barcode", e.target.value)} maxLength={64} />
+              </label>
+            </div>
+            </Fragment>
           ))}
           <button
             className="add-new-variant"
@@ -409,6 +496,7 @@ function Products() {
                 <div className="product-details">
                   <span className="product-name">{product.name}</span>
                   {product.category && <span className="product-category">{product.category}</span>}
+                  {product.brand && <small className="product-brand">{product.brand}</small>}
                 </div>
                 {!product.is_active && <span className="product-status">Deactivated</span>}
               </button>
@@ -422,6 +510,9 @@ function Products() {
                   }}
                 >
                   {product.image_url ? "Change image" : "Add image"}
+                </button>
+                <button type="button" className="restore-product" onClick={() => editingProduct?.id === product.id ? setEditingProduct(null) : startEditingProduct(product)}>
+                  {editingProduct?.id === product.id ? "Close details" : "Edit details"}
                 </button>
                 {product.is_active ? (
                   <button
@@ -480,6 +571,23 @@ function Products() {
               </form>
             )}
 
+            {editingProduct?.id === product.id && (
+              <form className="product-details-editor" onSubmit={handleSaveProductDetails}>
+                <div className="product-details-editor-grid">
+                  <label className="product-field"><span>Product name</span><input value={editingProduct.name} onChange={(event) => setEditingProduct({ ...editingProduct, name: event.target.value })} required maxLength={150} /></label>
+                  <label className="product-field"><span>Category</span><input list="product-category-options" value={editingProduct.category} onChange={(event) => setEditingProduct({ ...editingProduct, category: event.target.value })} maxLength={100} /></label>
+                  <label className="product-field"><span>Brand</span><input value={editingProduct.brand} onChange={(event) => setEditingProduct({ ...editingProduct, brand: event.target.value })} maxLength={100} /></label>
+                  <label className="product-field"><span>Image URL</span><input type="url" value={editingProduct.image_url} onChange={(event) => setEditingProduct({ ...editingProduct, image_url: event.target.value })} maxLength={2048} /></label>
+                  <label className="product-field product-description-field"><span>Description</span><textarea rows={2} value={editingProduct.description} onChange={(event) => setEditingProduct({ ...editingProduct, description: event.target.value })} maxLength={2000} /></label>
+                </div>
+                <AttributeEditor rows={editingProduct.attributes} onChange={(attributes) => setEditingProduct({ ...editingProduct, attributes })} label="Product attributes" examples="ISBN, author, model, colour, storage" />
+                <div className="product-details-editor-actions">
+                  <button type="button" className="restore-product" onClick={() => setEditingProduct(null)}>Cancel</button>
+                  <button type="submit">Save product details</button>
+                </div>
+              </form>
+            )}
+
             {expandedId === product.id && (
               <VariantsPanel
                 productId={product.id}
@@ -506,6 +614,8 @@ function Products() {
 
 function VariantsPanel({ productId, variants, onChange }) {
   const [name, setName] = useState("");
+  const [sku, setSku] = useState("");
+  const [barcode, setBarcode] = useState("");
   const [unit, setUnit] = useState("piece");
   const [saleMode, setSaleMode] = useState("fixed");
   const [unitQuantity, setUnitQuantity] = useState("1");
@@ -529,8 +639,12 @@ function VariantsPanel({ productId, variants, onChange }) {
         unit_quantity: saleMode === "bulk" ? 1 : parseInt(unitQuantity, 10),
         selling_price: fromCents(toCents(sellingPrice)),
         cost_price: fromCents(toCents(costPrice || "0")),
+        sku: sku.trim() || null,
+        barcode: barcode.trim() || null,
       });
       setName("");
+      setSku("");
+      setBarcode("");
       setSellingPrice("");
       setCostPrice("");
       setUnitQuantity("1");
@@ -604,7 +718,10 @@ function VariantsPanel({ productId, variants, onChange }) {
         <tbody>
           {variants.map((v) => (
             <tr key={v.id} className={!v.is_active ? "inactive-row" : ""}>
-              <td>{v.name}</td>
+              <td>
+                {v.name}
+                {(v.barcode || v.sku) && <small className="variant-identifiers-summary">{v.barcode && `Barcode: ${v.barcode}`}{v.barcode && v.sku ? " · " : ""}{v.sku && `SKU: ${v.sku}`}</small>}
+              </td>
               <td>
                 <span className={`mode-badge ${v.sale_mode}`}>
                   {v.sale_mode === "bulk" ? "Bulk" : `Fixed ×${v.unit_quantity}`}
@@ -700,6 +817,9 @@ function VariantsPanel({ productId, variants, onChange }) {
           required
         />
 
+        <input placeholder="SKU (optional)" value={sku} onChange={(e) => setSku(e.target.value)} maxLength={50} />
+        <input placeholder="Barcode (optional)" inputMode="numeric" value={barcode} onChange={(e) => setBarcode(e.target.value)} maxLength={64} />
+
         <select value={unit} onChange={(e) => setUnit(e.target.value)}>
           {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
         </select>
@@ -753,7 +873,35 @@ function createEmptyVariant() {
     unitQuantity: "1",
     sellingPrice: "",
     costPrice: "",
+    sku: "",
+    barcode: "",
   };
+}
+
+function AttributeEditor({ rows, onChange, label, examples }) {
+  function updateRow(index, field, value) {
+    onChange(rows.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: value } : row));
+  }
+
+  return (
+    <fieldset className="attribute-editor">
+      <legend>{label} <small>Optional · {examples}</small></legend>
+      {rows.map((row, index) => (
+        <div className="attribute-row" key={index}>
+          <label className="product-field">
+            <span>Attribute name</span>
+            <input value={row.key} onChange={(event) => updateRow(index, "key", event.target.value)} maxLength={50} placeholder="e.g. ISBN" />
+          </label>
+          <label className="product-field">
+            <span>Value</span>
+            <input value={row.value} onChange={(event) => updateRow(index, "value", event.target.value)} maxLength={200} placeholder="e.g. 978-..." />
+          </label>
+          <button type="button" className="remove-attribute" aria-label={`Remove attribute ${index + 1}`} onClick={() => onChange(rows.length > 1 ? rows.filter((_, rowIndex) => rowIndex !== index) : [EMPTY_ATTRIBUTE()])}>Remove</button>
+        </div>
+      ))}
+      {rows.length < 20 && <button type="button" className="add-attribute" onClick={() => onChange([...rows, EMPTY_ATTRIBUTE()])}>+ Add attribute</button>}
+    </fieldset>
+  );
 }
 
 export default Products;
