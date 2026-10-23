@@ -1,6 +1,38 @@
 import { useEffect, useState } from "react";
 import "./DevelopmentNotice.css";
 
+const TERMS_VERSION = "2026-10-23.1";
+const TERMS_STORAGE_KEY = "retail-development-terms-version";
+
+function hasAcceptedTerms() {
+  try {
+    if (window.localStorage.getItem(TERMS_STORAGE_KEY) === TERMS_VERSION) return true;
+  } catch {
+    // Fall back to per-tab storage if persistent browser storage is unavailable.
+  }
+
+  try {
+    return window.sessionStorage.getItem(TERMS_STORAGE_KEY) === TERMS_VERSION;
+  } catch {
+    return false;
+  }
+}
+
+function saveTermsAcceptance() {
+  try {
+    window.localStorage.setItem(TERMS_STORAGE_KEY, TERMS_VERSION);
+    return;
+  } catch {
+    // Session storage still survives a page refresh in the current tab.
+  }
+
+  try {
+    window.sessionStorage.setItem(TERMS_STORAGE_KEY, TERMS_VERSION);
+  } catch {
+    // Keep the current page usable if the browser blocks all storage.
+  }
+}
+
 const terms = [
   {
     title: "Development preview only",
@@ -37,7 +69,7 @@ const terms = [
 ];
 
 export default function DevelopmentNotice({ children }) {
-  const [accepted, setAccepted] = useState(false);
+  const [accepted, setAccepted] = useState(hasAcceptedTerms);
   const [acknowledged, setAcknowledged] = useState(false);
 
   useEffect(() => {
@@ -52,6 +84,7 @@ export default function DevelopmentNotice({ children }) {
 
   function acceptTerms() {
     if (!acknowledged) return;
+    saveTermsAcceptance();
     setAccepted(true);
   }
 
@@ -109,9 +142,9 @@ export default function DevelopmentNotice({ children }) {
                 Accept and continue
               </button>
               <p className="dev-notice-footnote">
-                You will be asked to accept again the next time you visit or
-                refresh this page. If you do not agree, close this page without
-                proceeding.
+                Your acceptance is saved on this device. You will only be asked
+                again if these terms change or browser storage is cleared. If
+                you do not agree, close this page without proceeding.
               </p>
             </footer>
           </section>
