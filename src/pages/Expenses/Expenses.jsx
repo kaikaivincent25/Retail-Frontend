@@ -21,6 +21,7 @@ function Expenses() {
   const [hasOpenSession, setHasOpenSession] = useState(false);
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [description, setDescription] = useState("");
+  const [fundingSource, setFundingSource] = useState("cash");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,6 +37,9 @@ function Expenses() {
         if (!current) return;
         setExpenses(expenseRows);
         setHasOpenSession(Boolean(session));
+        if (session && Number(session.opening_cash) <= 0) {
+          setFundingSource("bank");
+        }
       })
       .catch((requestError) => {
         if (current) {
@@ -65,6 +69,7 @@ function Expenses() {
         category,
         description: description.trim() || null,
         amount: Number(amount),
+        funding_source: fundingSource,
       });
       setExpenses((current) => [createdExpense, ...current]);
       setAmount("");
@@ -168,6 +173,13 @@ function Expenses() {
                 onChange={(event) => setDescription(event.target.value)}
               />
             </label>
+            <label>
+              Funding source
+              <select value={fundingSource} onChange={(event) => setFundingSource(event.target.value)}>
+                <option value="cash">Shop cash (till)</option>
+                <option value="bank">Bank / deposited money</option>
+              </select>
+            </label>
             <button type="submit" disabled={saving || !hasOpenSession}>
               {saving ? "Recording…" : "Record expense"}
             </button>
@@ -208,6 +220,7 @@ function Expenses() {
                       <td>
                         <strong>{expense.category}</strong>
                         {expense.description && <small>{expense.description}</small>}
+                        <small>{expense.funding_source === "bank" ? "Bank / deposited" : "Shop cash"}</small>
                       </td>
                       {isManager && <td>{expense.user_name || "Team member"}</td>}
                       <td>{formatDate(expense.created_at)}</td>
