@@ -23,10 +23,13 @@ function Receipt({ sale, shopName, shopLocation, cashierName }) {
 
   const paymentMethod =
     sale.paymentLabel || PAYMENT_METHOD_LABELS[sale.payment_method] || sale.payment_method;
-  const dateLabel = new Intl.DateTimeFormat("en-KE", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(sale.created_at || Date.now()));
+  const createdAt = sale.created_at ? new Date(sale.created_at) : null;
+  const dateLabel = createdAt && !Number.isNaN(createdAt.getTime())
+    ? new Intl.DateTimeFormat("en-KE", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(createdAt)
+    : "Date unavailable";
   const servedBy = cashierName || sale.cashier_name;
 
   return createPortal(
@@ -94,6 +97,8 @@ function Receipt({ sale, shopName, shopLocation, cashierName }) {
   );
 }
 
+// This utility is intentionally colocated with the receipt component styles.
+// eslint-disable-next-line react-refresh/only-export-components
 export function printReceipt() {
   const receipt = document.querySelector(".receipt-print-root");
   if (!receipt) {

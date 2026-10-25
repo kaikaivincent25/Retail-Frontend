@@ -57,20 +57,22 @@ function CashSessions() {
   }, []);
 
   useEffect(() => {
-    listSessions(user?.role === "cashier" ? undefined : userId || undefined)
-      .then((result) => {
-        setSessions(result);
-      })
-      .catch((requestError) => {
+    Promise.resolve().then(() => {
+      listSessions(user?.role === "cashier" ? undefined : userId || undefined)
+        .then((result) => {
+          setSessions(result);
+        })
+        .catch((requestError) => {
+          setError(
+            requestError.response?.data?.detail || "Could not load cash sessions.",
+          );
+        });
+      return loadCashData().catch((requestError) => {
         setError(
-          requestError.response?.data?.detail || "Could not load cash sessions.",
+          requestError.response?.data?.detail ||
+            "Could not load deposit information. Please contact your administrator if this continues.",
         );
       });
-    loadCashData().catch((requestError) => {
-      setError(
-        requestError.response?.data?.detail ||
-          "Could not load deposit information. Please contact your administrator if this continues.",
-      );
     });
   }, [loadCashData, user?.role, userId]);
 

@@ -121,7 +121,7 @@ function Sidebar({ collapsed, onToggle }) {
       : { ArrowUp: -1, ArrowDown: 1 };
     const links = Array.from(event.currentTarget.querySelectorAll("a[href]"));
     const currentIndex = links.indexOf(event.target.closest("a"));
-    let nextIndex = currentIndex;
+    let nextIndex;
 
     if (currentIndex < 0 || links.length === 0) {
       return;

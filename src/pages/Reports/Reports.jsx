@@ -58,11 +58,16 @@ function Reports() {
 
   useEffect(() => {
     let isCurrentRequest = true;
-    setLoading(true);
-    setError("");
 
-    getPeriodSummary(startDate, endDate)
+    Promise.resolve()
+      .then(() => {
+        if (!isCurrentRequest) return null;
+        setLoading(true);
+        setError("");
+        return getPeriodSummary(startDate, endDate);
+      })
       .then((data) => {
+        if (!data) return;
         if (isCurrentRequest) setReport(data);
       })
       .catch((err) => {
