@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getPeriodSummary } from "../../services/reportsApi";
+import { getReceiptProfile } from "../../services/profileApi";
 import { formatCurrency } from "../../utils/money";
 import "./Reports.css";
 
@@ -47,6 +48,13 @@ function Reports() {
   const [report, setReport] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [shopProfile, setShopProfile] = useState(null);
+
+  useEffect(() => {
+    getReceiptProfile()
+      .then((data) => setShopProfile(data))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let isCurrentRequest = true;
@@ -95,6 +103,32 @@ function Reports() {
 
   return (
     <main className="reports-page">
+      <header className="reports-print-header" aria-hidden="true">
+        <div className="reports-print-header-top">
+          <div className="reports-print-shop">
+            <h1 className="reports-print-shop-name">{shopProfile?.name || "Retail Shop"}</h1>
+            {shopProfile?.location && <p className="reports-print-shop-location">{shopProfile.location}</p>}
+          </div>
+          <div className="reports-print-doc-meta">
+            <span className="reports-print-badge">Financial Report</span>
+            <p className="reports-print-timestamp">
+              Printed {new Date().toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+        </div>
+        <div className="reports-print-title-bar">
+          <h2>Business Performance &amp; Insights</h2>
+          <span className="reports-print-period">
+            Reporting Period: {formatShortDate(startDate)} – {formatShortDate(endDate)}
+          </span>
+        </div>
+      </header>
       <section className="reports-hero" aria-labelledby="reports-title">
         <div className="reports-hero-content">
           <span className="reports-eyebrow">YOUR BUSINESS, AT A GLANCE</span>
@@ -257,7 +291,11 @@ function Reports() {
                 <strong className="card-value">
                   {metric.format(Number(report[metric.key] || 0))}
                 </strong>
-                <span className="metric-caption">For selected period</span>
+                <span className="metric-caption">
+                  {metric.key === "transaction_count" && report.transaction_count > 0
+                    ? `Avg sale: ${formatCurrency(Number(report.total_sales || 0) / report.transaction_count)}`
+                    : "For selected period"}
+                </span>
               </article>
             ))}
           </section>
@@ -308,6 +346,47 @@ function Reports() {
                       );
                     })}
                   </div>
+                  <div className="reports-daily-table-wrap">
+                    <table className="reports-daily-table">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th className="cell-num">Sales Revenue</th>
+                          <th className="cell-num">Cash Expenses</th>
+                          <th className="cell-num">Staff Use</th>
+                          <th className="cell-num">Net Position</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dailyBreakdown.map((day) => {
+                          const gross = Number(day.total || 0);
+                          const exp = Number(day.expense_total || 0);
+                          const staff = Number(day.staff_consumption_total || 0);
+                          const net = Number(day.net_sales || 0);
+                          return (
+                            <tr key={day.date}>
+                              <td>{formatShortDate(day.date)}</td>
+                              <td className="cell-num">{formatCurrency(gross)}</td>
+                              <td className="cell-num">{formatCurrency(exp)}</td>
+                              <td className="cell-num">{formatCurrency(staff)}</td>
+                              <td className={`cell-num ${net < 0 ? "cell-negative" : "cell-positive"}`}>
+                                {formatCurrency(net)}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                      <tfoot>
+                        <tr className="reports-table-total-row">
+                          <td><strong>Total ({dailyBreakdown.length} days)</strong></td>
+                          <td className="cell-num"><strong>{formatCurrency(dailyBreakdown.reduce((s, d) => s + Number(d.total || 0), 0))}</strong></td>
+                          <td className="cell-num"><strong>{formatCurrency(dailyBreakdown.reduce((s, d) => s + Number(d.expense_total || 0), 0))}</strong></td>
+                          <td className="cell-num"><strong>{formatCurrency(dailyBreakdown.reduce((s, d) => s + Number(d.staff_consumption_total || 0), 0))}</strong></td>
+                          <td className="cell-num"><strong>{formatCurrency(dailyBreakdown.reduce((s, d) => s + Number(d.net_sales || 0), 0))}</strong></td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
                 </>
               )}
             </article>
@@ -324,35 +403,74 @@ function Reports() {
               {topProducts.length === 0 ? (
                 <p className="empty-hint">No product sales to show for this period yet.</p>
               ) : (
-                <ol className="product-ranking">
-                  {topProducts.map((product, index) => {
-                    const quantity = Number(product.quantity_sold || 0);
-                    return (
-                      <li className="product-rank-row" key={product.variant_id}>
-                        <span className={`rank-number ${index < 3 ? "rank-highlight" : ""}`}>
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <div className="product-rank-detail">
-                          <div className="product-rank-label">
-                            <strong>{product.variant_name}</strong>
-                            <span>{quantity.toLocaleString()} sold</span>
+                <>
+                  <div className="reports-products-table-wrap">
+                    <table className="reports-products-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Product / Variant</th>
+                          <th className="cell-num">Sold</th>
+                          <th className="cell-num">Revenue</th>
+                          <th className="cell-num">Gross Profit</th>
+                          <th className="cell-num">Margin</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topProducts.map((product, index) => {
+                          const quantity = Number(product.quantity_sold || 0);
+                          const revenue = Number(product.revenue || 0);
+                          const profit = Number(product.gross_profit || 0);
+                          return (
+                            <tr key={product.variant_id}>
+                              <td>{index + 1}</td>
+                              <td><strong>{product.variant_name}</strong></td>
+                              <td className="cell-num">{quantity.toLocaleString()}</td>
+                              <td className="cell-num">{formatCurrency(revenue)}</td>
+                              <td className={`cell-num ${profit < 0 ? "cell-negative" : "cell-positive"}`}>
+                                {formatCurrency(profit)}
+                              </td>
+                              <td className="cell-num">
+                                {product.cost_data_complete && product.gross_margin_percent != null
+                                  ? `${Number(product.gross_margin_percent).toFixed(1)}%`
+                                  : "—"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <ol className="product-ranking">
+                    {topProducts.map((product, index) => {
+                      const quantity = Number(product.quantity_sold || 0);
+                      return (
+                        <li className="product-rank-row" key={product.variant_id}>
+                          <span className={`rank-number ${index < 3 ? "rank-highlight" : ""}`}>
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <div className="product-rank-detail">
+                            <div className="product-rank-label">
+                              <strong>{product.variant_name}</strong>
+                              <span>{quantity.toLocaleString()} sold</span>
+                            </div>
+                            <div className="product-profitline">
+                              <span>Revenue {formatCurrency(Number(product.revenue || 0))}</span>
+                              <span className={Number(product.gross_profit) < 0 ? "comparison-negative" : "comparison-positive"}>
+                                {product.cost_data_complete
+                                  ? `Gross profit ${formatCurrency(Number(product.gross_profit || 0))} · ${product.gross_margin_percent == null ? "Margin n/a" : `${Number(product.gross_margin_percent).toFixed(1)}% margin`}`
+                                  : "Margin incomplete"}
+                              </span>
+                            </div>
+                            <div className="product-progress" aria-hidden="true">
+                              <span style={{ width: `${(quantity / maxProductQuantity) * 100}%` }} />
+                            </div>
                           </div>
-                          <div className="product-profitline">
-                            <span>Revenue {formatCurrency(Number(product.revenue || 0))}</span>
-                            <span className={Number(product.gross_profit) < 0 ? "comparison-negative" : "comparison-positive"}>
-                              {product.cost_data_complete
-                                ? `Gross profit ${formatCurrency(Number(product.gross_profit || 0))} · ${product.gross_margin_percent == null ? "Margin n/a" : `${Number(product.gross_margin_percent).toFixed(1)}% margin`}`
-                                : "Margin incomplete"}
-                            </span>
-                          </div>
-                          <div className="product-progress" aria-hidden="true">
-                            <span style={{ width: `${(quantity / maxProductQuantity) * 100}%` }} />
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </>
               )}
             </article>
           </section>
@@ -369,6 +487,12 @@ function Reports() {
               <span className="shortcut-arrow" aria-hidden="true">→</span>
             </a>
           </nav>
+
+          <footer className="reports-print-footer" aria-hidden="true">
+            <p>
+              Confidential Business Summary · {shopProfile?.name || "Retail Shop"} · For Owner / Management Use Only
+            </p>
+          </footer>
         </>
       )}
     </main>

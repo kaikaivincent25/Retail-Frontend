@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { useEffect } from "react";
 import { formatCurrency } from "../../utils/money";
 import "./Receipt.css";
 
@@ -11,6 +12,13 @@ const PAYMENT_METHOD_LABELS = {
 };
 
 function Receipt({ sale, shopName, shopLocation, cashierName }) {
+  useEffect(() => {
+    document.body.classList.add("has-receipt-modal");
+    return () => {
+      document.body.classList.remove("has-receipt-modal");
+    };
+  }, []);
+
   if (!sale) return null;
 
   const paymentMethod =
@@ -93,13 +101,22 @@ export function printReceipt() {
     return;
   }
 
+  document.body.classList.add("printing-receipt");
   const heightMm = Math.ceil((receipt.scrollHeight * 25.4) / 96 + 1);
   const pageStyle = document.createElement("style");
   pageStyle.dataset.receiptPage = "true";
   pageStyle.textContent = `@page { size: 80mm ${heightMm}mm; margin: 0; }`;
   document.head.appendChild(pageStyle);
+
+  const cleanup = () => {
+    document.body.classList.remove("printing-receipt");
+    pageStyle.remove();
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup);
+
   window.print();
-  pageStyle.remove();
+  setTimeout(cleanup, 1000);
 }
 
 export default Receipt;

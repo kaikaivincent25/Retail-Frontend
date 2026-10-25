@@ -195,13 +195,9 @@
 }
 
 @media print {
-  @page {
-    size: 80mm auto;
-    margin: 0;
-  }
-
-  html,
-  body {
+  body.printing-receipt,
+  body.has-receipt-modal,
+  body:has(.receipt-print-root) {
     width: 80mm !important;
     min-width: 0 !important;
     height: auto !important;
@@ -211,12 +207,18 @@
     background: #fff !important;
   }
 
-  body > #root,
-  body > * {
+  body.printing-receipt > #root,
+  body.printing-receipt > *:not(.receipt-print-root),
+  body.has-receipt-modal > #root,
+  body.has-receipt-modal > *:not(.receipt-print-root),
+  body:has(.receipt-print-root) > #root,
+  body:has(.receipt-print-root) > *:not(.receipt-print-root) {
     display: none !important;
   }
 
-  body > .receipt-print-root {
+  body.printing-receipt > .receipt-print-root,
+  body.has-receipt-modal > .receipt-print-root,
+  body:has(.receipt-print-root) > .receipt-print-root {
     position: static !important;
     top: auto !important;
     left: auto !important;
@@ -236,6 +238,7 @@
     line-height: 1.38 !important;
     animation: none !important;
     print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .receipt-print-root * {
