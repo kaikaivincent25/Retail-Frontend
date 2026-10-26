@@ -8,6 +8,7 @@ import {
   listInventoryCosts,
   adjustStock,
   getMovements,
+  resolveMissingCosts,
   recordStaffConsumption,
 } from "../../services/inventoryApi";
 import "./Inventory.css";
@@ -417,6 +418,23 @@ function AdjustModal({ variant, onClose, onSaved }) {
 }
 
 function HistoryModal({ variant, movements, onClose }) {
+  const [resolutionCost, setResolutionCost] = useState("");
+  const [resolutionMessage, setResolutionMessage] = useState("");
+  const [resolving, setResolving] = useState(false);
+
+  async function handleResolveMissingCosts() {
+    if (!resolutionCost || Number(resolutionCost) < 0) return;
+    setResolving(true);
+    setResolutionMessage("");
+    try {
+      const result = await resolveMissingCosts(variant.id, Number(resolutionCost));
+      setResolutionMessage(`${result.sales_updated} sales and ${result.movements_updated} stock records repaired.`);
+    } catch (error) {
+      setResolutionMessage(error.response?.data?.detail || "Could not resolve missing costs.");
+    } finally {
+      setResolving(false);
+    }
+  }
   return (
     <div className="modal-overlay">
       <div className="modal-card wide">
@@ -436,6 +454,18 @@ function HistoryModal({ variant, movements, onClose }) {
         <div className="history-summary">
           <span>Recorded stock movements</span>
           <strong>{movements.length}</strong>
+        </div>
+
+        <div className="history-cost-repair">
+          <strong>Repair legacy missing costs</strong>
+          <span>Use this only when you know the cost for the affected historical stock.</span>
+          <div>
+            <input type="number" min="0" step="0.01" placeholder="Unit cost" value={resolutionCost} onChange={(event) => setResolutionCost(event.target.value)} />
+            <button type="button" className="adjust-button" onClick={handleResolveMissingCosts} disabled={resolving || !resolutionCost}>
+              {resolving ? "Saving..." : "Resolve missing costs"}
+            </button>
+          </div>
+          {resolutionMessage && <small>{resolutionMessage}</small>}
         </div>
 
         <div className="history-table-container">

@@ -7,6 +7,7 @@ import "./Signup.css";
 function Signup() {
   const [shopName, setShopName] = useState("");
   const [shopLocation, setShopLocation] = useState("");
+  const [businessType, setBusinessType] = useState("household_retail");
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,6 +25,7 @@ function Signup() {
       await signup({
         shop_name: shopName,
         shop_location: shopLocation || null,
+        business_type: businessType,
         admin_full_name: fullName,
         admin_username: username,
         admin_password: password,
@@ -150,6 +152,19 @@ function Signup() {
                       placeholder="e.g. Nairobi"
                     />
                     <small>Add a town, estate, or area to help identify your shop.</small>
+                  </div>
+
+                  <div className="signup-field">
+                    <label htmlFor="businessType">Business type <span>*</span></label>
+                    <select id="businessType" value={businessType} onChange={(e) => setBusinessType(e.target.value)} required>
+                      <option value="household_retail">Household retail</option>
+                      <option value="general_retail">General retail</option>
+                      <option value="bookshop">Bookshop</option>
+                      <option value="electronics">Electronics</option>
+                      <option value="clothing">Clothing</option>
+                      <option value="cosmetics">Cosmetics</option>
+                    </select>
+                    <small>This sets recommended product fields when adding products.</small>
                   </div>
                 </div>
 

@@ -33,6 +33,7 @@ function Profile() {
   const [shop, setShop] = useState(null);
   const [shopName, setShopName] = useState("");
   const [shopLocation, setShopLocation] = useState("");
+  const [shopBusinessType, setShopBusinessType] = useState("general_retail");
   const [shopCurrency, setShopCurrency] = useState("");
   const [shopPochiNumber, setShopPochiNumber] = useState("");
   const [shopTillNumber, setShopTillNumber] = useState("");
@@ -57,6 +58,7 @@ function Profile() {
         setShop(data);
         setShopName(data.name);
         setShopLocation(data.location || "");
+        setShopBusinessType(data.business_type || "general_retail");
         setShopCurrency(data.currency);
         setShopPochiNumber(data.mpesa_pochi_number || "");
         setShopTillNumber(data.mpesa_till_number || "");
@@ -114,6 +116,7 @@ function Profile() {
         name: shopName,
         location: shopLocation || null,
         currency: shopCurrency,
+        business_type: shopBusinessType,
         mpesa_pochi_number: shopPochiNumber || null,
         mpesa_till_number: shopTillNumber || null,
         mpesa_paybill_number: shopPaybillNumber || null,
@@ -542,6 +545,19 @@ function Profile() {
                       Example: KES
                     </span>
                   </div>
+
+                  <div className="profile-field">
+                    <label htmlFor="shop-business-type">Business type</label>
+                    <select id="shop-business-type" value={shopBusinessType} onChange={(e) => setShopBusinessType(e.target.value)}>
+                      <option value="household_retail">Household retail</option>
+                      <option value="general_retail">General retail</option>
+                      <option value="bookshop">Bookshop</option>
+                      <option value="electronics">Electronics</option>
+                      <option value="clothing">Clothing</option>
+                      <option value="cosmetics">Cosmetics</option>
+                    </select>
+                    <span className="field-hint">Controls recommended product fields and examples.</span>
+                  </div>
                   <div className="profile-field">
                     <label htmlFor="shop-mpesa-pochi">Pochi la Biashara number</label>
                     <input
@@ -605,6 +621,7 @@ function Profile() {
                       setShopName(shop.name);
                       setShopLocation(shop.location || "");
                       setShopCurrency(shop.currency);
+                      setShopBusinessType(shop.business_type || "general_retail");
                       setShopPochiNumber(shop.mpesa_pochi_number || "");
                       setShopTillNumber(shop.mpesa_till_number || "");
                       setShopPaybillNumber(shop.mpesa_paybill_number || "");

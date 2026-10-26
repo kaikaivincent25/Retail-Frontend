@@ -9,3 +9,5 @@ export const recordStaffConsumption = (variantId, data) =>
   api.post(`/inventory/${variantId}/staff-consumption`, data).then((r) => r.data);
 export const getMovements = (variantId) =>
   api.get(`/inventory/${variantId}/movements`).then((r) => r.data);
+export const resolveMissingCosts = (variantId, unitCost) =>
+  api.post(`/variants/${variantId}/resolve-missing-costs`, { unit_cost: unitCost }).then((r) => r.data);

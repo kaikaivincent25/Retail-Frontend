@@ -5,11 +5,20 @@ import {
   listVariants, createVariant, deactivateVariant,
 } from "../../services/catalogApi";
 import api from "../../services/api";
+import { getReceiptProfile } from "../../services/profileApi";
 import { toCents, fromCents } from "../../utils/money";
 import "./Products.css";
 
 const UNITS = ["piece", "each", "pair", "set", "packet", "pack", "box", "case", "dozen", "bottle", "can", "sheet", "roll", "gram", "kg", "ml", "litre", "metre", "centimetre"];
 const EMPTY_ATTRIBUTE = () => ({ key: "", value: "" });
+const BUSINESS_TEMPLATES = {
+  household_retail: { label: "Household retail", categories: ["Pantry", "Cleaning", "Personal care"], attributes: ["Size", "Pack quantity", "Expiry date"] },
+  general_retail: { label: "General retail", categories: ["General merchandise", "Food", "Personal care"], attributes: ["Size", "Material"] },
+  bookshop: { label: "Bookshop", categories: ["Textbooks", "Fiction", "Stationery"], attributes: ["ISBN", "Author", "Publisher", "Edition"] },
+  electronics: { label: "Electronics", categories: ["Phones", "Computers", "Accessories"], attributes: ["Model", "Serial number", "Warranty period", "Colour"] },
+  clothing: { label: "Clothing", categories: ["Men", "Women", "Children", "Accessories"], attributes: ["Size", "Colour", "Material"] },
+  cosmetics: { label: "Cosmetics", categories: ["Skincare", "Haircare", "Makeup"], attributes: ["Shade", "Batch number", "Expiry date"] },
+};
 
 function attributesToObject(rows) {
   const result = {};
@@ -51,6 +60,8 @@ function Products() {
   const [editingProduct, setEditingProduct] = useState(null);
 
   const [newProductName, setNewProductName] = useState("");
+  const [businessType, setBusinessType] = useState("general_retail");
+  const [productTemplate, setProductTemplate] = useState("general_retail");
   const [newProductCategory, setNewProductCategory] = useState("");
   const [newProductBrand, setNewProductBrand] = useState("");
   const [newProductDescription, setNewProductDescription] = useState("");
@@ -64,6 +75,21 @@ function Products() {
     const timer = setTimeout(() => refreshProducts(productSearch), productSearch ? 250 : 0);
     return () => clearTimeout(timer);
   }, [productSearch]);
+
+  useEffect(() => {
+    getReceiptProfile().then((profile) => {
+      const type = profile.business_type || "general_retail";
+      setBusinessType(type);
+      setProductTemplate(type);
+    }).catch(() => {});
+  }, []);
+
+  function applyProductTemplate(type) {
+    const template = BUSINESS_TEMPLATES[type] || BUSINESS_TEMPLATES.general_retail;
+    setProductTemplate(type);
+    if (!newProductCategory) setNewProductCategory(template.categories[0]);
+    setNewProductAttributes([EMPTY_ATTRIBUTE()]);
+  }
 
   async function refreshProducts(searchTerm = productSearch) {
     try {
@@ -255,6 +281,13 @@ function Products() {
         </div>
         <div className="new-product-fields">
           <label className="product-field">
+            <span>Product template</span>
+            <select value={productTemplate} onChange={(e) => applyProductTemplate(e.target.value)}>
+              {Object.entries(BUSINESS_TEMPLATES).map(([value, template]) => <option key={value} value={value}>{template.label}</option>)}
+            </select>
+            <small>Business profile: {BUSINESS_TEMPLATES[businessType]?.label || "Retail"}</small>
+          </label>
+          <label className="product-field">
             <span>Product name <b>*</b></span>
             <input
               placeholder="e.g. Sugar"
@@ -290,7 +323,7 @@ function Products() {
             <textarea placeholder="Useful product details" value={newProductDescription} onChange={(e) => setNewProductDescription(e.target.value)} maxLength={2000} rows={2} />
           </label>
         </div>
-        <AttributeEditor rows={newProductAttributes} onChange={setNewProductAttributes} label="Product attributes" examples="ISBN, author, model, colour, storage" />
+        <AttributeEditor rows={newProductAttributes} onChange={setNewProductAttributes} label="Product attributes" examples={(BUSINESS_TEMPLATES[productTemplate]?.attributes || []).join(", ")} />
         <datalist id="product-category-options">
           {[...new Set(products.map((product) => product.category).filter(Boolean))]
             .sort((a, b) => a.localeCompare(b))
@@ -372,7 +405,7 @@ function Products() {
                 </div>
               </label>
               <label className="product-field price-field variant-cost-field">
-                <span>Cost price <small>Optional</small></span>
+                <span>Cost price <small>Required before sale</small></span>
                 <div className="money-input">
                   <span>KSh</span>
                   <input
