@@ -125,7 +125,10 @@ function SalesHistory() {
 
   return (
     <div className="sales-history-page">
-      <h1>Sales History</h1>
+      <div className="page-title-row">
+        <h1>Sales History</h1>
+        <button type="button" onClick={() => window.print()}>Print sales report</button>
+      </div>
 
       <div className="history-filters">
         {user?.role !== "cashier" && (

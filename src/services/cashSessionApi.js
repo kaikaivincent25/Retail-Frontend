@@ -11,3 +11,5 @@ export const getCashDeposits = () =>
   api.get("/cash-sessions/deposits").then((r) => r.data);
 export const recordCashDeposit = (deposit) =>
   api.post("/cash-sessions/deposits", deposit).then((r) => r.data);
+export const reconcileSession = (sessionId, data) =>
+  api.post(`/cash-sessions/${sessionId}/reconcile`, data).then((r) => r.data);

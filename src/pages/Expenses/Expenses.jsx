@@ -37,9 +37,6 @@ function Expenses() {
         if (!current) return;
         setExpenses(expenseRows);
         setHasOpenSession(Boolean(session));
-        if (session && Number(session.opening_cash) <= 0) {
-          setFundingSource("bank");
-        }
       })
       .catch((requestError) => {
         if (current) {
@@ -74,7 +71,7 @@ function Expenses() {
       setExpenses((current) => [createdExpense, ...current]);
       setAmount("");
       setDescription("");
-      setSuccess("Expense recorded and included in today's net sales.");
+      setSuccess("Expense recorded against the current till session.");
     } catch (requestError) {
       setError(requestError.response?.data?.detail || "Could not record this expense.");
     } finally {

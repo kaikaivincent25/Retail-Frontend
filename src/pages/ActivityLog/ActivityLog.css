@@ -475,3 +475,5 @@
     padding: 10px 12px;
   }
 }
+.page-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+@media print { .activity-page button, .activity-page .activity-controls, .activity-page .pagination { display: none !important; } }

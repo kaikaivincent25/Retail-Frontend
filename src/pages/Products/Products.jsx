@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import {
   listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
-  listVariants, createVariant, deactivateVariant,
+  listVariants, createVariant, updateVariant, deactivateVariant,
 } from "../../services/catalogApi";
 import api from "../../services/api";
 import { getReceiptProfile } from "../../services/profileApi";
@@ -660,6 +660,7 @@ function VariantsPanel({ productId, variants, onChange }) {
   const [presetLabel, setPresetLabel] = useState("");
   const [presetAmount, setPresetAmount] = useState("");
   const [presetError, setPresetError] = useState("");
+  const [editingVariant, setEditingVariant] = useState(null);
 
   async function handleCreateVariant(e) {
     e.preventDefault();
@@ -691,6 +692,22 @@ function VariantsPanel({ productId, variants, onChange }) {
     if (!window.confirm("Deactivate this variant?")) return;
     await deactivateVariant(variantId);
     onChange();
+  }
+
+  async function handleSaveVariant(event) {
+    event.preventDefault();
+    setError("");
+    try {
+      await updateVariant(editingVariant.id, {
+        name: editingVariant.name,
+        selling_price: fromCents(toCents(editingVariant.selling_price)),
+        cost_price: fromCents(toCents(editingVariant.cost_price)),
+      });
+      setEditingVariant(null);
+      onChange();
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not update this variant."));
+    }
   }
 
   async function togglePresets(variant) {
@@ -744,6 +761,7 @@ function VariantsPanel({ productId, variants, onChange }) {
             <th scope="col">Mode</th>
             <th scope="col">Unit</th>
             <th scope="col">Price</th>
+            <th scope="col">Cost</th>
             <th scope="col">Stock</th>
             <th scope="col">Actions</th>
           </tr>
@@ -752,7 +770,7 @@ function VariantsPanel({ productId, variants, onChange }) {
           {variants.map((v) => (
             <tr key={v.id} className={!v.is_active ? "inactive-row" : ""}>
               <td>
-                {v.name}
+                {editingVariant?.id === v.id ? <input value={editingVariant.name} onChange={(e) => setEditingVariant({ ...editingVariant, name: e.target.value })} /> : v.name}
                 {(v.barcode || v.sku) && <small className="variant-identifiers-summary">{v.barcode && `Barcode: ${v.barcode}`}{v.barcode && v.sku ? " · " : ""}{v.sku && `SKU: ${v.sku}`}</small>}
               </td>
               <td>
@@ -761,7 +779,8 @@ function VariantsPanel({ productId, variants, onChange }) {
                 </span>
               </td>
               <td>{v.unit}</td>
-              <td>KSh {v.selling_price}{v.sale_mode === "bulk" && ` / ${v.unit}`}</td>
+              <td>{editingVariant?.id === v.id ? <input type="number" min="0" step="0.01" value={editingVariant.selling_price} onChange={(e) => setEditingVariant({ ...editingVariant, selling_price: e.target.value })} /> : <>KSh {v.selling_price}{v.sale_mode === "bulk" && ` / ${v.unit}`}</>}</td>
+              <td>{editingVariant?.id === v.id ? <input type="number" min="0" step="0.01" value={editingVariant.cost_price} onChange={(e) => setEditingVariant({ ...editingVariant, cost_price: e.target.value })} /> : `KSh ${v.cost_price}`}</td>
               <td>
                 {v.quantity == null ? (
                   <span className="stock-indicator stock-untracked">Not tracked</span>
@@ -774,6 +793,10 @@ function VariantsPanel({ productId, variants, onChange }) {
               <td>
                 {v.is_active && (
                   <div className="variant-row-actions">
+                    {editingVariant?.id === v.id ? <>
+                      <button className="small" onClick={handleSaveVariant}>Save</button>
+                      <button className="small" type="button" onClick={() => setEditingVariant(null)}>Cancel</button>
+                    </> : <button className="small" onClick={() => setEditingVariant({ id: v.id, name: v.name, selling_price: v.selling_price, cost_price: v.cost_price })}>Edit</button>}
                     <button className="danger small" onClick={() => handleDeactivateVariant(v.id)}>
                       Deactivate
                     </button>
@@ -792,7 +815,7 @@ function VariantsPanel({ productId, variants, onChange }) {
             </tr>
           ))}
           {variants.length === 0 && (
-            <tr><td colSpan={6} className="empty-hint">No variants yet.</td></tr>
+            <tr><td colSpan={7} className="empty-hint">No variants yet.</td></tr>
           )}
         </tbody>
       </table>

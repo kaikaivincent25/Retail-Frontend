@@ -211,3 +211,5 @@
     width: 100%;
   }
 }
+.page-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+@media print { .cash-sessions-page button, .cash-sessions-page select, .cash-sessions-page .cash-deposit-panel { display: none !important; } }

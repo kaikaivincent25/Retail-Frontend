@@ -4,6 +4,7 @@ import {
   getCurrentSession,
   listSessions,
   recordCashDeposit,
+  reconcileSession,
 } from "../../services/cashSessionApi";
 import { listUsers } from "../../services/usersApi";
 import { formatCurrency } from "../../utils/money";
@@ -31,6 +32,9 @@ function CashSessions() {
   const [savingDeposit, setSavingDeposit] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [reconciling, setReconciling] = useState(null);
+  const [recountCash, setRecountCash] = useState("");
+  const [recountReason, setRecountReason] = useState("");
 
   useEffect(() => {
     if (user?.role === "cashier") return;
@@ -101,6 +105,22 @@ function CashSessions() {
     return staff.find((s) => s.id === id)?.full_name || `User #${id}`;
   }
 
+  async function handleReconcile(event) {
+    event.preventDefault();
+    setError("");
+    try {
+      await reconcileSession(reconciling.id, { closing_cash: Number(recountCash), reason: recountReason });
+      setReconciling(null);
+      setRecountCash("");
+      setRecountReason("");
+      setSuccess("Cash session correction saved and audited.");
+      const result = await listSessions(user?.role === "cashier" ? undefined : userId || undefined);
+      setSessions(result);
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || "Could not correct this cash session.");
+    }
+  }
+
   const depositsBySession = deposits.reduce((totals, deposit) => {
     totals[deposit.session_id] =
       (totals[deposit.session_id] || 0) + Number(deposit.amount);
@@ -109,7 +129,10 @@ function CashSessions() {
 
   return (
     <div className="cash-sessions-page">
-      <h1>{user?.role === "cashier" ? "Shop Till History" : "Cash Sessions"}</h1>
+      <div className="page-title-row">
+        <h1>{user?.role === "cashier" ? "Shop Till History" : "Cash Sessions"}</h1>
+        <button type="button" onClick={() => window.print()}>Print cash session report</button>
+      </div>
 
       {user?.role !== "cashier" && (
         <select value={userId} onChange={(e) => setUserId(e.target.value)}>
@@ -234,6 +257,7 @@ function CashSessions() {
             <th>Deposited</th>
             <th>Difference</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -254,13 +278,32 @@ function CashSessions() {
                 {s.difference != null ? `${Number(s.difference) > 0 ? "+" : ""}${formatCurrency(s.difference)}` : "—"}
               </td>
               <td><span className={`status-badge ${s.status}`}>{s.status}</span></td>
+              <td>
+                {s.status === "closed" && (user?.role !== "cashier" || s.user_id === user.id) && (
+                  <button type="button" onClick={() => { setReconciling(s); setRecountCash(s.closing_cash); setRecountReason(""); }}>
+                    Correct count
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
           {sessions.length === 0 && (
-            <tr><td colSpan={9} className="empty-hint">No sessions recorded yet.</td></tr>
+            <tr><td colSpan={10} className="empty-hint">No sessions recorded yet.</td></tr>
           )}
         </tbody>
       </table>
+
+      {reconciling && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <form className="modal-card" onSubmit={handleReconcile}>
+            <div className="modal-header"><div><span className="modal-eyebrow">AUDITED CORRECTION</span><h3>Correct cash count</h3><p className="modal-subtitle">Session #{reconciling.id}</p></div><button type="button" className="modal-close" onClick={() => setReconciling(null)}>×</button></div>
+            <p>Use this when the till was recounted after closing. The original close remains in the activity history.</p>
+            <label>Corrected counted cash<input type="number" min="0" step="0.01" value={recountCash} onChange={(e) => setRecountCash(e.target.value)} required /></label>
+            <label>Reason<input value={recountReason} onChange={(e) => setRecountReason(e.target.value)} placeholder="e.g. Recount found two notes under the tray" minLength={3} required /></label>
+            <div className="modal-actions"><button type="button" onClick={() => setReconciling(null)}>Cancel</button><button type="submit">Save correction</button></div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

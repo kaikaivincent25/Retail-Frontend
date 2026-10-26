@@ -221,3 +221,5 @@
     transition: none;
   }
 }
+.page-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+@media print { .sales-history-page button, .sales-history-page .history-filters, .sales-history-page .sessions-link { display: none !important; } }

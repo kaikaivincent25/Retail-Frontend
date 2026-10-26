@@ -40,7 +40,10 @@ function ActivityLog() {
     <main className="activity-page">
       <header className="activity-header">
         <p className="activity-eyebrow">Store operations <span>/</span> Audit trail</p>
-        <h1>Activity log</h1>
+        <div className="page-title-row">
+          <h1>Activity log</h1>
+          <button type="button" onClick={() => window.print()}>Print activity log</button>
+        </div>
         <p className="activity-intro">
           A clear record of the actions taking place across your store.
         </p>
