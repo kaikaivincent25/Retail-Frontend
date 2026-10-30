@@ -250,7 +250,7 @@ function Sales() {
       active = false;
       clearInterval(timer);
     };
-  }, [mpesaSale?.id, mpesaSale?.status, showToast]);
+  }, [mpesaSale, showToast]);
 
   async function handleOpenSession(e) {
     e.preventDefault();

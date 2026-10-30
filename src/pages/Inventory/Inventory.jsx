@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { formatCurrency } from "../../utils/money";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -29,11 +29,7 @@ function Inventory() {
   const [historyVariant, setHistoryVariant] = useState(null);
   const [movements, setMovements] = useState([]);
 
-  useEffect(() => {
-    refresh();
-  }, [tab, user]);
-
-  function refresh() {
+  const refresh = useCallback(() => {
     const inventoryRequest = tab === "all" ? listInventory() : listLowStock();
     const costRequest = ["admin", "manager"].includes(user?.role)
       ? listInventoryCosts()
@@ -42,7 +38,11 @@ function Inventory() {
       setVariants(items);
       setVariantCosts(Object.fromEntries(costs.map((item) => [item.id, item])));
     });
-  }
+  }, [tab, user]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   async function openHistory(variant) {
     setHistoryVariant(variant);

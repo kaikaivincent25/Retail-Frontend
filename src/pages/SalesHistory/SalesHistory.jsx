@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { listUsers } from "../../services/usersApi";
 import {
   listSales, getSale,
@@ -53,17 +53,17 @@ function SalesHistory() {
     listUsers().then(setStaff).catch(() => setStaff([])); // manager may not have /users access; fail quietly
   }, [user?.role]);
 
-  useEffect(() => {
-    refresh();
-  }, [cashierId, startDate, endDate]);
-
-  function refresh() {
+  const refresh = useCallback(() => {
     listSales({
       cashierId: cashierId || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
     }).then(setSales);
-  }
+  }, [cashierId, startDate, endDate]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   async function openDetail(saleId) {
     const full = await getSale(saleId);
@@ -169,7 +169,7 @@ function SalesHistory() {
         <tbody>
           {sales.map((sale) => (
             <tr key={sale.id}>
-              <td>{new Date(sale.created_at || Date.now()).toLocaleString()}</td>
+              <td>{sale.created_at ? new Date(sale.created_at).toLocaleString() : "—"}</td>
               <td>KSh {sale.total}</td>
               <td>{PAYMENT_METHOD_LABELS[sale.payment_method] || sale.payment_method}</td>
               <td><span className={`status-badge ${sale.status}`}>{sale.status}</span></td>

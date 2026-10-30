@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import {
   listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
@@ -71,10 +71,20 @@ function Products() {
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const [error, setError] = useState("");
 
+  const refreshProducts = useCallback(async (searchTerm = productSearch) => {
+    try {
+      const params = new URLSearchParams({ include_inactive: "true" });
+      if (searchTerm.trim()) params.set("q", searchTerm.trim());
+      setProducts(await listProducts(`?${params.toString()}`));
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not load products."));
+    }
+  }, [productSearch]);
+
   useEffect(() => {
     const timer = setTimeout(() => refreshProducts(productSearch), productSearch ? 250 : 0);
     return () => clearTimeout(timer);
-  }, [productSearch]);
+  }, [productSearch, refreshProducts]);
 
   useEffect(() => {
     getReceiptProfile().then((profile) => {
@@ -89,16 +99,6 @@ function Products() {
     setProductTemplate(type);
     if (!newProductCategory) setNewProductCategory(template.categories[0]);
     setNewProductAttributes([EMPTY_ATTRIBUTE()]);
-  }
-
-  async function refreshProducts(searchTerm = productSearch) {
-    try {
-      const params = new URLSearchParams({ include_inactive: "true" });
-      if (searchTerm.trim()) params.set("q", searchTerm.trim());
-      setProducts(await listProducts(`?${params.toString()}`));
-    } catch (err) {
-      setError(getErrorMessage(err, "Could not load products."));
-    }
   }
 
   async function handleCreateProduct(e) {
