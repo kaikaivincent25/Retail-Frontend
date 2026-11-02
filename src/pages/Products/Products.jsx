@@ -94,13 +94,6 @@ function Products() {
     }).catch(() => {});
   }, []);
 
-  function applyProductTemplate(type) {
-    const template = BUSINESS_TEMPLATES[type] || BUSINESS_TEMPLATES.general_retail;
-    setProductTemplate(type);
-    if (!newProductCategory) setNewProductCategory(template.categories[0]);
-    setNewProductAttributes([EMPTY_ATTRIBUTE()]);
-  }
-
   async function handleCreateProduct(e) {
     e.preventDefault();
     setError("");
@@ -256,6 +249,8 @@ function Products() {
       || (productFilter === "active" ? product.is_active : !product.is_active);
     return matchesFilter;
   });
+  const activeTemplate = BUSINESS_TEMPLATES[businessType] || BUSINESS_TEMPLATES.general_retail;
+  const categoryOptions = activeTemplate.categories;
 
   return (
     <div className="products-page">
@@ -282,8 +277,8 @@ function Products() {
         <div className="new-product-fields">
           <label className="product-field">
             <span>Product template</span>
-            <select value={productTemplate} onChange={(e) => applyProductTemplate(e.target.value)}>
-              {Object.entries(BUSINESS_TEMPLATES).map(([value, template]) => <option key={value} value={value}>{template.label}</option>)}
+            <select value={productTemplate} disabled>
+              <option value={businessType}>{activeTemplate.label}</option>
             </select>
             <small>Business profile: {BUSINESS_TEMPLATES[businessType]?.label || "Retail"}</small>
           </label>
@@ -325,7 +320,7 @@ function Products() {
         </div>
         <AttributeEditor rows={newProductAttributes} onChange={setNewProductAttributes} label="Product attributes" examples={(BUSINESS_TEMPLATES[productTemplate]?.attributes || []).join(", ")} />
         <datalist id="product-category-options">
-          {[...new Set(products.map((product) => product.category).filter(Boolean))]
+          {[...new Set(categoryOptions)]
             .sort((a, b) => a.localeCompare(b))
             .map((category) => <option key={category} value={category} />)}
         </datalist>
