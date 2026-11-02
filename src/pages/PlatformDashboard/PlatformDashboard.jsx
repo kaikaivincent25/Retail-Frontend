@@ -46,6 +46,18 @@ function PlatformDashboard() {
     navigate("/platform/login", { replace: true });
   }
 
+  async function toggleServices(shop) {
+    const action = shop.service_suspended ? "restore-services" : "suspend-services";
+    try {
+      await platformApi.post(`/platform/shops/${shop.id}/${action}`);
+      setShops((current) => current.map((item) => item.id === shop.id
+        ? { ...item, service_suspended: !shop.service_suspended }
+        : item));
+    } catch (err) {
+      setError(err.response?.data?.detail || "Could not update service access.");
+    }
+  }
+
   if (!overview) return <main className="platform-page"><p>Loading platform control centre…</p></main>;
 
   return (
@@ -61,11 +73,14 @@ function PlatformDashboard() {
         <Metric label="45-day trials" value={overview.trialing_shops} />
         <Metric label="Paid shops" value={overview.paid_shops} />
         <Metric label="Active users" value={overview.total_active_users} />
+        <Metric label="Est. monthly revenue" value={`KES ${overview.estimated_monthly_revenue.toLocaleString()}`} />
+        <Metric label="New shops (30d)" value={overview.new_shops_last_30_days} />
+        <Metric label="Events (7d)" value={overview.activity_events_last_7_days} />
       </section>
       <section className="platform-panel">
         <div className="platform-panel-heading"><div><span className="platform-kicker">TENANTS</span><h2>Registered shops</h2></div><span>{shops.length} shops</span></div>
         <div className="platform-table-wrap"><table className="platform-table"><thead><tr><th>Shop</th><th>Business type</th><th>Plan</th><th>Status</th><th>Users</th><th>Last activity</th><th /></tr></thead><tbody>
-          {shops.map((shop) => <tr key={shop.id}><td><strong>{shop.name}</strong>{shop.is_suspended && <small className="platform-suspended">Suspended</small>}</td><td>{shop.business_type.replaceAll("_", " ")}</td><td>{shop.plan}</td><td>{shop.subscription_status}</td><td>{shop.active_users}</td><td>{shop.last_activity_at ? new Date(shop.last_activity_at).toLocaleString() : "No activity"}</td><td><button type="button" onClick={() => viewActivity(shop)}>Activity</button></td></tr>)}
+          {shops.map((shop) => <tr key={shop.id}><td><strong>{shop.name}</strong>{shop.is_suspended && <small className="platform-suspended">Shop suspended</small>}{shop.service_suspended && <small className="platform-suspended">Services suspended</small>}</td><td>{shop.business_type.replaceAll("_", " ")}</td><td>{shop.plan}</td><td><span className={`platform-status platform-status-${shop.subscription_status}`}>{shop.subscription_status.replaceAll("_", " ")}</span></td><td>{shop.active_users}</td><td>{shop.last_activity_at ? new Date(shop.last_activity_at).toLocaleString() : "No activity"}</td><td><div className="platform-actions"><button type="button" onClick={() => viewActivity(shop)}>Activity</button><button type="button" onClick={() => toggleServices(shop)}>{shop.service_suspended ? "Restore" : "Suspend"}</button></div></td></tr>)}
         </tbody></table></div>
       </section>
       {selectedShop && <section className="platform-panel"><div className="platform-panel-heading"><div><span className="platform-kicker">AUDIT TRAIL</span><h2>{selectedShop.name}</h2></div><button type="button" onClick={() => setSelectedShop(null)}>Close</button></div><div className="platform-activity-list">{activity.length === 0 ? <p>No activity recorded.</p> : activity.map((entry) => <article key={entry.id}><strong>{entry.action.replaceAll("_", " ")}</strong><span>{entry.username} · {new Date(entry.created_at).toLocaleString()}</span><p>{entry.description || "No description"}</p></article>)}</div></section>}

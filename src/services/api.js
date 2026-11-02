@@ -17,6 +17,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if (error.response?.status === 402 && window.location.pathname !== "/billing") {
+      window.location.href = "/billing";
+      return Promise.reject(error);
+    }
     if (error.response?.status === 401) {
       try {
         await clearCatalog();

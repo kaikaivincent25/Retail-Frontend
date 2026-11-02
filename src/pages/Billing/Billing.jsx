@@ -12,6 +12,7 @@ function Billing() {
   const [billing, setBilling] = useState(null);
   const [plans, setPlans] = useState([]);
   const [error, setError] = useState("");
+  const [startingTrial, setStartingTrial] = useState(false);
 
   useEffect(() => {
     Promise.all([api.get("/billing"), api.get("/billing/plans")])
@@ -26,6 +27,21 @@ function Billing() {
 
   if (error) return <div className="billing-page"><div className="billing-error">{error}</div></div>;
   if (!billing) return <div className="billing-page"><p className="billing-loading">Loading billing…</p></div>;
+
+  const canStartTrial = billing.plan.code === "free" && !billing.trial_ends_at;
+
+  async function startTrial() {
+    setStartingTrial(true);
+    setError("");
+    try {
+      const response = await api.post("/billing/start-trial");
+      setBilling(response.data);
+    } catch (err) {
+      setError(err.response?.data?.detail || "Could not start the free trial.");
+    } finally {
+      setStartingTrial(false);
+    }
+  }
 
   return (
     <div className="billing-page">
@@ -51,6 +67,7 @@ function Billing() {
         <div className="billing-current-price">
           <strong>{money.format(billing.plan.monthly_price)}</strong>
           <span>per month after trial</span>
+          {canStartTrial && <button type="button" className="billing-trial-button" onClick={startTrial} disabled={startingTrial}>{startingTrial ? "Starting…" : "Start 45-day free trial"}</button>}
         </div>
       </section>
 
