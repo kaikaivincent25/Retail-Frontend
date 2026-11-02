@@ -1,0 +1,10 @@
+.platform-login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #edf5fc; }
+.platform-login-card { width: min(430px, 100%); padding: 32px; background: #fff; border: 1px solid #d5e4f1; border-radius: 18px; box-shadow: 0 18px 50px #173b5d1a; display: grid; gap: 15px; }
+.platform-login-card h1 { margin: 0; color: #173b5d; font: 700 28px Georgia, serif; }
+.platform-login-card p { margin: -5px 0 5px; color: #687f94; line-height: 1.5; }
+.platform-kicker { color: #2878c7; font: 800 11px Arial, sans-serif; letter-spacing: 1.4px; }
+.platform-login-card label { display: grid; gap: 6px; color: #38536b; font-weight: 700; font-size: 13px; }
+.platform-login-card input { min-height: 42px; padding: 0 12px; border: 1px solid #cbddea; border-radius: 8px; font-size: 16px; }
+.platform-login-card button { min-height: 44px; border: 0; border-radius: 8px; background: #2878c7; color: #fff; font-weight: 800; cursor: pointer; }
+.platform-login-card button:disabled { opacity: .65; cursor: wait; }
+.platform-error { padding: 10px 12px; border-radius: 8px; background: #fff0f0; color: #a33c47; font-size: 13px; }

@@ -18,6 +18,8 @@ import Profile from "./pages/Profile/Profile";
 import CashierDashboard from "./pages/Dashboard/CashierDashboard";
 import Expenses from "./pages/Expenses/Expenses";
 import Billing from "./pages/Billing/Billing";
+import PlatformLogin from "./pages/PlatformLogin/PlatformLogin";
+import PlatformDashboard from "./pages/PlatformDashboard/PlatformDashboard";
 import SyncIssues from "./pages/SyncIssues";
 import "./App.css";
 import "./pages/Landing/Landing.css";
@@ -47,6 +49,8 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/platform/login" element={<PlatformLogin />} />
+      <Route path="/platform" element={<PlatformDashboard />} />
       <Route
         path="/dashboard"
         element={

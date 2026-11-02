@@ -1,0 +1,12 @@
+.platform-page { min-height: 100vh; padding: 32px clamp(16px, 4vw, 52px); background: #edf5fc; color: #173b5d; }
+.platform-header, .platform-panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.platform-header h1 { margin: 8px 0; font: 700 clamp(28px, 4vw, 42px) Georgia, serif; }
+.platform-header p, .platform-panel-heading > span { color: #698198; margin: 0; }
+.platform-kicker { color: #2878c7; font: 800 10px Arial, sans-serif; letter-spacing: 1.5px; }
+.platform-signout, .platform-panel-heading button, .platform-table button { border: 1px solid #c8dce9; border-radius: 8px; padding: 9px 13px; background: #fff; color: #285b83; font-weight: 700; cursor: pointer; }
+.platform-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 13px; margin: 30px 0; }
+.platform-metric, .platform-panel { background: #fff; border: 1px solid #d7e6f1; border-radius: 15px; box-shadow: 0 8px 24px #1c4d7210; }
+.platform-metric { padding: 18px; display: grid; gap: 8px; }.platform-metric span { color: #698198; font-size: 12px; }.platform-metric strong { font-size: 27px; }
+.platform-panel { padding: 22px; margin-top: 18px; }.platform-panel-heading h2 { margin: 7px 0 17px; }.platform-table-wrap { overflow-x: auto; }.platform-table { width: 100%; border-collapse: collapse; font-size: 13px; }.platform-table th, .platform-table td { padding: 13px 10px; text-align: left; border-top: 1px solid #edf2f6; white-space: nowrap; }.platform-table th { color: #6b8298; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }.platform-table td small { display: block; }.platform-suspended { color: #a33c47; }.platform-activity-list { display: grid; gap: 12px; }.platform-activity-list article { padding: 13px; background: #f7fbfe; border-radius: 10px; display: grid; gap: 4px; }.platform-activity-list span, .platform-activity-list p { margin: 0; color: #6b8298; font-size: 12px; }.platform-error { margin: 18px 0; padding: 12px; background: #fff0f0; color: #a33c47; border-radius: 8px; }
+@media (max-width: 900px) { .platform-metrics { grid-template-columns: repeat(3, 1fr); } }.platform-panel-heading button { margin-top: 4px; }
+@media (max-width: 600px) { .platform-page { padding: 20px 12px; }.platform-header { flex-direction: column; }.platform-metrics { grid-template-columns: repeat(2, 1fr); }.platform-metric { padding: 14px; } }
