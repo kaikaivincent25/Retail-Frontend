@@ -17,6 +17,7 @@ import {ToastProvider} from "./context/ToastContext";
 import Profile from "./pages/Profile/Profile";
 import CashierDashboard from "./pages/Dashboard/CashierDashboard";
 import Expenses from "./pages/Expenses/Expenses";
+import Billing from "./pages/Billing/Billing";
 import SyncIssues from "./pages/SyncIssues";
 import "./App.css";
 import "./pages/Landing/Landing.css";
@@ -139,6 +140,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/billing"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Billing />
           </ProtectedRoute>
         }
       />

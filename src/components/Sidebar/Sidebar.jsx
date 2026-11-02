@@ -84,6 +84,7 @@ const NAV_ITEMS = {
     { to: "/staff", label: "Staff", icon: "staff" },
     { to: "/reports", label: "Reports", icon: "reports" },
     { to: "/audit", label: "Activity Log", icon: "activity" },
+    { to: "/billing", label: "Plans & Billing", icon: "reports" },
   ],
   manager: [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
