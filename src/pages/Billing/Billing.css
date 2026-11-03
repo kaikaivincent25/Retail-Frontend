@@ -32,3 +32,6 @@
 .billing-error { color: #a53e48; }
 @media (max-width: 900px) { .billing-plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .billing-page { padding: 22px 14px 34px; } .billing-heading, .billing-section-heading, .billing-current-card { flex-direction: column; } .billing-status-card, .billing-current-price { text-align: left; } .billing-plan-grid { grid-template-columns: 1fr; } }
+.billing-phone-field { display: grid; gap: 6px; color: #698198; font-size: 12px; font-weight: 700; }
+.billing-phone-field input { width: 170px; border: 1px solid #c8dce9; border-radius: 8px; padding: 10px 12px; color: #173b5d; background: #fff; }
+.billing-success { margin: 0 0 16px; padding: 12px 14px; border-radius: 9px; color: #176b4b; background: #e3f6ed; }

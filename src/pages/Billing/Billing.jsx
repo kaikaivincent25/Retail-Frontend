@@ -13,6 +13,9 @@ function Billing() {
   const [plans, setPlans] = useState([]);
   const [error, setError] = useState("");
   const [startingTrial, setStartingTrial] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [checkoutPlan, setCheckoutPlan] = useState("");
+  const [paymentMessage, setPaymentMessage] = useState("");
 
   useEffect(() => {
     Promise.all([api.get("/billing"), api.get("/billing/plans")])
@@ -40,6 +43,41 @@ function Billing() {
       setError(err.response?.data?.detail || "Could not start the free trial.");
     } finally {
       setStartingTrial(false);
+    }
+  }
+
+  async function startMpesaCheckout(plan) {
+    if (!phoneNumber.trim()) {
+      setError("Enter the M-Pesa phone number that should approve this payment.");
+      return;
+    }
+    setCheckoutPlan(plan.code);
+    setError("");
+    setPaymentMessage("");
+    try {
+      const response = await api.post("/billing/mpesa/checkout", {
+        plan_code: plan.code,
+        phone_number: phoneNumber,
+      });
+      setPaymentMessage(response.data.message);
+      for (let attempt = 0; attempt < 12; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        const statusResponse = await api.get(`/billing/mpesa/payments/${response.data.payment_id}`);
+        if (statusResponse.data.status === "completed") {
+          setPaymentMessage(`Payment confirmed. ${statusResponse.data.plan_name} is now active.`);
+          const billingResponse = await api.get("/billing");
+          setBilling(billingResponse.data);
+          break;
+        }
+        if (statusResponse.data.status === "failed") {
+          setError("M-Pesa did not complete the payment. You can try again.");
+          break;
+        }
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || "Could not start the M-Pesa payment.");
+    } finally {
+      setCheckoutPlan("");
     }
   }
 
@@ -74,8 +112,9 @@ function Billing() {
       <section className="billing-plans-section">
         <div className="billing-section-heading">
           <div><span className="billing-card-label">PLANS</span><h2>Grow at your own pace</h2></div>
-          <small>Payments will be enabled through the billing checkout.</small>
+          <label className="billing-phone-field">M-Pesa number<input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} placeholder="0712 345 678" inputMode="tel" /></label>
         </div>
+        {paymentMessage && <div className="billing-success">{paymentMessage}</div>}
         <div className="billing-plan-grid">
           {plans.map((plan) => (
             <article className={`billing-plan-card ${plan.code === billing.plan.code ? "is-current" : ""}`} key={plan.code}>
@@ -88,8 +127,8 @@ function Billing() {
                   <li key={feature}>{feature.replaceAll(".", " ")}</li>
                 ))}
               </ul>
-              <button type="button" disabled={plan.code === billing.plan.code}>
-                {plan.code === billing.plan.code ? "Current plan" : "Choose plan"}
+              <button type="button" disabled={plan.code === "free" || (plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status)) || Boolean(checkoutPlan)} onClick={() => startMpesaCheckout(plan)}>
+                {plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status) ? "Current plan" : checkoutPlan === plan.code ? "Waiting for payment…" : plan.code === billing.plan.code ? "Renew with M-Pesa" : "Pay with M-Pesa"}
               </button>
             </article>
           ))}
