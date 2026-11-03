@@ -3234,3 +3234,176 @@
     scroll-margin-top: 12px;
   }
 }
+
+/* Refined checkout surfaces, aligned with the dashboard's blue-and-navy theme. */
+.sales-page {
+  background:
+    radial-gradient(ellipse at 2% 0%, rgba(210, 232, 249, 0.48), transparent 32%),
+    transparent;
+}
+
+.sales-page-heading {
+  position: relative;
+  isolation: isolate;
+  min-height: 142px;
+  gap: 18px;
+  overflow: hidden;
+  padding: 25px clamp(20px, 3vw, 36px);
+  border: 1px solid rgba(119, 179, 221, 0.32);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(93, 181, 239, 0.2), transparent 17rem),
+    linear-gradient(120deg, #123e65 0%, #0b2a49 68%, #081f38 100%);
+  box-shadow: 0 16px 38px rgba(12, 47, 78, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.sales-page-heading::after {
+  position: absolute;
+  z-index: -1;
+  right: -74px;
+  bottom: -180px;
+  width: 360px;
+  height: 360px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 28px rgba(255, 255, 255, 0.035),
+    0 0 0 60px rgba(255, 255, 255, 0.025);
+  content: "";
+  pointer-events: none;
+}
+
+.sales-page-brandmark,
+.sales-page-heading-copy,
+.sales-page-heading-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.sales-page-brandmark {
+  width: 52px;
+  height: 52px;
+  flex-basis: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #e9f7ff, #b8def2);
+  color: #123e65;
+  box-shadow: 0 8px 20px rgba(1, 24, 44, 0.2);
+}
+
+.sales-page-eyebrow {
+  color: #a7d5f1;
+  letter-spacing: 0.11em;
+}
+
+.sales-page-heading h1 {
+  color: #fff;
+  font-size: clamp(26px, 2.4vw, 34px);
+  letter-spacing: -0.8px;
+}
+
+.sales-page-heading-copy > p:last-child {
+  max-width: 560px;
+  color: #d5e8f5;
+  line-height: 1.55;
+}
+
+.sales-session-chip {
+  border-color: rgba(195, 235, 212, 0.42);
+  background: rgba(226, 248, 236, 0.96);
+  box-shadow: 0 3px 12px rgba(1, 24, 44, 0.12);
+}
+
+.sales-shortcuts-button {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(211, 232, 247, 0.32);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.09);
+  color: #f2f8fc;
+  font-size: 12px;
+}
+
+.sales-shortcuts-button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(211, 232, 247, 0.55);
+}
+
+.sales-shortcuts-button kbd {
+  margin-left: 4px;
+  border-color: rgba(211, 232, 247, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.sales-steps {
+  gap: 12px;
+  padding: 12px 16px;
+  border-color: #dce8f2;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 14px rgba(22, 51, 81, 0.035);
+}
+
+.sales-steps b {
+  width: 25px;
+  height: 25px;
+  background: #eaf3fc;
+  color: #1c5e9f;
+}
+
+.sales-grid-panel,
+.cart-panel {
+  border-radius: 19px;
+  box-shadow: 0 9px 30px rgba(22, 51, 81, 0.055);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.sales-grid-panel:hover,
+.cart-panel:hover {
+  border-color: #ccdeed;
+  box-shadow: 0 13px 34px rgba(22, 51, 81, 0.075);
+}
+
+.quick-sell-tile {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.quick-sell-tile:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 700px) {
+  .sales-page-heading {
+    min-height: 0;
+    flex-wrap: wrap;
+    padding: 21px;
+    border-radius: 18px;
+  }
+
+  .sales-page-heading-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sales-grid-panel,
+  .cart-panel,
+  .quick-sell-tile {
+    transition: none;
+  }
+
+  .quick-sell-tile:hover:not(:disabled) {
+    transform: none;
+  }
+}
