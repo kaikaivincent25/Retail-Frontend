@@ -12,7 +12,7 @@ function PlatformDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!localStorage.getItem("platform_token")) {
+    if (!sessionStorage.getItem("platform_token")) {
       navigate("/platform/login", { replace: true });
       return;
     }
@@ -23,7 +23,7 @@ function PlatformDashboard() {
       })
       .catch((err) => {
         if (err.response?.status === 401) {
-          localStorage.removeItem("platform_token");
+          sessionStorage.removeItem("platform_token");
           navigate("/platform/login", { replace: true });
         } else {
           setError(err.response?.data?.detail || "Could not load platform data.");
@@ -42,7 +42,7 @@ function PlatformDashboard() {
   }
 
   function signOut() {
-    localStorage.removeItem("platform_token");
+    sessionStorage.removeItem("platform_token");
     navigate("/platform/login", { replace: true });
   }
 

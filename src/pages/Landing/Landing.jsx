@@ -8,7 +8,7 @@ function Landing() {
     <div className="lp-page">
       <nav className="lp-nav">
         <Link to="/" className="lp-brand" aria-label="RIS home">
-          <span className="lp-brand-mark">R</span>
+          <span className="lp-brand-mark"><img src="/pwa-192x192.png" alt="" /></span>
           <span className="lp-brand-name">RIS</span>
         </Link>
 
@@ -83,6 +83,9 @@ function Landing() {
             role="img"
             aria-label="Illustration of a sample sales slip from an RIS shop"
           >
+            <div className="lp-hero-emblem" aria-hidden="true">
+              <img src="/pwa-192x192.png" alt="" />
+            </div>
             <div className="lp-slip">
               <div className="lp-slip-paper">
                 <div className="lp-slip-head">

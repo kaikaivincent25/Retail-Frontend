@@ -19,7 +19,7 @@ function PlatformLogin() {
       const response = await platformApi.post("/platform/auth/login", form, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
-      localStorage.setItem("platform_token", response.data.access_token);
+      sessionStorage.setItem("platform_token", response.data.access_token);
       navigate("/platform");
     } catch (err) {
       setError(err.response?.data?.detail || "Platform sign-in failed.");

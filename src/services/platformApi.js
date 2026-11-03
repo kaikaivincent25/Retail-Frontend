@@ -5,7 +5,7 @@ const platformApi = axios.create({
 });
 
 platformApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("platform_token");
+  const token = sessionStorage.getItem("platform_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
