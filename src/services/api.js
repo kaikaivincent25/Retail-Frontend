@@ -17,7 +17,9 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 402 && window.location.pathname !== "/billing") {
+    const detail = String(error.response?.data?.detail || "").toLowerCase();
+    const subscriptionBlocked = detail.includes("subscription is inactive") || detail.includes("subscription has expired");
+    if (error.response?.status === 402 && subscriptionBlocked && window.location.pathname !== "/billing") {
       window.location.href = "/billing";
       return Promise.reject(error);
     }

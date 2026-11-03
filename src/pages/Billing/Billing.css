@@ -35,3 +35,4 @@
 .billing-phone-field { display: grid; gap: 6px; color: #698198; font-size: 12px; font-weight: 700; }
 .billing-phone-field input { width: 170px; border: 1px solid #c8dce9; border-radius: 8px; padding: 10px 12px; color: #173b5d; background: #fff; }
 .billing-success { margin: 0 0 16px; padding: 12px 14px; border-radius: 9px; color: #176b4b; background: #e3f6ed; }
+.billing-cancel-button { margin-top: 10px; min-height: 34px; padding: 0 12px; border: 1px solid #d8a3a8; border-radius: 8px; background: #fff7f7; color: #a53e48; font-weight: 700; cursor: pointer; }

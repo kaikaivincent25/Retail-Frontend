@@ -16,6 +16,7 @@ function Billing() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [checkoutPlan, setCheckoutPlan] = useState("");
   const [paymentMessage, setPaymentMessage] = useState("");
+  const [canceling, setCanceling] = useState(false);
 
   useEffect(() => {
     Promise.all([api.get("/billing"), api.get("/billing/plans")])
@@ -81,6 +82,21 @@ function Billing() {
     }
   }
 
+  async function cancelPlan() {
+    if (!window.confirm("Cancel this plan and move the shop to the Free plan?")) return;
+    setCanceling(true);
+    setError("");
+    try {
+      const response = await api.post("/billing/cancel");
+      setBilling(response.data);
+      setPaymentMessage("Your shop is now on the Free plan. Core sales, products, and inventory remain available.");
+    } catch (err) {
+      setError(err.response?.data?.detail || "Could not cancel the plan.");
+    } finally {
+      setCanceling(false);
+    }
+  }
+
   return (
     <div className="billing-page">
       <header className="billing-heading">
@@ -100,12 +116,13 @@ function Billing() {
         <div>
           <span className="billing-card-label">CURRENT PLAN</span>
           <h2>{billing.plan.name}</h2>
-          <p>{billing.status === "trialing" ? "You are using the full Business plan during your 45-day free trial." : "Your shop subscription and feature access."}</p>
+          <p>{billing.status === "trialing" ? "You are using the full Business plan during your 45-day free trial. Plan changes are locked until the trial ends or is canceled." : "Your shop subscription and feature access."}</p>
         </div>
         <div className="billing-current-price">
           <strong>{money.format(billing.plan.monthly_price)}</strong>
           <span>per month after trial</span>
           {canStartTrial && <button type="button" className="billing-trial-button" onClick={startTrial} disabled={startingTrial}>{startingTrial ? "Starting…" : "Start 45-day free trial"}</button>}
+          {billing.plan.code !== "free" && <button type="button" className="billing-cancel-button" onClick={cancelPlan} disabled={canceling}>{canceling ? "Canceling…" : billing.status === "trialing" ? "Cancel trial" : "Cancel plan"}</button>}
         </div>
       </section>
 
@@ -127,8 +144,8 @@ function Billing() {
                   <li key={feature}>{feature.replaceAll(".", " ")}</li>
                 ))}
               </ul>
-              <button type="button" disabled={plan.code === "free" || (plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status)) || Boolean(checkoutPlan)} onClick={() => startMpesaCheckout(plan)}>
-                {plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status) ? "Current plan" : checkoutPlan === plan.code ? "Waiting for payment…" : plan.code === billing.plan.code ? "Renew with M-Pesa" : "Pay with M-Pesa"}
+              <button type="button" disabled={plan.code === "free" || billing.status === "trialing" || (plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status)) || Boolean(checkoutPlan)} onClick={() => startMpesaCheckout(plan)}>
+                {billing.status === "trialing" && plan.code !== billing.plan.code ? "Locked during trial" : plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status) ? "Current plan" : checkoutPlan === plan.code ? "Waiting for payment…" : plan.code === billing.plan.code ? "Renew with M-Pesa" : "Pay with M-Pesa"}
               </button>
             </article>
           ))}
