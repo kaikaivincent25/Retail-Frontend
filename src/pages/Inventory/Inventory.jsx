@@ -14,9 +14,9 @@ import {
 import "./Inventory.css";
 
 const MOVEMENT_TYPES = [
-  { value: "purchase", label: "Purchase (stock received)" },
-  { value: "adjustment", label: "Adjustment (correction)" },
-  { value: "damage", label: "Damage / write-off" },
+  { value: "purchase", label: "Receive new stock" },
+  { value: "adjustment", label: "Correct a stock count" },
+  { value: "damage", label: "Record damaged or missing stock" },
 ];
 
 function Inventory() {
@@ -57,8 +57,8 @@ function Inventory() {
       <header className="inventory-header">
         <div>
           <span className="inventory-eyebrow">STOCK MANAGEMENT</span>
-          <h1>Inventory</h1>
-          <p>Monitor stock levels, manage quantities and review stock movements.</p>
+          <h1>Stock &amp; inventory</h1>
+          <p>See what is available, receive new stock, and correct records with confidence.</p>
         </div>
 
         <div className="inventory-header-badge">
@@ -252,6 +252,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
   const [direction, setDirection] = useState("add");
   const [movementType, setMovementType] = useState("purchase");
   const [amount, setAmount] = useState("");
+  const [countedQuantity, setCountedQuantity] = useState("");
   const [unitCost, setUnitCost] = useState("");
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
@@ -259,10 +260,20 @@ function AdjustModal({ variant, onClose, onSaved }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    const parsed = parseInt(amount, 10);
+    const parsed = movementType === "adjustment"
+      ? parseInt(countedQuantity, 10)
+      : parseInt(amount, 10);
 
-    if (isNaN(parsed) || parsed <= 0) {
-      setError("Enter a positive amount.");
+    if (isNaN(parsed) || parsed < 0 || (movementType !== "adjustment" && parsed <= 0)) {
+      setError(movementType === "adjustment" ? "Enter the quantity you counted." : "Enter a positive quantity.");
+      return;
+    }
+
+    const delta = movementType === "adjustment"
+      ? parsed - variant.quantity
+      : direction === "add" ? parsed : -parsed;
+    if (delta === 0) {
+      setError("The counted quantity is already the same as the system quantity.");
       return;
     }
 
@@ -273,7 +284,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
       }
 
       await adjustStock(variant.id, {
-        delta: direction === "add" ? parsed : -parsed,
+        delta,
         movement_type: movementType,
         reason: reason || null,
         unit_cost: movementType === "purchase" ? Number(unitCost) : null,
@@ -293,7 +304,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
         <div className="modal-header">
           <div>
             <span className="modal-eyebrow">INVENTORY MANAGEMENT</span>
-            <h3>Adjust Stock</h3>
+            <h3>{direction === "add" ? "Receive new stock" : "Manage stock out"}</h3>
             <p className="modal-subtitle">{variant.name}</p>
           </div>
 
@@ -311,7 +322,9 @@ function AdjustModal({ variant, onClose, onSaved }) {
 
         <div className="modal-form-content">
 
-          <label className="form-section-label">Adjustment direction</label>
+          <p className="modal-guidance">Choose what happened. RIS keeps older stock ahead of newer stock when a sale is recorded.</p>
+
+          <label className="form-section-label">What do you want to do?</label>
 
           <div className="direction-toggle">
             <button
@@ -320,7 +333,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
               onClick={() => { setDirection("add"); if (movementType === "adjustment") setMovementType("purchase"); }}
             >
               <span>+</span>
-              Add stock
+              Receive new stock
             </button>
 
             <button
@@ -329,26 +342,33 @@ function AdjustModal({ variant, onClose, onSaved }) {
               onClick={() => { setDirection("remove"); if (movementType === "purchase") setMovementType("adjustment"); }}
             >
               <span>−</span>
-              Remove stock
+              Remove, damage or correct stock
             </button>
           </div>
 
-          <label htmlFor="stock-amount">
-            Amount ({unitLabel}{variant.sale_mode === "bulk" ? "" : "s"})
+          <label htmlFor={movementType === "adjustment" ? "stock-counted-quantity" : "stock-amount"}>
+            {movementType === "adjustment"
+              ? `What quantity did you count? (${unitLabel}${variant.sale_mode === "bulk" ? "" : "s"})`
+              : `Quantity received or removed (${unitLabel}${variant.sale_mode === "bulk" ? "" : "s"})`}
           </label>
 
           <input
-            id="stock-amount"
+            id={movementType === "adjustment" ? "stock-counted-quantity" : "stock-amount"}
             className="modal-input"
             type="number"
-            min="1"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            min={movementType === "adjustment" ? "0" : "1"}
+            value={movementType === "adjustment" ? countedQuantity : amount}
+            onChange={(e) => movementType === "adjustment"
+              ? setCountedQuantity(e.target.value)
+              : setAmount(e.target.value)}
             autoFocus
             required
           />
+          {movementType === "adjustment" && (
+            <small>The system will calculate the correction from the current quantity of {variant.quantity}.</small>
+          )}
 
-          <label htmlFor="movement-reason">Reason</label>
+          <label htmlFor="movement-reason">Stock action</label>
 
           <select
             id="movement-reason"
@@ -376,7 +396,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
                 onChange={(e) => setUnitCost(e.target.value)}
                 required
               />
-              <small>Used to update the weighted average inventory cost.</small>
+              <small>This creates a new purchase batch. Older stock will be sold first, then this batch.</small>
             </>
           )}
 

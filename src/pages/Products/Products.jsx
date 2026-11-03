@@ -20,6 +20,15 @@ const BUSINESS_TEMPLATES = {
   cosmetics: { label: "Cosmetics", categories: ["Skincare", "Haircare", "Makeup"], attributes: ["Shade", "Batch number", "Expiry date"] },
 };
 
+const PRODUCT_EXAMPLES = {
+  household_retail: "e.g. Dishwashing liquid",
+  general_retail: "e.g. Maize flour",
+  bookshop: "e.g. Oxford English Dictionary",
+  electronics: "e.g. Bluetooth speaker",
+  clothing: "e.g. Cotton T-shirt",
+  cosmetics: "e.g. Moisturising lotion",
+};
+
 function attributesToObject(rows) {
   const result = {};
   for (const { key, value } of rows) {
@@ -271,21 +280,21 @@ function Products() {
           <div className="form-card-icon" aria-hidden="true">+</div>
           <div>
             <h2>Add a product</h2>
-            <p>Start with the product name, then add its sellable variants and prices.</p>
+            <p>Add the product once, then describe the exact versions your customers can buy.</p>
           </div>
         </div>
         <div className="new-product-fields">
           <label className="product-field">
-            <span>Product template</span>
+            <span>Shop type</span>
             <select value={productTemplate} disabled>
               <option value={businessType}>{activeTemplate.label}</option>
             </select>
-            <small>Business profile: {BUSINESS_TEMPLATES[businessType]?.label || "Retail"}</small>
+            <small>Fields below are guided for {BUSINESS_TEMPLATES[businessType]?.label || "your shop"}.</small>
           </label>
           <label className="product-field">
-            <span>Product name <b>*</b></span>
+            <span>What are you selling? <b>*</b></span>
             <input
-              placeholder="e.g. Sugar"
+              placeholder={PRODUCT_EXAMPLES[businessType] || "e.g. Product name"}
               value={newProductName}
               onChange={(e) => setNewProductName(e.target.value)}
               required
@@ -303,7 +312,7 @@ function Products() {
           <label className="product-field">
             <span>Category <small>Optional</small></span>
             <input
-              placeholder="e.g. Pantry"
+              placeholder={`e.g. ${categoryOptions[0] || "General merchandise"}`}
               list="product-category-options"
               value={newProductCategory}
               onChange={(e) => setNewProductCategory(e.target.value)}
@@ -318,7 +327,7 @@ function Products() {
             <textarea placeholder="Useful product details" value={newProductDescription} onChange={(e) => setNewProductDescription(e.target.value)} maxLength={2000} rows={2} />
           </label>
         </div>
-        <AttributeEditor rows={newProductAttributes} onChange={setNewProductAttributes} label="Product attributes" examples={(BUSINESS_TEMPLATES[productTemplate]?.attributes || []).join(", ")} />
+        <AttributeEditor rows={newProductAttributes} onChange={setNewProductAttributes} label="Details that help identify it" examples={(BUSINESS_TEMPLATES[productTemplate]?.attributes || []).join(", ")} />
         <datalist id="product-category-options">
           {[...new Set(categoryOptions)]
             .sort((a, b) => a.localeCompare(b))
@@ -337,10 +346,10 @@ function Products() {
             <Fragment key={index}>
             <div className={`new-product-variant-row ${variant.saleMode}-variant-row`}>
               <label className="product-field variant-name-field">
-                <span>Variant name <b>*</b></span>
+                <span>Customer-facing version <b>*</b></span>
                 <input
                   aria-label={`Variant ${index + 1} name`}
-                  placeholder="e.g. 2kg pack, Loose"
+                  placeholder={variant.saleMode === "bulk" ? "e.g. Loose / per kg" : "e.g. Blue, Medium / 128GB"}
                   value={variant.name}
                   onChange={(e) => updateNewVariant(index, "name", e.target.value)}
                   required
@@ -357,7 +366,7 @@ function Products() {
                 </select>
               </label>
               <label className="product-field variant-mode-field">
-                <span>Sale type</span>
+                <span>How is it sold?</span>
                 <select
                   aria-label={`Variant ${index + 1} sale mode`}
                   value={variant.saleMode}
@@ -383,7 +392,7 @@ function Products() {
                 </label>
               )}
               <label className="product-field price-field variant-selling-field">
-                <span>Selling price <b>*</b></span>
+                <span>Customer price <b>*</b></span>
                 <div className="money-input">
                   <span>KSh</span>
                   <input
@@ -400,7 +409,7 @@ function Products() {
                 </div>
               </label>
               <label className="product-field price-field variant-cost-field">
-                <span>Cost price <small>Required before sale</small></span>
+                <span>Purchase cost <small>Used for FIFO profit tracking</small></span>
                 <div className="money-input">
                   <span>KSh</span>
                   <input
@@ -448,7 +457,7 @@ function Products() {
 
         <div className="new-product-submit">
           <button type="submit" disabled={isCreatingProduct}>
-            {isCreatingProduct ? "Saving..." : "Save product"}
+            {isCreatingProduct ? "Saving..." : "Save product and stock"}
           </button>
         </div>
       </form>

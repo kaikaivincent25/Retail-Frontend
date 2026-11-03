@@ -5,6 +5,28 @@
   max-width: 900px;
 }
 
+.new-product-form .form-card-heading {
+  position: relative;
+}
+
+.new-product-form .form-card-heading::after {
+  content: "1  Product details   2  Customer-facing version   3  Price and opening stock";
+  display: block;
+  margin-top: 12px;
+  color: #5d7890;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.new-product-form .product-field small {
+  color: #648096;
+}
+
+.new-product-form .variant-cost-field small {
+  color: #2b739a;
+}
+
 .products-page::before {
   position: absolute;
   z-index: -1;

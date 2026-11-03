@@ -8,9 +8,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'DukaOS',
-        short_name: 'DukaOS',
-        description: 'Retail management for dukas',
+        name: 'RIS',
+        short_name: 'RIS',
+        description: 'Retail Information System',
         theme_color: '#0f766e',
         background_color: '#ffffff',
         display: 'standalone',
