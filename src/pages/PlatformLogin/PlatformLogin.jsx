@@ -31,6 +31,7 @@ function PlatformLogin() {
   return (
     <main className="platform-login-page">
       <form className="platform-login-card" onSubmit={handleSubmit}>
+        <span className="platform-brand-mark" aria-hidden="true"><img src="/pwa-192x192.png" alt="" /></span>
         <span className="platform-kicker">RIS CONTROL CENTRE</span>
         <h1>Platform owner sign in</h1>
         <p>This area is for RIS operators. Shop users should use the normal sign-in page.</p>

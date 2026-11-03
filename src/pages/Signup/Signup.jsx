@@ -43,7 +43,7 @@ function Signup() {
       <div className="signup-shell">
         <header className="signup-topbar">
           <Link to="/" className="signup-brand" aria-label="RIS home">
-            <span className="signup-brand-mark">R</span>
+            <span className="signup-brand-mark"><img src="/pwa-192x192.png" alt="" /></span>
             <span>RIS</span>
           </Link>
           <div className="signup-topbar-note">

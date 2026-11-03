@@ -39,7 +39,7 @@ function Login() {
         {/* Brand Panel */}
         <section className="login-brand-panel">
           <div className="brand-header">
-            <div className="brand-logo">R</div>
+            <div className="brand-logo"><img src="/pwa-192x192.png" alt="" /></div>
             <div className="brand-name">
               <h2>RIS</h2>
               <span>RETAIL INFORMATION SYSTEM</span>
@@ -99,7 +99,7 @@ function Login() {
         <section className="login-form-panel">
           <div className="login-form-container">
             <div className="mobile-brand">
-              <div className="brand-logo">R</div>
+              <div className="brand-logo"><img src="/pwa-192x192.png" alt="" /></div>
               <span>RIS</span>
             </div>
 
