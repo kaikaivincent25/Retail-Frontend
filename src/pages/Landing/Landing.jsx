@@ -44,15 +44,15 @@ function Landing() {
       <main>
         <section className="lp-hero">
           <div className="lp-hero-copy">
-            <p className="lp-hero-kicker">Made for everyday retail in Kenya</p>
+            <p className="lp-hero-kicker">One simple system for growing retail businesses</p>
 
-            <h1>Know what you sold, what is left, and what is in the till.</h1>
+            <h1>Run your shop with confidence, whatever you sell.</h1>
 
             <p className="lp-hero-lead">
-              RIS is the shop system built around how Kenyan shops really sell:
-              loose sugar by the quarter kilo, packaged goods by the piece. Record
-              every sale at the counter and see your stock and cash clearly, all
-              day long.
+              RIS brings sales, products, inventory, staff and reports into one
+              clear workspace for small retail businesses. Whether you sell
+              electronics, fashion, books, household goods or general merchandise,
+              keep your business moving and your decisions grounded in real records.
             </p>
 
             {!user && (
@@ -73,7 +73,7 @@ function Landing() {
               </li>
               <li>
                 <span className="lp-tick" aria-hidden="true">✓</span>
-                No barcode scanner needed
+                Works with the way your shop already sells
               </li>
             </ul>
           </div>
@@ -81,7 +81,7 @@ function Landing() {
           <div
             className="lp-hero-visual"
             role="img"
-            aria-label="Illustration of a sample sales slip from an RIS shop"
+            aria-label="Illustration of a sample sales slip from an RIS retail business"
           >
             <div className="lp-hero-emblem" aria-hidden="true">
               <img src="/pwa-192x192.png" alt="" />
@@ -125,7 +125,7 @@ function Landing() {
                   <strong>575</strong>
                 </div>
 
-                <p className="lp-slip-foot">Sale recorded. Stock and sales updated.</p>
+                  <p className="lp-slip-foot">Sale recorded. Stock and records updated.</p>
               </div>
             </div>
 
@@ -139,11 +139,11 @@ function Landing() {
         <section className="lp-strip" aria-label="Product highlights">
           <div>
             <span className="lp-strip-icon" aria-hidden="true">⌂</span>
-            Designed for Kenyan shops
+            Built for small retail teams
           </div>
           <div>
             <span className="lp-strip-icon" aria-hidden="true">▤</span>
-            Sells packaged and loose goods
+            Flexible for any product catalogue
           </div>
           <div>
             <span className="lp-strip-icon" aria-hidden="true">◎</span>
@@ -151,9 +151,39 @@ function Landing() {
           </div>
         </section>
 
+        <section className="lp-businesses" aria-labelledby="lp-businesses-title">
+          <div className="lp-businesses-intro">
+            <p className="lp-eyebrow">Made to fit your business</p>
+            <h2 id="lp-businesses-title">Your shop has its own products. Your system should adapt.</h2>
+            <p>
+              Start with the retail workflow you know and shape your catalogue as
+              your business grows. RIS is an open retail information system, not a
+              household-only tool.
+            </p>
+          </div>
+          <div className="lp-business-grid">
+            <article className="lp-business-card">
+              <span className="lp-business-icon" aria-hidden="true">⌁</span>
+              <div><h3>Electronics</h3><p>Track models, serial numbers, accessories and warranty details.</p></div>
+            </article>
+            <article className="lp-business-card">
+              <span className="lp-business-icon" aria-hidden="true">◌</span>
+              <div><h3>Boutiques &amp; fashion</h3><p>Manage sizes, colours, variations and fast-moving stock.</p></div>
+            </article>
+            <article className="lp-business-card">
+              <span className="lp-business-icon" aria-hidden="true">▤</span>
+              <div><h3>Bookshops</h3><p>Organise books, stationery and school supplies in one catalogue.</p></div>
+            </article>
+            <article className="lp-business-card">
+              <span className="lp-business-icon" aria-hidden="true">+</span>
+              <div><h3>Household &amp; general retail</h3><p>Sell packaged, loose or general merchandise with confidence.</p></div>
+            </article>
+          </div>
+        </section>
+
         <section className="lp-features" id="features">
           <header className="lp-section-head">
-            <h2>Built around the questions shop owners ask every day.</h2>
+            <h2>Everything you need to understand and grow your shop.</h2>
             <p>
               Your sales, stock, staff and cash all need attention. RIS brings
               them into one practical system, so you spend less time chasing
@@ -176,7 +206,7 @@ function Landing() {
             </article>
 
             <article className="lp-card lp-card-loose">
-              <h3>Selling sugar by the quarter kilo?</h3>
+              <h3>Products change? Your catalogue can too.</h3>
               <p>
                 Set portions such as ¼ kg for goods sold by measure, so every
                 attendant sells the same way.
@@ -191,8 +221,8 @@ function Landing() {
             <article className="lp-card lp-card-stock">
               <h3>Stock not matching the shelf?</h3>
               <p>
-                Every purchase, sale, damage and correction is recorded, so you
-                can see why a number changed.
+                Every purchase, sale, adjustment and correction is recorded, so
+                you can see why a number changed.
               </p>
               <ul className="lp-ledger" aria-hidden="true">
                 <li><span>Purchase</span><span>+20 kg</span></li>
@@ -219,10 +249,10 @@ function Landing() {
         <section className="lp-how" id="how">
           <div className="lp-how-inner">
             <div className="lp-how-copy">
-              <h2>Simple at the counter. Useful long after the sale.</h2>
+              <h2>Simple at the counter. Powerful when you review.</h2>
               <p>
-                RIS follows a real retail day, from serving a customer to
-                checking stock and reviewing what happened in your shop.
+                RIS follows your real retail day, from serving a customer to
+                checking stock, supporting staff and reviewing what happened.
               </p>
             </div>
 
@@ -231,7 +261,7 @@ function Landing() {
                 <span className="lp-step-num">1</span>
                 <div>
                   <strong>At the counter</strong>
-                  <p>Record everyday sales, loose and packaged products alike.</p>
+                  <p>Record sales quickly, whether you sell units, variations or measured goods.</p>
                 </div>
               </li>
               <li>
@@ -245,7 +275,7 @@ function Landing() {
                 <span className="lp-step-num">3</span>
                 <div>
                   <strong>When you review</strong>
-                  <p>Use your records to see clearly how the day went.</p>
+                  <p>Use reports to spot what is selling, what needs attention and where to grow.</p>
                 </div>
               </li>
             </ol>
@@ -255,7 +285,7 @@ function Landing() {
         {!user && (
           <section className="lp-final">
             <div className="lp-final-copy">
-              <h2>Give your shop a clearer way to sell.</h2>
+              <h2>Give your retail business a clearer way to grow.</h2>
               <p>
                 Create your shop and start recording sales the way your customers
                 actually buy.
@@ -275,8 +305,8 @@ function Landing() {
 
       <footer className="lp-footer">
         <Link to="/" className="lp-footer-brand">RIS</Link>
-        <p>Built for Kenyan micro-retail.</p>
-        <span className="lp-footer-note">A clearer view of your everyday business.</span>
+        <p>Built for Kenyan small businesses and everyday retail.</p>
+        <span className="lp-footer-note">One clear view of your business.</span>
       </footer>
     </div>
   );
