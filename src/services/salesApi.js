@@ -30,14 +30,19 @@ export const completeSale = (
   clientId,
   { customerId, isCredit = false, dueDate, initialPayment, initialPaymentMethod } = {}
 ) => {
-  const payload = { items, amount_received: amountReceived, client_id: clientId };
+  const payload = {
+    items,
+    amount_received: isCredit ? (Number(initialPayment) || 0) : (amountReceived || 0),
+    client_id: clientId,
+  };
   if (isCredit) {
     payload.is_credit = true;
     payload.customer_id = customerId;
     payload.due_date = dueDate;
-    if (initialPayment !== undefined && initialPayment !== null && initialPayment > 0) {
-      payload.initial_payment = initialPayment;
-      payload.initial_payment_method = initialPaymentMethod;
+    payload.payment_method = "cash";
+    if (initialPayment !== undefined && initialPayment !== null && Number(initialPayment) > 0) {
+      payload.initial_payment = Number(initialPayment);
+      payload.initial_payment_method = initialPaymentMethod || "cash";
     }
   }
   return api.post("/sales", payload).then((r) => r.data);

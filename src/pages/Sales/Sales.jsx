@@ -12,10 +12,16 @@ import { extractErrorMessage } from "../../services/errorHandling";
 import { useToast } from "../../context/ToastContext";
 import Receipt, { printReceipt } from "../../components/Receipt/Receipt";
 import { toCents, fromCents, formatCurrency } from "../../utils/money";
-import { listCustomers } from "../../services/customersApi";
+import { listCustomers, createCustomer } from "../../services/customersApi";
 import "./Sales.css";
 
 const DENOMINATIONS = [100, 200, 500, 1000];
+
+function getDefaultDueDate() {
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  return d.toISOString().slice(0, 10);
+}
 
 function Sales() {
   const { showToast } = useToast();
@@ -33,9 +39,16 @@ function Sales() {
   const [cashierName, setCashierName] = useState("");
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [creditDueDate, setCreditDueDate] = useState("");
+  const [creditDueDate, setCreditDueDate] = useState(getDefaultDueDate);
   const [downPayment, setDownPayment] = useState("");
   const [downPaymentMethod, setDownPaymentMethod] = useState("cash");
+  const [quickCustomerModalOpen, setQuickCustomerModalOpen] = useState(false);
+  const [newCustomerName, setNewCustomerName] = useState("");
+  const [newCustomerPhone, setNewCustomerPhone] = useState("");
+  const [newCustomerEmail, setNewCustomerEmail] = useState("");
+  const [newCustomerNotes, setNewCustomerNotes] = useState("");
+  const [quickCustomerSubmitting, setQuickCustomerSubmitting] = useState(false);
+  const [quickCustomerError, setQuickCustomerError] = useState("");
   const [mpesaPhone, setMpesaPhone] = useState("");
   const [mpesaSale, setMpesaSale] = useState(null);
   const [manualSale, setManualSale] = useState(null);
@@ -405,6 +418,37 @@ function Sales() {
   const visibleItems = viewMode === "popular" ? popular : allItems;
   const itemCount = cart.reduce((count, line) => count + line.quantity, 0);
 
+  async function handleQuickCreateCustomer(e) {
+    if (e) e.preventDefault();
+    const name = newCustomerName.trim();
+    if (!name) {
+      setQuickCustomerError("Customer name is required.");
+      return;
+    }
+    setQuickCustomerSubmitting(true);
+    setQuickCustomerError("");
+    try {
+      const created = await createCustomer({
+        full_name: name,
+        phone: newCustomerPhone.trim() || null,
+        email: newCustomerEmail.trim() || null,
+        notes: newCustomerNotes.trim() || null,
+      });
+      setCustomers((prev) => [...prev, created]);
+      setSelectedCustomer(created);
+      setQuickCustomerModalOpen(false);
+      setNewCustomerName("");
+      setNewCustomerPhone("");
+      setNewCustomerEmail("");
+      setNewCustomerNotes("");
+      showToast(`Customer "${created.full_name}" added and selected.`, "success");
+    } catch (err) {
+      setQuickCustomerError(extractErrorMessage(err));
+    } finally {
+      setQuickCustomerSubmitting(false);
+    }
+  }
+
   function tapDenomination(value) {
     setAmountReceived(String(value));
   }
@@ -441,12 +485,14 @@ function Sales() {
           setSubmitting(false);
           return;
         }
-        if (!creditDueDate) {
+        const effectiveDueDate = creditDueDate || getDefaultDueDate();
+        if (!effectiveDueDate) {
           setMessage({ type: "error", text: "Every credit sale requires a due date." });
           setSubmitting(false);
           return;
         }
-        const dp = Number(downPayment) || 0;
+        const rawDp = String(downPayment || "").trim();
+        const dp = rawDp ? Number(rawDp) : 0;
         if (dp < 0 || dp > total) {
           setMessage({ type: "error", text: "Invalid down payment amount." });
           setSubmitting(false);
@@ -455,20 +501,20 @@ function Sales() {
         const sale = await completeSale(items, dp, crypto.randomUUID(), {
           customerId: selectedCustomer.id,
           isCredit: true,
-          dueDate: creditDueDate,
+          dueDate: effectiveDueDate,
           initialPayment: dp > 0 ? dp : null,
           initialPaymentMethod: dp > 0 ? downPaymentMethod : null,
         });
         setMessage(null);
         setSaleComplete({
           ...sale,
-          paymentLabel: `On Credit (Due: ${creditDueDate})`,
+          paymentLabel: `On Credit (Due: ${effectiveDueDate})`,
           customer_name: selectedCustomer.full_name,
-          due_date: creditDueDate,
+          due_date: effectiveDueDate,
         });
         setCart([]);
         setAmountReceived("");
-        setCreditDueDate("");
+        setCreditDueDate(getDefaultDueDate());
         setDownPayment("");
         setSelectedCustomer(null);
         getPopularProducts().then(setPopular).catch(() => {});
@@ -965,10 +1011,27 @@ function Sales() {
             </>
           ) : paymentMethod === "credit" ? (
             <div className="credit-checkout-section">
-              <label className="checkout-field-label">
-                Select customer
-                <span>Customer account to charge</span>
-              </label>
+              <div className="credit-customer-header-row">
+                <label className="checkout-field-label">
+                  Select customer
+                  <span>Customer account to charge</span>
+                </label>
+                <button
+                  type="button"
+                  className="quick-add-customer-btn"
+                  onClick={() => {
+                    setNewCustomerName("");
+                    setNewCustomerPhone("");
+                    setNewCustomerEmail("");
+                    setNewCustomerNotes("");
+                    setQuickCustomerError("");
+                    setQuickCustomerModalOpen(true);
+                  }}
+                  title="Record a new customer without leaving the sales screen"
+                >
+                  + New Customer
+                </button>
+              </div>
               <select
                 className="credit-customer-select"
                 value={selectedCustomer?.id || ""}
@@ -991,7 +1054,7 @@ function Sales() {
                 </div>
               )}
 
-              <label className="checkout-field-label">
+                <label className="checkout-field-label">
                 Due date (required)
                 <span>When must the credit balance be settled?</span>
               </label>
@@ -1004,7 +1067,7 @@ function Sales() {
                 required
               />
 
-              <label className="checkout-field-label">
+                <label className="checkout-field-label">
                 Initial down payment (optional)
                 <span>Cash or M-Pesa collected now</span>
               </label>
@@ -1062,7 +1125,7 @@ function Sales() {
               manualSale?.status === "pending" ||
               (paymentMethod === "cash" && received < total) ||
               (paymentMethod === "mpesa" && (!mpesaPhone.trim() || toCents(total) % 100 !== 0)) ||
-              (paymentMethod === "credit" && (!selectedCustomer || !creditDueDate)) ||
+              (paymentMethod === "credit" && !selectedCustomer) ||
               (isManualPayment && !selectedDestination)
             }
             onClick={handleCompleteSale}
@@ -1077,6 +1140,10 @@ function Sales() {
               ? `Send STK Push · ${formatCurrency(total)}`
               : isManualPayment
               ? `Create pending sale · ${formatCurrency(total)}`
+              : paymentMethod === "credit" && !selectedCustomer
+              ? "Select customer to complete credit sale"
+              : paymentMethod === "credit"
+              ? `Complete Credit Sale · ${formatCurrency(Math.max(0, total - (Number(downPayment) || 0)))} on credit`
               : "Complete Sale"}
           </button>
           <p className="sales-complete-hint">Keyboard: press <kbd>F9</kbd>, then <kbd>Enter</kbd> to finish.</p>
@@ -1242,6 +1309,86 @@ function Sales() {
             cashierName={cashierName}
           />
         </>
+      )}
+      {quickCustomerModalOpen && (
+        <div className="quick-customer-modal-backdrop" onClick={() => !quickCustomerSubmitting && setQuickCustomerModalOpen(false)}>
+          <div className="quick-customer-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="quick-customer-title">
+            <div className="quick-customer-modal-header">
+              <h3 id="quick-customer-title">Add New Customer</h3>
+              <button
+                type="button"
+                className="quick-customer-modal-close"
+                onClick={() => setQuickCustomerModalOpen(false)}
+                disabled={quickCustomerSubmitting}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleQuickCreateCustomer} className="quick-customer-form">
+              {quickCustomerError && <div className="quick-customer-error">{quickCustomerError}</div>}
+              <label>
+                Full Name <span className="required-mark">*</span>
+                <input
+                  type="text"
+                  autoFocus
+                  required
+                  placeholder="e.g. Jane Wanjiku"
+                  value={newCustomerName}
+                  onChange={(e) => setNewCustomerName(e.target.value)}
+                  disabled={quickCustomerSubmitting}
+                />
+              </label>
+              <label>
+                Phone Number
+                <input
+                  type="tel"
+                  placeholder="e.g. 0712 345 678"
+                  value={newCustomerPhone}
+                  onChange={(e) => setNewCustomerPhone(e.target.value)}
+                  disabled={quickCustomerSubmitting}
+                />
+              </label>
+              <label>
+                Email (optional)
+                <input
+                  type="email"
+                  placeholder="e.g. customer@example.com"
+                  value={newCustomerEmail}
+                  onChange={(e) => setNewCustomerEmail(e.target.value)}
+                  disabled={quickCustomerSubmitting}
+                />
+              </label>
+              <label>
+                Notes (optional)
+                <textarea
+                  rows="2"
+                  placeholder="e.g. Regular customer, prefers weekly settlement"
+                  value={newCustomerNotes}
+                  onChange={(e) => setNewCustomerNotes(e.target.value)}
+                  disabled={quickCustomerSubmitting}
+                />
+              </label>
+              <div className="quick-customer-actions">
+                <button
+                  type="button"
+                  className="quick-customer-cancel-btn"
+                  onClick={() => setQuickCustomerModalOpen(false)}
+                  disabled={quickCustomerSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="quick-customer-save-btn"
+                  disabled={quickCustomerSubmitting || !newCustomerName.trim()}
+                >
+                  {quickCustomerSubmitting ? "Saving..." : "Save & Select"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
