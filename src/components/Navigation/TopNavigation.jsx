@@ -32,8 +32,11 @@ function TopNavigation() {
   }
 
   return (
-    <div className="workspace-navigation">
-      <span className="workspace-navigation-label">Workspace</span>
+    <header className="workspace-navigation">
+      <div className="workspace-navigation-label">
+        <strong>Workspace</strong>
+        <span>Quick access</span>
+      </div>
       <nav
         className="workspace-navigation-links"
         aria-label="Workspace shortcuts"
@@ -55,7 +58,7 @@ function TopNavigation() {
           </NavLink>
         ))}
       </nav>
-    </div>
+    </header>
   );
 }
 

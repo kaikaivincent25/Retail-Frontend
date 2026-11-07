@@ -15,8 +15,8 @@ function Layout({ children }) {
         onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
       />
       <main className="app-content">
-        <div className="app-status-strip"><SyncStatus /></div>
         <TopNavigation />
+        <div className="app-status-strip"><SyncStatus /></div>
         {children}
       </main>
     </div>
