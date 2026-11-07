@@ -12,6 +12,7 @@ import { extractErrorMessage } from "../../services/errorHandling";
 import { useToast } from "../../context/ToastContext";
 import Receipt, { printReceipt } from "../../components/Receipt/Receipt";
 import { toCents, fromCents, formatCurrency } from "../../utils/money";
+import { listCustomers } from "../../services/customersApi";
 import "./Sales.css";
 
 const DENOMINATIONS = [100, 200, 500, 1000];
@@ -30,6 +31,11 @@ function Sales() {
   const [paymentDestinations, setPaymentDestinations] = useState([]);
   const [receiptProfile, setReceiptProfile] = useState(null);
   const [cashierName, setCashierName] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [creditDueDate, setCreditDueDate] = useState("");
+  const [downPayment, setDownPayment] = useState("");
+  const [downPaymentMethod, setDownPaymentMethod] = useState("cash");
   const [mpesaPhone, setMpesaPhone] = useState("");
   const [mpesaSale, setMpesaSale] = useState(null);
   const [manualSale, setManualSale] = useState(null);
@@ -70,6 +76,7 @@ function Sales() {
     getMe()
       .then((profile) => setCashierName(profile.full_name))
       .catch((err) => showToast(extractErrorMessage(err), "error"));
+    listCustomers().then(setCustomers).catch(() => {});
   }, [showToast]);
 
   useEffect(() => {
@@ -428,6 +435,45 @@ function Sales() {
         variant_id: line.variant.variant_id,
         quantity: Math.round(line.quantity),
       }));
+      if (paymentMethod === "credit") {
+        if (!selectedCustomer) {
+          setMessage({ type: "error", text: "Select a customer to make a credit sale." });
+          setSubmitting(false);
+          return;
+        }
+        if (!creditDueDate) {
+          setMessage({ type: "error", text: "Every credit sale requires a due date." });
+          setSubmitting(false);
+          return;
+        }
+        const dp = Number(downPayment) || 0;
+        if (dp < 0 || dp > total) {
+          setMessage({ type: "error", text: "Invalid down payment amount." });
+          setSubmitting(false);
+          return;
+        }
+        const sale = await completeSale(items, dp, crypto.randomUUID(), {
+          customerId: selectedCustomer.id,
+          isCredit: true,
+          dueDate: creditDueDate,
+          initialPayment: dp > 0 ? dp : null,
+          initialPaymentMethod: dp > 0 ? downPaymentMethod : null,
+        });
+        setMessage(null);
+        setSaleComplete({
+          ...sale,
+          paymentLabel: `On Credit (Due: ${creditDueDate})`,
+          customer_name: selectedCustomer.full_name,
+          due_date: creditDueDate,
+        });
+        setCart([]);
+        setAmountReceived("");
+        setCreditDueDate("");
+        setDownPayment("");
+        setSelectedCustomer(null);
+        getPopularProducts().then(setPopular).catch(() => {});
+        return;
+      }
       if (paymentMethod === "mpesa") {
         const sale = await startMpesaPayment(items, mpesaPhone);
         setMpesaSale(sale);
@@ -840,6 +886,19 @@ function Sales() {
                 </span>
               </button>
             ))}
+            <button
+              type="button"
+              className={`payment-method-card credit${paymentMethod === "credit" ? " active" : ""}`}
+              aria-pressed={paymentMethod === "credit"}
+              disabled={manualSale?.status === "pending"}
+              onClick={() => setPaymentMethod("credit")}
+            >
+              <span className="payment-method-icon" aria-hidden="true">⏱</span>
+              <span className="payment-method-copy">
+                <strong>On Credit</strong>
+                <small>Customer account</small>
+              </span>
+            </button>
           </div>
 
           {paymentMethod === "cash" ? (
@@ -904,6 +963,87 @@ function Sales() {
                 </div>
               )}
             </>
+          ) : paymentMethod === "credit" ? (
+            <div className="credit-checkout-section">
+              <label className="checkout-field-label">
+                Select customer
+                <span>Customer account to charge</span>
+              </label>
+              <select
+                className="credit-customer-select"
+                value={selectedCustomer?.id || ""}
+                onChange={(e) => {
+                  const cust = customers.find((c) => String(c.id) === e.target.value);
+                  setSelectedCustomer(cust || null);
+                }}
+              >
+                <option value="">-- Choose customer --</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.full_name} {c.phone ? `(${c.phone})` : ""}
+                  </option>
+                ))}
+              </select>
+
+              {selectedCustomer && (
+                <div className="credit-customer-meta">
+                  <span>Credit limit: {selectedCustomer.credit_limit ? formatCurrency(selectedCustomer.credit_limit) : "No limit"}</span>
+                </div>
+              )}
+
+              <label className="checkout-field-label">
+                Due date (required)
+                <span>When must the credit balance be settled?</span>
+              </label>
+              <input
+                type="date"
+                className="amount-received-input"
+                min={new Date().toISOString().slice(0, 10)}
+                value={creditDueDate}
+                onChange={(e) => setCreditDueDate(e.target.value)}
+                required
+              />
+
+              <label className="checkout-field-label">
+                Initial down payment (optional)
+                <span>Cash or M-Pesa collected now</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                max={total}
+                step="0.01"
+                placeholder="0.00"
+                className="amount-received-input"
+                value={downPayment}
+                onChange={(e) => setDownPayment(e.target.value)}
+              />
+
+              {Number(downPayment) > 0 && (
+                <div className="down-payment-tender-row">
+                  <label>
+                    Down payment tender:
+                    <select
+                      value={downPaymentMethod}
+                      onChange={(e) => setDownPaymentMethod(e.target.value)}
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="mpesa">M-Pesa</option>
+                    </select>
+                  </label>
+                </div>
+              )}
+
+              <div className="change-row positive">
+                <span className="change-copy">
+                  <strong>Credit amount on account</strong>
+                  <small>Balance due on account</small>
+                </span>
+                <strong className="change-value">
+                  {formatCurrency(Math.max(0, total - (Number(downPayment) || 0)))}
+                </strong>
+              </div>
+            </div>
           ) : (
             <div className="manual-payment-hint">
               {selectedDestination
@@ -922,6 +1062,7 @@ function Sales() {
               manualSale?.status === "pending" ||
               (paymentMethod === "cash" && received < total) ||
               (paymentMethod === "mpesa" && (!mpesaPhone.trim() || toCents(total) % 100 !== 0)) ||
+              (paymentMethod === "credit" && (!selectedCustomer || !creditDueDate)) ||
               (isManualPayment && !selectedDestination)
             }
             onClick={handleCompleteSale}

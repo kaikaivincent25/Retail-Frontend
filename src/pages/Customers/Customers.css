@@ -443,3 +443,268 @@
     flex-direction: column;
   }
 }
+
+/* Ledger Modal & Components */
+.customer-name-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--navy);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.customer-name-link:hover span:last-child {
+  text-decoration: underline;
+  color: var(--brand-strong);
+}
+
+.customers-btn-ledger {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customers-btn-ledger:hover {
+  background: #e2e8f0;
+  color: var(--navy);
+}
+
+.customer-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.customer-ledger-modal {
+  width: min(900px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+  padding: 28px;
+}
+
+.customer-ledger-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.customer-ledger-modal-header h2 {
+  margin: 4px 0 6px;
+  font-size: 24px;
+  color: var(--navy);
+}
+
+.customer-modal-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.customer-limit-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.customer-modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.customer-modal-close:hover {
+  background: #f1f5f9;
+  color: var(--navy);
+}
+
+.customer-ledger-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.ledger-kpi-card {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.ledger-kpi-card.highlight-card {
+  background: #f0f7ff;
+  border-color: #bfdbfe;
+}
+
+.ledger-kpi-card.is-danger {
+  background: #fff5f5;
+  border-color: #fecaca;
+}
+
+.ledger-kpi-card span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.ledger-kpi-card strong {
+  font-size: 20px;
+  color: var(--navy);
+}
+
+.ledger-kpi-card.is-danger strong {
+  color: #dc2626;
+}
+
+.ledger-kpi-card small {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.customer-repayment-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.customer-repayment-box h3 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  color: var(--navy);
+}
+
+.customer-repayment-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.customer-repayment-form label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.customer-repayment-form input,
+.customer-repayment-form select {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  background: #fff;
+}
+
+.customer-btn-record {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #047857;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  height: 38px;
+}
+
+.customer-btn-record:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.customer-ledger-section {
+  margin-bottom: 24px;
+}
+
+.customer-ledger-section h3 {
+  font-size: 15px;
+  color: var(--navy);
+  margin: 0 0 10px;
+}
+
+.invoice-status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.invoice-status-chip.paid {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.invoice-status-chip.partially_paid {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.invoice-status-chip.unpaid {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.invoice-status-chip.overdue {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.payment-tender-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ledger-reminder-banner {
+  max-width: 100%;
+}

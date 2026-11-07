@@ -50,6 +50,12 @@ function Receipt({ sale, shopName, shopLocation, cashierName }) {
           <div><dt>Served by</dt><dd>{servedBy || `Staff #${sale.cashier_id}`}</dd></div>
         )}
         <div><dt>Payment</dt><dd>{paymentMethod}</dd></div>
+        {sale.customer_name && (
+          <div><dt>Customer</dt><dd>{sale.customer_name}</dd></div>
+        )}
+        {sale.due_date && (
+          <div><dt>Due date</dt><dd>{sale.due_date}</dd></div>
+        )}
         {sale.payment_destination_number && (
           <div><dt>Paid to</dt><dd>{sale.payment_destination_number}</dd></div>
         )}

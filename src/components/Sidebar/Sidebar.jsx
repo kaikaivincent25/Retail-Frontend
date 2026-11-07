@@ -61,6 +61,12 @@ const ICONS = {
       <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
     </>
   ),
+  accounting: (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <path d="M8 9h8M8 13h5M8 17h8" />
+    </>
+  ),
   activity: (
     <>
       <circle cx="12" cy="12" r="8.5" />
@@ -91,6 +97,7 @@ const NAV_ITEMS = {
     { to: "/reports/sessions", label: "Cash & Deposits", icon: "cash" },
     { to: "/staff", label: "Staff", icon: "staff" },
     { to: "/reports", label: "Reports", icon: "reports" },
+    { to: "/accounting", label: "Accounting", icon: "accounting" },
     { to: "/audit", label: "Activity Log", icon: "activity" },
     { to: "/billing", label: "Plans & Billing", icon: "reports" },
   ],
@@ -103,6 +110,7 @@ const NAV_ITEMS = {
     { to: "/inventory", label: "Inventory", icon: "inventory" },
     { to: "/reports/sessions", label: "Cash & Deposits", icon: "cash" },
     { to: "/reports", label: "Reports", icon: "reports" },
+    { to: "/accounting", label: "Accounting", icon: "accounting" },
   ],
   cashier: [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },

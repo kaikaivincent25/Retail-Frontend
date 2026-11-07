@@ -12,3 +12,9 @@ export const createCustomer = (data) =>
 
 export const updateCustomer = (customerId, data) =>
   api.patch(`/customers/${customerId}`, data).then((response) => response.data);
+
+export const getCustomerLedger = (customerId) =>
+  api.get(`/customers/${customerId}/ledger`).then((response) => response.data);
+
+export const recordCustomerPayment = (customerId, data) =>
+  api.post(`/customers/${customerId}/payments`, data).then((response) => response.data);

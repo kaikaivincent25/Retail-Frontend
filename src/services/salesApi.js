@@ -24,8 +24,26 @@ export async function browseVariants(q = "") {
 export const searchProducts = (q) => api.get(`/products?q=${encodeURIComponent(q)}`).then((r) => r.data);
 export const getVariantsForProduct = (productId) =>
   api.get(`/products/${productId}/variants`).then((r) => r.data);
-export const completeSale = (items, amountReceived, clientId) =>
-  api.post("/sales", { items, amount_received: amountReceived, client_id: clientId }).then((r) => r.data);
+export const completeSale = (
+  items,
+  amountReceived,
+  clientId,
+  { customerId, isCredit = false, dueDate, initialPayment, initialPaymentMethod } = {}
+) => {
+  const payload = { items, amount_received: amountReceived, client_id: clientId };
+  if (isCredit) {
+    payload.is_credit = true;
+    payload.customer_id = customerId;
+    payload.due_date = dueDate;
+    if (initialPayment !== undefined && initialPayment !== null && initialPayment > 0) {
+      payload.initial_payment = initialPayment;
+      payload.initial_payment_method = initialPaymentMethod;
+    }
+  }
+  return api.post("/sales", payload).then((r) => r.data);
+};
+
+
 export const startMpesaPayment = (items, phoneNumber) =>
   api.post("/sales/mpesa", { items, phone_number: phoneNumber }).then((r) => r.data);
 export const startManualMpesaPayment = (items, paymentMethod) =>

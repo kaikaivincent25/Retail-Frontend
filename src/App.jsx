@@ -14,6 +14,7 @@ import SalesHistory from "./pages/SalesHistory/SalesHistory";
 import CashSessions from "./pages/CashSessions/CashSessions";
 import ActivityLog from "./pages/ActivityLog/ActivityLog";
 import Reports from "./pages/Reports/Reports"; 
+import Accounting from "./pages/Accounting/Accounting"; 
 import {ToastProvider} from "./context/ToastContext";
 import Profile from "./pages/Profile/Profile";
 import CashierDashboard from "./pages/Dashboard/CashierDashboard";
@@ -137,6 +138,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["admin", "manager"]}>
             <Reports />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/accounting"
+        element={
+          <ProtectedRoute allowedRoles={["admin", "manager"]}>
+            <Accounting />
           </ProtectedRoute>
         }
       />
