@@ -6,8 +6,8 @@
   min-height: 72px;
   padding: 10px clamp(18px, 2.6vw, 36px);
   border-bottom: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: 0 4px 16px rgba(22, 51, 81, 0.035);
+  background: linear-gradient(112deg, #e8f2fb 0%, #f2f7fc 48%, #e7f1fa 100%);
+  box-shadow: 0 5px 18px rgba(22, 51, 81, 0.055);
 }
 
 .workspace-navigation-label {
