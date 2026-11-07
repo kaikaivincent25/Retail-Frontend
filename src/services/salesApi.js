@@ -40,8 +40,8 @@ export const completeSale = (
     payload.customer_id = customerId;
     payload.due_date = dueDate;
     payload.payment_method = "cash";
-    if (initialPayment !== undefined && initialPayment !== null && Number(initialPayment) > 0) {
-      payload.initial_payment = Number(initialPayment);
+    payload.initial_payment = Number(initialPayment) || 0;
+    if (payload.initial_payment > 0) {
       payload.initial_payment_method = initialPaymentMethod || "cash";
     }
   }
