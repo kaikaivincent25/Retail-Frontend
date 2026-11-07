@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import SyncStatus from "../SyncStatus";
+import TopNavigation from "../Navigation/TopNavigation";
 import "./Layout.css";
 
 function Layout({ children }) {
@@ -15,6 +16,7 @@ function Layout({ children }) {
       />
       <main className="app-content">
         <div className="app-status-strip"><SyncStatus /></div>
+        <TopNavigation />
         {children}
       </main>
     </div>
