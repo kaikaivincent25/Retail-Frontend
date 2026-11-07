@@ -9,6 +9,7 @@ import Sales from "./pages/Sales/Sales";
 import Products from "./pages/Products/Products";
 import Inventory from "./pages/Inventory/Inventory";
 import Staff from "./pages/Staff/Staff";
+import Customers from "./pages/Customers/Customers";
 import SalesHistory from "./pages/SalesHistory/SalesHistory";
 import CashSessions from "./pages/CashSessions/CashSessions";
 import ActivityLog from "./pages/ActivityLog/ActivityLog";
@@ -96,6 +97,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <Staff />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/customers"
+        element={
+          <ProtectedRoute allowedRoles={["admin", "manager", "cashier"]}>
+            <Customers />
           </ProtectedRoute>
         }
       />

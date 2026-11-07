@@ -49,6 +49,13 @@ const ICONS = {
       <path d="M16 4.5a3.5 3.5 0 0 1 0 6.8M20 20v-1.5a4 4 0 0 0-3-3.9" />
     </>
   ),
+  customers: (
+    <>
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3.5 20v-1.6a5.5 5.5 0 0 1 11 0V20z" />
+      <path d="M16 5.2a3.1 3.1 0 0 1 0 5.8M18 14a4.8 4.8 0 0 1 2.5 4.2V20" />
+    </>
+  ),
   reports: (
     <>
       <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
@@ -77,6 +84,7 @@ const NAV_ITEMS = {
   admin: [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { to: "/sales", label: "Sales", icon: "sales" },
+    { to: "/customers", label: "Customers", icon: "customers" },
     { to: "/expenses", label: "Expenses", icon: "expenses" },
     { to: "/products", label: "Products", icon: "products" },
     { to: "/inventory", label: "Inventory", icon: "inventory" },
@@ -89,6 +97,7 @@ const NAV_ITEMS = {
   manager: [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { to: "/sales", label: "Sales", icon: "sales" },
+    { to: "/customers", label: "Customers", icon: "customers" },
     { to: "/expenses", label: "Expenses", icon: "expenses" },
     { to: "/products", label: "Products", icon: "products" },
     { to: "/inventory", label: "Inventory", icon: "inventory" },
@@ -98,6 +107,7 @@ const NAV_ITEMS = {
   cashier: [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { to: "/sales", label: "Sales", icon: "sales" },
+    { to: "/customers", label: "Customers", icon: "customers" },
     { to: "/expenses", label: "Expenses", icon: "expenses" },
     { to: "/reports/sales", label: "My Sales", icon: "reports" },
     { to: "/cashsessions", label: "Till History", icon: "cash" },
