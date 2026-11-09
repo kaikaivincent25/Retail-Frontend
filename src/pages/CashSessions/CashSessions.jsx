@@ -267,7 +267,21 @@ function CashSessions() {
               <td>{new Date(s.created_at).toLocaleString()}</td>
               <td>{s.closed_at ? new Date(s.closed_at).toLocaleString() : "—"}</td>
               <td>{formatCurrency(s.opening_cash)}</td>
-              <td>{s.expected_cash != null ? formatCurrency(s.expected_cash) : "—"}</td>
+              <td>
+                {s.expected_cash != null ? formatCurrency(s.expected_cash) : "—"}
+                {s.cash_sales_total != null && (
+                  <details className="session-cash-breakdown">
+                    <summary>Breakdown</summary>
+                    <small>
+                      Opening float: {formatCurrency(s.opening_cash)}<br />
+                      Cash sales: +{formatCurrency(s.cash_sales_total)}<br />
+                      Cash credit collections: +{formatCurrency(s.cash_collections_total)}<br />
+                      Cash expenses: −{formatCurrency(s.cash_expenses_total)}<br />
+                      Credit invoice value (not added separately): {formatCurrency(s.credit_sales_total)}
+                    </small>
+                  </details>
+                )}
+              </td>
               <td>{s.closing_cash != null ? formatCurrency(s.closing_cash) : "—"}</td>
               <td>
                 {depositsBySession[s.id]

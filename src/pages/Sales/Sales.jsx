@@ -1396,6 +1396,21 @@ function Sales() {
 
 export default Sales;
 
+function CashSessionBreakdown({ review }) {
+  if (review?.cash_sales_total == null) return null;
+
+  return (
+    <div className="cash-session-breakdown" aria-label="Expected till cash breakdown">
+      <div className="close-result-row"><span>Opening float</span><span>{formatCurrency(review.opening_cash)}</span></div>
+      <div className="close-result-row"><span>Cash sales</span><span>+{formatCurrency(review.cash_sales_total)}</span></div>
+      <div className="close-result-row"><span>Cash collected on credit invoices</span><span>+{formatCurrency(review.cash_collections_total)}</span></div>
+      <div className="close-result-row"><span>Cash expenses</span><span>−{formatCurrency(review.cash_expenses_total)}</span></div>
+      <div className="close-result-row"><span>Credit invoices (invoice value; not added separately)</span><span>{formatCurrency(review.credit_sales_total)}</span></div>
+      <div className="close-result-row"><strong>Expected till cash</strong><strong>{formatCurrency(review.expected_cash)}</strong></div>
+    </div>
+  );
+}
+
 function CloseTillModal({ session, onClose, onClosed }) {
   const [countedCash, setCountedCash] = useState("");
   const [pendingClosingCash, setPendingClosingCash] = useState(null);
@@ -1447,10 +1462,11 @@ function CloseTillModal({ session, onClose, onClosed }) {
               <>
                 <h3 id="close-till-title">Close Till</h3>
                 <p>
-                  Opened with {formatCurrency(session.opening_cash)}. Expected cash includes cash sales
-                  and subtracts till expenses. Staff stock use is tracked separately and does not
-                  reduce expected till cash. Count the drawer and enter it below.
+                  Count the drawer and compare it with the itemized expected cash. Credit invoice
+                  value is shown for reference; cash collected toward those invoices is included
+                  separately.
                 </p>
+                <CashSessionBreakdown review={session} />
                 <form onSubmit={handleSubmit}>
                   <input
                     type="number"
@@ -1476,6 +1492,7 @@ function CloseTillModal({ session, onClose, onClosed }) {
                   Confirm that you counted {formatCurrency(fromCents(pendingClosingCash))}.
                   This amount will be recorded as the final closing cash.
                 </p>
+                <CashSessionBreakdown review={session} />
                 {error && <div className="form-error">{error}</div>}
                 <div className="bulk-prompt-actions">
                   <button
@@ -1495,7 +1512,7 @@ function CloseTillModal({ session, onClose, onClosed }) {
         ) : (
           <>
             <h3 id="close-till-title">Session Closed</h3>
-            <div className="close-result-row"><span>Expected</span><span>{formatCurrency(result.expected_cash)}</span></div>
+            <CashSessionBreakdown review={result} />
             <div className="close-result-row"><span>Counted</span><span>{formatCurrency(result.closing_cash)}</span></div>
             <div className={`close-result-row difference ${difference < 0 ? "negative" : difference > 0 ? "positive" : ""}`}>
               <span>Difference</span>
