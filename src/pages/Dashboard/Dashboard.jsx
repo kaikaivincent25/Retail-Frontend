@@ -117,6 +117,22 @@ function Dashboard() {
             </span>
           </div>
 
+          <div className="summary-card credit-sales-card">
+            <div className="card-top">
+              <span className="card-label">Credit Sales Today</span>
+              <span className="card-icon credit-sales-icon">◷</span>
+            </div>
+            <span className="card-value">
+              {formatCurrency(summary.credit_sales_total)}
+            </span>
+            <span className="card-description">
+              {summary.credit_sales_count.toLocaleString()} credit invoices issued today
+            </span>
+            <Link to="/customers" className="card-link">
+              View customers <span>→</span>
+            </Link>
+          </div>
+
           <div className="summary-card expense-card">
             <div className="card-top">
               <span className="card-label">Today's Expenses</span>
@@ -209,6 +225,54 @@ function Dashboard() {
           </div>
 
         </div>
+      </section>
+
+      {/* Credit Sales */}
+      <section className="dashboard-section">
+        <div className="section-heading products-heading">
+          <div>
+            <h2>Credit Sales Today</h2>
+            <p>Invoices issued today, payments received, and outstanding balances</p>
+          </div>
+          <Link to="/customers" className="credit-sales-link">Manage customers <span>→</span></Link>
+        </div>
+
+        {summary.recent_credit_sales.length === 0 ? (
+          <div className="empty-hint">
+            <div className="empty-icon">◷</div>
+            <h3>No credit sales today</h3>
+            <p>Credit invoices issued today will appear here.</p>
+          </div>
+        ) : (
+          <div className="table-container">
+            <table className="credit-sales-table">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Invoice</th>
+                  <th>Paid</th>
+                  <th>Balance</th>
+                  <th>Due Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.recent_credit_sales.map((sale) => (
+                  <tr key={sale.id}>
+                    <td><span className="product-name">{sale.customer_name}</span></td>
+                    <td>#{sale.id} · {formatCurrency(sale.total)}</td>
+                    <td>{formatCurrency(sale.amount_paid)}</td>
+                    <td className="credit-balance">{formatCurrency(sale.balance)}</td>
+                    <td>
+                      {sale.due_date
+                        ? new Date(`${sale.due_date}T00:00:00`).toLocaleDateString()
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       {/* Top Products */}
