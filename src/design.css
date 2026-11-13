@@ -1139,6 +1139,372 @@ tbody tr:hover {
 
 @media (prefers-reduced-motion: reduce) { .sidebar.sidebar--modern { transition: none; } }
 
+/* Shared premium screen layer: presentation only. */
+:root {
+  --screen-max-width: 1480px;
+  --screen-gap: clamp(16px, 2vw, 28px);
+  --screen-surface: rgba(255, 255, 255, .92);
+  --screen-border: #d8e6f1;
+  --screen-shadow: 0 10px 28px rgba(25, 67, 101, .065);
+}
+
+.app-content > .dashboard-page,
+.app-content > .cashier-dashboard,
+.app-content > .sales-page,
+.app-content > .reports-page,
+.app-content > .accounting-page,
+.app-content > .staff-page,
+.app-content > .customers-page,
+.app-content > .inventory-page,
+.app-content > .expenses-page,
+.app-content > .cash-sessions-page,
+.app-content > .activity-page,
+.app-content > .profile-page,
+.app-content > .sales-history-page,
+.app-content > .billing-page,
+.app-content > .sync-issues-page {
+  width: min(100%, var(--screen-max-width));
+  margin-inline: auto;
+}
+
+.dashboard-header,
+.reports-hero,
+.accounting-header,
+.staff-header,
+.sales-page-heading {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--screen-border);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,255,255,.98), rgba(239,247,253,.95));
+  box-shadow: var(--screen-shadow);
+}
+
+.dashboard-header,
+.reports-hero,
+.accounting-header,
+.staff-header {
+  margin-bottom: var(--screen-gap);
+}
+
+.dashboard-header::before,
+.reports-hero::before,
+.accounting-header::before,
+.staff-header::before,
+.sales-page-heading::before {
+  position: absolute;
+  right: -28px;
+  bottom: -56px;
+  width: 180px;
+  height: 180px;
+  background: url("/pwa-192x192.png") center / contain no-repeat;
+  opacity: .045;
+  pointer-events: none;
+  content: "";
+}
+
+.summary-card,
+.cashier-dashboard-card,
+.accounting-kpi-card,
+.staff-metric-card,
+.report-section,
+.dashboard-section,
+.accounting-card,
+.staff-create-card,
+.staff-list-card {
+  border-color: var(--screen-border);
+  border-radius: 14px;
+  box-shadow: var(--screen-shadow);
+}
+
+.summary-card:hover,
+.cashier-dashboard-card:hover,
+.staff-metric-card:hover {
+  transform: translateY(-2px);
+}
+
+.dashboard-section,
+.report-section,
+.accounting-card,
+.staff-list-card,
+.staff-create-card {
+  background: var(--screen-surface);
+}
+
+.section-heading,
+.reports-section-intro,
+.accounting-card-header,
+.staff-list-heading,
+.sales-header-row {
+  gap: 12px;
+}
+
+.dashboard-page table,
+.reports-page table,
+.accounting-page table,
+.staff-page table,
+.customers-page table,
+.inventory-page table,
+.expenses-page table,
+.cash-sessions-page table {
+  min-width: 640px;
+}
+
+.table-container,
+.reports-daily-table-wrap,
+.reports-products-table-wrap,
+.accounting-table-wrap,
+.staff-table-wrap,
+.customers-table-wrap,
+.inventory-table-container,
+.expenses-table-wrap,
+.deposit-table-wrap {
+  border: 1px solid var(--screen-border);
+  border-radius: 12px;
+  background: rgba(255,255,255,.78);
+  scrollbar-width: thin;
+}
+
+.sales-grid-panel,
+.cart-panel {
+  border-color: var(--screen-border);
+  box-shadow: var(--screen-shadow);
+}
+
+.cart-panel {
+  position: sticky;
+  top: 18px;
+  align-self: start;
+}
+
+.sales-page .product-search-input,
+.report-controls input,
+.report-controls select,
+.accounting-date-form input,
+.accounting-date-form select,
+.staff-page input,
+.staff-page select,
+.customers-page input,
+.customers-page select,
+.inventory-page input,
+.inventory-page select,
+.expenses-page input,
+.expenses-page select,
+.expenses-page textarea {
+  min-height: 44px;
+  border-radius: 10px;
+}
+
+.sales-page button,
+.reports-page button,
+.accounting-page button,
+.staff-page button,
+.customers-page button,
+.inventory-page button,
+.expenses-page button,
+.cash-sessions-page button {
+  min-height: 42px;
+  border-radius: 10px;
+}
+
+.login-page,
+.signup-page,
+.lp-page {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.login-page::before,
+.signup-page::before,
+.lp-page::after {
+  position: fixed;
+  right: clamp(18px, 5vw, 80px);
+  bottom: clamp(18px, 5vw, 70px);
+  z-index: -1;
+  width: clamp(150px, 20vw, 260px);
+  height: clamp(150px, 20vw, 260px);
+  background: url("/pwa-192x192.png") center / contain no-repeat;
+  opacity: .035;
+  pointer-events: none;
+  content: "";
+}
+
+.login-shell,
+.signup-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.login-form-container,
+.signup-card {
+  border: 1px solid var(--screen-border);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(25, 67, 101, .11);
+}
+
+.login-form input,
+.signup-form input,
+.signup-form select,
+.signup-form textarea {
+  min-height: 46px;
+  border-radius: 10px;
+}
+
+.login-form button[type="submit"],
+.signup-submit {
+  min-height: 48px;
+  border-radius: 11px;
+}
+
+.accounting-tabs,
+.inventory-tabs,
+.view-tabs {
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 900px) {
+  .dashboard-page,
+  .cashier-dashboard,
+  .sales-page,
+  .reports-page,
+  .accounting-page,
+  .staff-page,
+  .customers-page,
+  .inventory-page,
+  .expenses-page,
+  .cash-sessions-page,
+  .activity-page,
+  .profile-page,
+  .sales-history-page,
+  .billing-page,
+  .sync-issues-page {
+    padding-inline: 20px;
+  }
+
+  .cart-panel {
+    position: static;
+  }
+
+  .dashboard-header,
+  .reports-hero,
+  .accounting-header,
+  .staff-header,
+  .sales-page-heading {
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 650px) {
+  .dashboard-page,
+  .cashier-dashboard,
+  .sales-page,
+  .reports-page,
+  .accounting-page,
+  .staff-page,
+  .customers-page,
+  .inventory-page,
+  .expenses-page,
+  .cash-sessions-page,
+  .activity-page,
+  .profile-page,
+  .sales-history-page,
+  .billing-page,
+  .sync-issues-page {
+    padding-inline: 14px;
+  }
+
+  .dashboard-header,
+  .reports-hero,
+  .accounting-header,
+  .staff-header,
+  .sales-page-heading {
+    margin-bottom: 16px;
+    border-radius: 12px;
+  }
+
+  .dashboard-header h1,
+  .reports-hero h1,
+  .accounting-header h1,
+  .staff-header h1,
+  .sales-page-heading h1 {
+    font-size: clamp(22px, 7vw, 30px);
+  }
+
+  .summary-card,
+  .cashier-dashboard-card,
+  .accounting-kpi-card,
+  .staff-metric-card {
+    min-height: 0;
+  }
+
+  .table-container,
+  .reports-daily-table-wrap,
+  .reports-products-table-wrap,
+  .accounting-table-wrap,
+  .staff-table-wrap,
+  .customers-table-wrap,
+  .inventory-table-container,
+  .expenses-table-wrap,
+  .deposit-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .accounting-tabs,
+  .inventory-tabs,
+  .view-tabs {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    max-width: 100%;
+  }
+
+  .accounting-tabs > *,
+  .inventory-tabs > *,
+  .view-tabs > * {
+    flex: 0 0 auto;
+  }
+
+  .login-form-container,
+  .signup-card {
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(25, 67, 101, .09);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-page,
+  .cashier-dashboard,
+  .sales-page,
+  .reports-page,
+  .accounting-page,
+  .staff-page,
+  .customers-page,
+  .inventory-page,
+  .expenses-page,
+  .cash-sessions-page,
+  .activity-page,
+  .profile-page,
+  .sales-history-page,
+  .billing-page,
+  .sync-issues-page {
+    padding-inline: 10px;
+  }
+
+  .dashboard-page table,
+  .reports-page table,
+  .accounting-page table,
+  .staff-page table,
+  .customers-page table,
+  .inventory-page table,
+  .expenses-page table,
+  .cash-sessions-page table {
+    min-width: 560px;
+  }
+}
+
 /* Final workspace shell refinements: one consistent rhythm, modern type, and a compact mobile drawer. */
 :root {
   --shell-sidebar-width: 256px;
