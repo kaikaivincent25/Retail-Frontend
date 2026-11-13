@@ -8,8 +8,10 @@ function formatPrice(value, currency) {
 }
 
 function getErrorMessage(error, fallback) {
+  if (!error.response) return "Could not reach the shop server. Check your connection and try again.";
   const detail = error.response?.data?.detail;
   if (Array.isArray(detail)) return detail.map((item) => item.msg || item.message).filter(Boolean).join(" ") || fallback;
+  if (error.response.status >= 500 && error.response.data?.error_id) return `${fallback} Reference: ${error.response.data.error_id}`;
   return detail || fallback;
 }
 
