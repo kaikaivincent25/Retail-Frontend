@@ -67,6 +67,7 @@ function Products() {
   const [editingImageId, setEditingImageId] = useState(null);
   const [imageUrlDraft, setImageUrlDraft] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
 
   const [newProductName, setNewProductName] = useState("");
   const [businessType, setBusinessType] = useState("general_retail");
@@ -138,6 +139,7 @@ function Products() {
       setNewProductVariants([createEmptyVariant()]);
       setVariantsByProduct((prev) => ({ ...prev, [product.id]: product.variants }));
       setExpandedId(product.id);
+      setIsAddFormOpen(false);
       setProducts((prev) =>
         [...prev, product].sort((a, b) => a.name.localeCompare(b.name)),
       );
@@ -274,13 +276,25 @@ function Products() {
           <h1>Products</h1>
           <p>Manage your catalog, pricing, and stock in one place.</p>
         </div>
-        <div className="products-total">
-          <span>{products.length}</span>
-          <small>{products.length === 1 ? "product in catalog" : "products in catalog"}</small>
+        <div className="products-heading-actions">
+          <div className="products-total">
+            <span>{products.length}</span>
+            <small>{products.length === 1 ? "product in catalog" : "products in catalog"}</small>
+          </div>
+          <button
+            className="add-product-cta"
+            type="button"
+            onClick={() => setIsAddFormOpen((open) => !open)}
+            aria-expanded={isAddFormOpen}
+            aria-controls="add-product-form"
+          >
+            <span aria-hidden="true">+</span>
+            {isAddFormOpen ? "Close form" : "Add product"}
+          </button>
         </div>
       </header>
 
-      <form className="new-product-form" onSubmit={handleCreateProduct}>
+      {isAddFormOpen && <form id="add-product-form" className="new-product-form" onSubmit={handleCreateProduct}>
         <div className="form-card-heading">
           <div className="form-card-icon" aria-hidden="true">+</div>
           <div>
@@ -465,11 +479,12 @@ function Products() {
         </div>
 
         <div className="new-product-submit">
+          <button type="button" className="secondary-action" onClick={() => setIsAddFormOpen(false)}>Cancel</button>
           <button type="submit" disabled={isCreatingProduct}>
             {isCreatingProduct ? "Saving..." : "Save product and stock"}
           </button>
         </div>
-      </form>
+      </form>}
       {error && <div className="form-error" role="alert">{error}</div>}
 
       <section className="inventory-section" aria-label="Product inventory">
@@ -618,7 +633,17 @@ function Products() {
             )}
 
             {editingProduct?.id === product.id && (
-              <form className="product-details-editor" onSubmit={handleSaveProductDetails}>
+              <>
+                <button className="product-editor-backdrop" type="button" aria-label="Close edit product dialog" onClick={() => setEditingProduct(null)} />
+                <form className="product-details-editor" role="dialog" aria-modal="true" aria-labelledby={`edit-product-title-${product.id}`} onSubmit={handleSaveProductDetails}>
+                <div className="editor-dialog-heading">
+                  <div>
+                    <span className="products-eyebrow">PRODUCT DETAILS</span>
+                    <h2 id={`edit-product-title-${product.id}`}>Edit {product.name}</h2>
+                    <p>Update the information customers and your team use to identify this product.</p>
+                  </div>
+                  <button type="button" className="editor-close" onClick={() => setEditingProduct(null)} aria-label="Close edit product dialog">×</button>
+                </div>
                 <div className="product-details-editor-grid">
                   <label className="product-field"><span>Product name</span><input value={editingProduct.name} onChange={(event) => setEditingProduct({ ...editingProduct, name: event.target.value })} required maxLength={150} /></label>
                   <label className="product-field"><span>Category</span><input list="product-category-options" value={editingProduct.category} onChange={(event) => setEditingProduct({ ...editingProduct, category: event.target.value })} maxLength={100} /></label>
@@ -632,7 +657,8 @@ function Products() {
                   <button type="button" className="restore-product" onClick={() => setEditingProduct(null)}>Cancel</button>
                   <button type="submit">Save product details</button>
                 </div>
-              </form>
+                </form>
+              </>
             )}
 
             {expandedId === product.id && (
