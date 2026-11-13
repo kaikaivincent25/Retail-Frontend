@@ -58,6 +58,24 @@ const deactivatePreset = (presetId) => api.delete(`/presets/${presetId}`);
 const getErrorMessage = (err, fallback) =>
   err.response?.data?.detail || err.message || fallback;
 
+function normalizeProduct(product) {
+  if (!product || typeof product !== "object" || product.id == null) return null;
+
+  // Product records created by older deployments may omit optional fields.
+  // Normalize them before rendering so one legacy record cannot blank the page.
+  return {
+    ...product,
+    name: typeof product.name === "string" && product.name.trim() ? product.name : "Unnamed product",
+    category: product.category ?? null,
+    brand: product.brand ?? null,
+    description: product.description ?? null,
+    attributes: product.attributes && typeof product.attributes === "object" ? product.attributes : {},
+    image_url: product.image_url ?? null,
+    is_active: product.is_active !== false,
+    is_public: product.is_public === true,
+  };
+}
+
 function Products() {
   const [products, setProducts] = useState([]);
   const [productFilter, setProductFilter] = useState("active");
@@ -89,7 +107,7 @@ function Products() {
       const result = await listProducts(`?${params.toString()}`);
       // Keep the page renderable even if an older API/proxy wraps the list.
       const catalog = Array.isArray(result) ? result : result?.products;
-      setProducts(Array.isArray(catalog) ? catalog.filter(Boolean) : []);
+      setProducts(Array.isArray(catalog) ? catalog.map(normalizeProduct).filter(Boolean) : []);
     } catch (err) {
       setError(getErrorMessage(err, "Could not load products."));
     }
