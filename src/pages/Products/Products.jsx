@@ -55,8 +55,18 @@ const createPreset = (variantId, data) =>
 const listPresets = (variantId) =>
   api.get(`/variants/${variantId}/presets`).then((r) => r.data);
 const deactivatePreset = (presetId) => api.delete(`/presets/${presetId}`);
-const getErrorMessage = (err, fallback) =>
-  err.response?.data?.detail || err.message || fallback;
+function getErrorMessage(err, fallback) {
+  const detail = err.response?.data?.detail;
+  if (typeof detail === "string" && detail.trim()) return detail;
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => typeof item === "string" ? item : item?.msg)
+      .filter(Boolean);
+    if (messages.length) return messages.join("; ");
+  }
+  if (typeof err.message === "string" && err.message.trim()) return err.message;
+  return fallback;
+}
 
 function normalizeProduct(product) {
   if (!product || typeof product !== "object" || product.id == null) return null;
