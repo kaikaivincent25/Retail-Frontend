@@ -110,7 +110,7 @@ function Products() {
     setError("");
     setIsCreatingProduct(true);
     try {
-      const product = await createProduct({
+      await createProduct({
         name: newProductName,
         category: newProductCategory || null,
         brand: newProductBrand.trim() || null,
@@ -137,12 +137,11 @@ function Products() {
       setNewProductImageUrl("");
       setNewProductIsPublic(false);
       setNewProductVariants([createEmptyVariant()]);
-      setVariantsByProduct((prev) => ({ ...prev, [product.id]: product.variants }));
-      setExpandedId(product.id);
       setIsAddFormOpen(false);
-      setProducts((prev) =>
-        [...prev, product].sort((a, b) => a.name.localeCompare(b.name)),
-      );
+      setExpandedId(null);
+      // Re-read the catalog response instead of rendering the create response
+      // directly. The list endpoint has the stable shape used by this page.
+      await refreshProducts();
     } catch (err) {
       setError(getErrorMessage(err, "Could not create product and variants."));
     } finally {
