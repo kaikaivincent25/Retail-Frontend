@@ -45,6 +45,7 @@ function Profile() {
   const [deleteShopName, setDeleteShopName] = useState("");
   const [deleteShopPassword, setDeleteShopPassword] = useState("");
   const [deletingShop, setDeletingShop] = useState(false);
+  const [copyingStorefrontLink, setCopyingStorefrontLink] = useState(false);
 
   useEffect(() => {
     getMe().then((data) => {
@@ -150,6 +151,20 @@ function Profile() {
       showToast(extractErrorMessage(err), "error");
     } finally {
       setDeletingShop(false);
+    }
+  }
+
+  async function copyStorefrontLink() {
+    if (!shop?.slug) return;
+    const storefrontUrl = `${window.location.origin}/shop/${shop.slug}`;
+    setCopyingStorefrontLink(true);
+    try {
+      await navigator.clipboard.writeText(storefrontUrl);
+      showToast("Public shop link copied.", "success");
+    } catch {
+      showToast("Could not copy the link. Open it and copy the URL manually.", "error");
+    } finally {
+      setCopyingStorefrontLink(false);
     }
   }
 
@@ -481,6 +496,19 @@ function Profile() {
                   <small>
                     {shopLocation || "Location not specified"}
                   </small>
+                </div>
+              </div>
+
+              <div className="storefront-share-card">
+                <div>
+                  <span className="storefront-share-label">PUBLIC STOREFRONT</span>
+                  <strong>{shop.slug ? "Share your catalogue with customers" : "Public link is being prepared"}</strong>
+                  <p>{shop.slug ? "Customers can browse products marked List publicly and place guest orders." : "This shop was created before public links were enabled. Run the latest backend migration first."}</p>
+                  {shop.slug && <code>{window.location.origin}/shop/{shop.slug}</code>}
+                </div>
+                <div className="storefront-share-actions">
+                  {shop.slug && <button type="button" className="secondary-button" onClick={copyStorefrontLink} disabled={copyingStorefrontLink}>{copyingStorefrontLink ? "Copying..." : "Copy public link"}</button>}
+                  {shop.slug && <a className="primary-button storefront-open-link" href={`/shop/${shop.slug}`} target="_blank" rel="noreferrer">Open storefront</a>}
                 </div>
               </div>
 

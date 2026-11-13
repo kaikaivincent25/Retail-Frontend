@@ -957,6 +957,71 @@
   margin-top: 14px;
 }
 
+.storefront-share-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid #cfe3f4;
+  border-radius: 13px;
+  background: linear-gradient(110deg, #f2f9ff, #ffffff);
+}
+
+.storefront-share-card > div:first-child {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.storefront-share-label {
+  color: var(--brand-strong);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .75px;
+}
+
+.storefront-share-card strong {
+  color: var(--navy);
+  font-size: 14px;
+}
+
+.storefront-share-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.storefront-share-card code {
+  overflow: hidden;
+  color: #3d6e98;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.storefront-share-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.storefront-share-actions button,
+.storefront-open-link {
+  min-height: 40px;
+  padding: 0 13px;
+  font-size: 12px;
+}
+
+.storefront-open-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 @keyframes profile-form-in {
   from {
     opacity: 0;
@@ -984,6 +1049,20 @@
     flex-direction: column;
     gap: 12px;
     padding: 15px;
+  }
+
+  .storefront-share-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .storefront-share-actions {
+    flex-direction: column;
+  }
+
+  .storefront-share-actions button,
+  .storefront-open-link {
+    width: 100%;
   }
 
   .profile-action-button {
