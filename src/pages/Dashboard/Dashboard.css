@@ -1434,3 +1434,264 @@
     animation: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Dashboard visual refresh
+   Keep the dashboard on the same cool, light palette as the admin workspace.
+   This layer intentionally changes presentation only; data and navigation
+   remain owned by Dashboard.jsx.
+---------------------------------------------------------------------------- */
+.app-content .dashboard-page {
+  max-width: 1680px;
+  padding: clamp(24px, 3vw, 42px) clamp(18px, 3vw, 48px) 56px;
+  color: #304a63;
+  background:
+    radial-gradient(circle at 96% 0%, rgba(174, 216, 245, 0.24), transparent 24rem),
+    transparent;
+}
+
+.app-content .dashboard-header {
+  min-height: 210px;
+  align-items: center;
+  gap: 28px;
+  padding: clamp(26px, 4vw, 42px);
+  border: 1px solid #cfe2f1;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 88% 14%, rgba(111, 181, 228, 0.25), transparent 18rem),
+    linear-gradient(135deg, #f8fcff 0%, #edf6fc 62%, #e5f1fa 100%);
+  box-shadow: 0 18px 40px rgba(27, 71, 106, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.app-content .dashboard-header::after {
+  right: -76px;
+  bottom: -190px;
+  width: 390px;
+  height: 390px;
+  border: 1px solid rgba(40, 120, 199, 0.12);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow:
+    0 0 0 30px rgba(40, 120, 199, 0.035),
+    0 0 0 64px rgba(40, 120, 199, 0.025);
+}
+
+.app-content .dashboard-eyebrow,
+.app-content .dashboard-date-label {
+  color: #2878c7;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.app-content .dashboard-header h1 {
+  max-width: min(720px, 62vw);
+  color: #173b5d;
+  font-size: clamp(30px, 3.8vw, 44px);
+  letter-spacing: -0.045em;
+}
+
+.app-content .dashboard-welcome {
+  color: #6e8499;
+}
+
+.app-content .dashboard-shop-mark {
+  color: #fff;
+  border: 0;
+  background: linear-gradient(145deg, #4b9bd2, #2878c7);
+  box-shadow: 0 9px 20px rgba(40, 120, 199, 0.2);
+}
+
+.app-content .dashboard-date {
+  min-width: 220px;
+  margin-top: 0;
+  padding: 14px 16px;
+  border: 1px solid #cfe2f1;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #526f89;
+  box-shadow: 0 8px 18px rgba(27, 71, 106, 0.06), inset 0 1px 0 #fff;
+  backdrop-filter: blur(12px);
+}
+
+.app-content .dashboard-date-copy > span:last-child {
+  color: #304a63;
+  font-weight: 700;
+}
+
+.app-content .section-heading h2 {
+  color: #173b5d;
+  font-size: 17px;
+}
+
+.app-content .section-heading p,
+.app-content .card-description,
+.app-content .empty-hint p,
+.app-content .quick-link-content > span {
+  color: #71869b;
+}
+
+.app-content .summary-period,
+.app-content .section-badge {
+  border: 1px solid #cfe2f1;
+  background: #e8f3fc;
+  color: #2878c7;
+}
+
+.app-content .summary-cards {
+  gap: 14px;
+}
+
+.app-content .summary-card {
+  position: relative;
+  min-height: 154px;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid #d7e7f3;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #ffffff, #f1f8fd);
+  box-shadow: 0 8px 22px rgba(27, 71, 106, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.app-content .summary-card::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 3px;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(90deg, #8ec5ed, #d9edfb);
+  content: "";
+}
+
+.app-content .summary-card:hover {
+  transform: translateY(-3px);
+  border-color: #b9d5e9;
+  box-shadow: 0 15px 30px rgba(27, 71, 106, 0.11), inset 0 1px 0 #fff;
+}
+
+.app-content .card-label {
+  color: #607a91;
+  font-weight: 700;
+}
+
+.app-content .card-value {
+  color: #173b5d;
+}
+
+.app-content .card-value.profit,
+.app-content .net-sales-card .card-value {
+  color: #17865b;
+}
+
+.app-content .sales-icon,
+.app-content .credit-sales-icon {
+  background: #e8f3fc;
+  color: #2878c7;
+}
+
+.app-content .expense-icon {
+  background: #fff2df;
+  color: #b26a16;
+}
+
+.app-content .net-sales-icon {
+  background: #e4f6ed;
+  color: #17865b;
+}
+
+.app-content .stock-icon {
+  background: #f1ecff;
+  color: #7355ae;
+}
+
+.app-content .summary-card.alert {
+  border-color: #f1caca;
+  background: linear-gradient(145deg, #fffafa, #fff3f3);
+}
+
+.app-content .summary-card.alert .card-value {
+  color: #c6474e;
+}
+
+.app-content .dashboard-section {
+  padding: 24px;
+  border: 1px solid #d7e7f3;
+  border-radius: 19px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 247, 252, 0.96));
+  box-shadow: 0 9px 26px rgba(27, 71, 106, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.app-content .top-products-table thead,
+.app-content .credit-sales-table thead {
+  background: linear-gradient(180deg, #eaf3fa, #e2eef7);
+}
+
+.app-content .top-products-table th,
+.app-content .credit-sales-table th {
+  color: #6e8499;
+}
+
+.app-content .top-products-table td,
+.app-content .credit-sales-table td {
+  border-bottom-color: #e4eef5;
+  color: #526f89;
+}
+
+.app-content .top-products-table tbody tr:hover,
+.app-content .credit-sales-table tbody tr:hover {
+  background: #f3f9fd;
+}
+
+.app-content .product-name,
+.app-content .quick-link-content strong,
+.app-content .empty-hint h3 {
+  color: #304a63;
+}
+
+.app-content .quantity-badge,
+.app-content .product-rank.top-rank {
+  background: #e8f3fc;
+  color: #2878c7;
+}
+
+.app-content .dashboard-link-card {
+  border: 1px solid #d7e7f3;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fff, #f0f7fc);
+  box-shadow: 0 7px 18px rgba(27, 71, 106, 0.045);
+}
+
+.app-content .dashboard-link-card:hover {
+  border-color: #b9d5e9;
+  background: #fff;
+  box-shadow: 0 13px 26px rgba(27, 71, 106, 0.09);
+}
+
+.app-content .quick-link-icon {
+  background: #e8f3fc;
+  color: #2878c7;
+}
+
+.app-content .quick-link-arrow,
+.app-content .card-link,
+.app-content .credit-sales-link {
+  color: #2878c7;
+}
+
+@media (max-width: 700px) {
+  .app-content .dashboard-header {
+    min-height: 0;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+    padding: 25px;
+  }
+
+  .app-content .dashboard-header h1 {
+    max-width: 100%;
+  }
+
+  .app-content .dashboard-date {
+    min-width: 0;
+  }
+}
