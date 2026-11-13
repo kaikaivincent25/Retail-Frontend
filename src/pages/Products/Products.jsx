@@ -86,7 +86,10 @@ function Products() {
     try {
       const params = new URLSearchParams({ include_inactive: "true" });
       if (searchTerm.trim()) params.set("q", searchTerm.trim());
-      setProducts(await listProducts(`?${params.toString()}`));
+      const result = await listProducts(`?${params.toString()}`);
+      // Keep the page renderable even if an older API/proxy wraps the list.
+      const catalog = Array.isArray(result) ? result : result?.products;
+      setProducts(Array.isArray(catalog) ? catalog.filter(Boolean) : []);
     } catch (err) {
       setError(getErrorMessage(err, "Could not load products."));
     }
@@ -259,7 +262,7 @@ function Products() {
     setVariantsByProduct((prev) => ({ ...prev, [productId]: variants }));
   }
 
-  const visibleProducts = products.filter((product) => {
+  const visibleProducts = products.filter((product) => product && typeof product === "object").filter((product) => {
     const matchesFilter = productFilter === "all"
       || (productFilter === "active" ? product.is_active : !product.is_active);
     return matchesFilter;
