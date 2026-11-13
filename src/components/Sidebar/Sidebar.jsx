@@ -25,7 +25,7 @@ const ICONS = {
   ),
 };
 
-function Sidebar({ collapsed, onToggle }) {
+function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const { user, logout } = useAuth();
   const items = NAV_ITEMS[user?.role]?.sidebar || [];
 
@@ -65,7 +65,7 @@ function Sidebar({ collapsed, onToggle }) {
 
   return (
     <aside
-      className={`sidebar sidebar--modern${collapsed ? " is-collapsed" : ""}`}
+      className={`sidebar sidebar--modern${collapsed ? " is-collapsed" : ""}${mobileOpen ? " is-mobile-open" : ""}`}
       aria-label="Main sidebar"
       onKeyDown={handleSidebarKeyDown}
     >
@@ -106,6 +106,7 @@ function Sidebar({ collapsed, onToggle }) {
             end
             title={collapsed ? item.label : undefined}
             aria-label={item.label}
+            onClick={onMobileClose}
             className={({ isActive }) =>
               "sidebar-link" + (isActive ? " active" : "")
             }
@@ -150,6 +151,7 @@ function Sidebar({ collapsed, onToggle }) {
           end
           title={collapsed ? "Profile" : undefined}
           aria-label="Profile"
+          onClick={onMobileClose}
           className={({ isActive }) =>
             "sidebar-link" + (isActive ? " active" : "")
           }

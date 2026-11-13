@@ -1,11 +1,15 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { NAV_ICONS, NAV_ITEMS } from "./navigationItems";
+import SyncStatus from "../SyncStatus";
 import "./TopNavigation.css";
 
-function TopNavigation() {
+function TopNavigation({ onMenuToggle }) {
   const { user } = useAuth();
+  const location = useLocation();
   const items = NAV_ITEMS[user?.role]?.top || [];
+  const sidebarItems = NAV_ITEMS[user?.role]?.sidebar || [];
+  const currentItem = [...sidebarItems, ...items].find((item) => item.to === location.pathname);
 
   if (items.length === 0) return null;
 
@@ -33,10 +37,14 @@ function TopNavigation() {
 
   return (
     <header className="workspace-navigation">
+      <button className="mobile-menu-toggle" type="button" onClick={onMenuToggle} aria-label="Open navigation" aria-controls="primary-navigation">
+        <span /><span /><span />
+      </button>
       <div className="workspace-navigation-label">
-        <strong>Workspace</strong>
-        <span>Quick access</span>
+        <strong>{currentItem?.label || "Workspace"}</strong>
+        <span>RIS workspace</span>
       </div>
+      <span className="workspace-breadcrumb">Retail operations <span>/</span> {currentItem?.label || "Overview"}</span>
       <nav
         className="workspace-navigation-links"
         aria-label="Workspace shortcuts"
@@ -58,6 +66,7 @@ function TopNavigation() {
           </NavLink>
         ))}
       </nav>
+      <div className="workspace-navigation-actions"><SyncStatus /><span className="workspace-role">{user?.role || "Account"}</span></div>
     </header>
   );
 }
