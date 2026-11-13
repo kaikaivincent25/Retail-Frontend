@@ -14,3 +14,12 @@ export const createVariant = (productId, data) =>
 export const updateVariant = (variantId, data) =>
   api.patch(`/variants/${variantId}`, data).then((r) => r.data);
 export const deactivateVariant = (variantId) => api.delete(`/variants/${variantId}`);
+
+export const getPublicShop = (slug) =>
+  api.get(`/public/shops/${encodeURIComponent(slug)}`).then((r) => r.data);
+export const createPublicOrder = (slug, data) =>
+  api.post(`/public/shops/${encodeURIComponent(slug)}/orders`, data).then((r) => r.data);
+export const initiatePublicMpesa = (token) =>
+  api.post(`/public/orders/${encodeURIComponent(token)}/mpesa`).then((r) => r.data);
+export const getPublicMpesaStatus = (token) =>
+  api.get(`/public/orders/${encodeURIComponent(token)}/mpesa/status`).then((r) => r.data);

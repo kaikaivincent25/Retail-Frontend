@@ -729,6 +729,22 @@
   font-weight: 500;
 }
 
+.product-public-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  grid-column: 1 / -1;
+  padding: .7rem .8rem;
+  color: #2c587d;
+  background: #f0f7fd;
+  border: 1px solid #d7e9f9;
+  border-radius: 9px;
+  font-size: .78rem;
+}
+.product-public-toggle input { margin-top: .15rem; accent-color: #2878c7; }
+.product-public-toggle span { display: grid; gap: .15rem; }
+.product-public-toggle small { color: #718297; font-size: .7rem; }
+
 .new-product-form input,
 .new-product-form select,
 .new-variant-form input,

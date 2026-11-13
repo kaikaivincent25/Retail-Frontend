@@ -7,6 +7,7 @@ export const NAV_ITEMS = {
       { to: "/expenses", label: "Expenses", icon: "expenses" },
       { to: "/products", label: "Products", icon: "products" },
       { to: "/inventory", label: "Inventory", icon: "inventory" },
+      { to: "/orders", label: "Online Orders", icon: "sales" },
     ],
     top: [
       { to: "/reports/sessions", label: "Cash & Deposits", icon: "cash" },
@@ -25,6 +26,7 @@ export const NAV_ITEMS = {
       { to: "/expenses", label: "Expenses", icon: "expenses" },
       { to: "/products", label: "Products", icon: "products" },
       { to: "/inventory", label: "Inventory", icon: "inventory" },
+      { to: "/orders", label: "Online Orders", icon: "sales" },
     ],
     top: [
       { to: "/reports/sessions", label: "Cash & Deposits", icon: "cash" },
@@ -38,6 +40,7 @@ export const NAV_ITEMS = {
       { to: "/sales", label: "Sales", icon: "sales" },
       { to: "/customers", label: "Customers", icon: "customers" },
       { to: "/expenses", label: "Expenses", icon: "expenses" },
+      { to: "/orders", label: "Online Orders", icon: "sales" },
     ],
     top: [
       { to: "/reports/sales", label: "My Sales", icon: "reports" },

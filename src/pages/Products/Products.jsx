@@ -76,6 +76,7 @@ function Products() {
   const [newProductDescription, setNewProductDescription] = useState("");
   const [newProductAttributes, setNewProductAttributes] = useState([EMPTY_ATTRIBUTE()]);
   const [newProductImageUrl, setNewProductImageUrl] = useState("");
+  const [newProductIsPublic, setNewProductIsPublic] = useState(false);
   const [newProductVariants, setNewProductVariants] = useState([createEmptyVariant()]);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const [error, setError] = useState("");
@@ -115,6 +116,7 @@ function Products() {
         description: newProductDescription.trim() || null,
         attributes: attributesToObject(newProductAttributes),
         image_url: newProductImageUrl.trim() || null,
+        is_public: newProductIsPublic,
         variants: newProductVariants.map((variant) => ({
           name: variant.name,
           unit: variant.unit,
@@ -132,6 +134,7 @@ function Products() {
       setNewProductDescription("");
       setNewProductAttributes([EMPTY_ATTRIBUTE()]);
       setNewProductImageUrl("");
+      setNewProductIsPublic(false);
       setNewProductVariants([createEmptyVariant()]);
       setVariantsByProduct((prev) => ({ ...prev, [product.id]: product.variants }));
       setExpandedId(product.id);
@@ -195,6 +198,7 @@ function Products() {
       brand: product.brand || "",
       description: product.description || "",
       image_url: product.image_url || "",
+      is_public: product.is_public || false,
       attributes: attributeRows(product.attributes),
     });
   }
@@ -209,6 +213,7 @@ function Products() {
         brand: draft.brand.trim() || null,
         description: draft.description.trim() || null,
         image_url: draft.image_url.trim() || null,
+        is_public: draft.is_public,
         attributes: attributesToObject(draft.attributes),
       });
       setProducts((current) => current.map((product) => product.id === draft.id ? updated : product));
@@ -325,6 +330,10 @@ function Products() {
           <label className="product-field product-description-field">
             <span>Description <small>Optional</small></span>
             <textarea placeholder="Useful product details" value={newProductDescription} onChange={(e) => setNewProductDescription(e.target.value)} maxLength={2000} rows={2} />
+          </label>
+          <label className="product-public-toggle">
+            <input type="checkbox" checked={newProductIsPublic} onChange={(event) => setNewProductIsPublic(event.target.checked)} />
+            <span><b>List publicly</b><small>Show this product on your shop link. Cost and internal stock details stay private.</small></span>
           </label>
         </div>
         <AttributeEditor rows={newProductAttributes} onChange={setNewProductAttributes} label="Details that help identify it" examples={(BUSINESS_TEMPLATES[productTemplate]?.attributes || []).join(", ")} />
@@ -616,6 +625,7 @@ function Products() {
                   <label className="product-field"><span>Brand</span><input value={editingProduct.brand} onChange={(event) => setEditingProduct({ ...editingProduct, brand: event.target.value })} maxLength={100} /></label>
                   <label className="product-field"><span>Image URL</span><input type="url" value={editingProduct.image_url} onChange={(event) => setEditingProduct({ ...editingProduct, image_url: event.target.value })} maxLength={2048} /></label>
                   <label className="product-field product-description-field"><span>Description</span><textarea rows={2} value={editingProduct.description} onChange={(event) => setEditingProduct({ ...editingProduct, description: event.target.value })} maxLength={2000} /></label>
+                  <label className="product-public-toggle"><input type="checkbox" checked={editingProduct.is_public} onChange={(event) => setEditingProduct({ ...editingProduct, is_public: event.target.checked })} /><span><b>List publicly</b><small>Customers can see active variants and selling prices.</small></span></label>
                 </div>
                 <AttributeEditor rows={editingProduct.attributes} onChange={(attributes) => setEditingProduct({ ...editingProduct, attributes })} label="Product attributes" examples="ISBN, author, model, colour, storage" />
                 <div className="product-details-editor-actions">

@@ -27,6 +27,8 @@ import "./App.css";
 import "./pages/Landing/Landing.css";
 import "./design.css";
 import DevelopmentNotice from "./components/DevelopmentNotice/DevelopmentNotice";
+import PublicShop from "./pages/PublicShop/PublicShop";
+import Orders from "./pages/Orders/Orders";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
@@ -51,6 +53,8 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/shop/:slug" element={<PublicShop />} />
+      <Route path="/orders" element={<ProtectedRoute allowedRoles={["admin", "manager", "cashier"]}><Orders /></ProtectedRoute>} />
       <Route path="/platform/login" element={<PlatformLogin />} />
       <Route path="/platform" element={<PlatformDashboard />} />
       <Route

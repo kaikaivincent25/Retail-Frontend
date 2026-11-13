@@ -1,0 +1,30 @@
+.public-shop { min-height: 100vh; padding: 1.25rem; color: #20354c; background: #f7fafc; }
+.public-shop-header, .public-shop-toolbar, .public-product-grid { width: min(100%, 1100px); margin: 0 auto; }
+.public-shop-header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1.8rem 0 1.4rem; }
+.public-shop-kicker { color: #2878c7; font-size: .7rem; font-weight: 800; letter-spacing: .14em; }
+.public-shop h1 { margin: .25rem 0; color: #142b45; font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.05em; }
+.public-shop-header p { margin: 0; color: #718297; }
+.public-shop-header a { padding: .65rem .9rem; color: #fff; background: #2878c7; border-radius: 9px; font-size: .8rem; font-weight: 700; text-decoration: none; }
+.public-shop-toolbar { display: grid; gap: .75rem; margin-bottom: 1rem; }
+.public-shop-toolbar input { width: 100%; box-sizing: border-box; padding: .8rem .9rem; border: 1px solid #d4e0eb; border-radius: 9px; font: inherit; }
+.public-shop-categories { display: flex; gap: .4rem; overflow-x: auto; }
+.public-shop-categories button { white-space: nowrap; padding: .5rem .75rem; color: #5f748a; background: #fff; border: 1px solid #dbe5ee; border-radius: 999px; cursor: pointer; }
+.public-shop-categories button.selected { color: #1c5e9f; border-color: #9fc3e2; background: #eaf3fc; }
+.public-product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+.public-product-card { overflow: hidden; background: #fff; border: 1px solid #dce6f0; border-radius: 14px; box-shadow: 0 5px 16px #1633510b; }
+.public-product-card img, .public-product-placeholder { display: block; width: 100%; height: 170px; object-fit: cover; background: #eaf3fc; }
+.public-product-placeholder { display: grid; place-items: center; color: #2878c7; font-size: 3rem; font-weight: 800; }
+.public-product-content { padding: 1rem; }
+.public-product-category { color: #2878c7; font-size: .68rem; font-weight: 800; text-transform: uppercase; }
+.public-product-card h2 { margin: .25rem 0; color: #142b45; font-size: 1.05rem; }
+.public-product-brand, .public-product-description { margin: .25rem 0; color: #718297; font-size: .82rem; }
+.public-product-description { line-height: 1.45; }
+.public-product-variants { display: grid; gap: .45rem; margin-top: .8rem; }
+.public-variant { display: flex; justify-content: space-between; gap: .5rem; padding-top: .45rem; border-top: 1px solid #edf1f5; font-size: .78rem; }
+.public-variant button { padding: .25rem .5rem; color: #1c5e9f; background: #eaf3fc; border: 0; border-radius: 5px; font-size: .68rem; font-weight: 700; cursor: pointer; }.public-variant button:disabled { color: #b7444a; background: #fff1f1; cursor: not-allowed; }
+.public-product-note { margin: .75rem 0 0; padding: .5rem; color: #94621e; background: #fff6df; border-radius: 6px; font-size: .75rem; }
+.public-shop-loading, .public-shop-error, .public-shop-empty { padding: 4rem 1.25rem; color: #718297; text-align: center; }.public-shop-error h1 { font-size: 1.4rem; }
+.public-payment-state { color: #2878c7; font-weight: 700; }.public-payment-state.paid { color: #267451; }.public-payment-state.failed { color: #b7444a; }
+.public-cart { position: sticky; z-index: 2; bottom: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: min(100% - 2rem, 1050px); margin: 0 auto 1rem; padding: .8rem 1rem; color: #fff; background: #142b45; border-radius: 11px; box-shadow: 0 8px 22px #142b4544; }.public-cart div { display: grid; gap: .15rem; }.public-cart span { color: #c7d9e9; font-size: .8rem; }.public-cart button, .public-shop-confirmation button { padding: .65rem .9rem; color: #142b45; background: #fff; border: 0; border-radius: 7px; font-weight: 750; cursor: pointer; }
+.public-checkout-backdrop { position: fixed; z-index: 10; inset: 0; display: grid; place-items: center; padding: 1rem; background: #142b4599; }.public-checkout { position: relative; display: grid; gap: .7rem; width: min(100%, 460px); max-height: 90vh; overflow: auto; padding: 1.3rem; background: #fff; border-radius: 14px; box-shadow: 0 18px 50px #142b4544; }.public-checkout h2 { margin: 0; color: #142b45; font-size: 1.25rem; }.public-checkout input, .public-checkout select { box-sizing: border-box; width: 100%; padding: .72rem; border: 1px solid #d4e0eb; border-radius: 7px; font: inherit; }.public-checkout-close { position: absolute; top: .5rem; right: .7rem; border: 0; background: transparent; color: #718297; font-size: 1.6rem; cursor: pointer; }.public-checkout-items { display: grid; gap: .35rem; padding: .6rem; background: #f7fafc; border-radius: 7px; font-size: .78rem; }.public-checkout-items div { display: flex; justify-content: space-between; gap: .5rem; }.public-checkout-items button { padding: 0 .3rem; border: 0; background: #eaf3fc; border-radius: 3px; cursor: pointer; }.public-submit-order { padding: .8rem; color: #fff; background: #2878c7; border: 0; border-radius: 7px; font-weight: 750; cursor: pointer; }.public-submit-order:disabled { opacity: .6; }.public-shop-confirmation { min-height: 100vh; display: grid; place-content: center; gap: .8rem; padding: 1.5rem; color: #718297; background: #f7fafc; text-align: center; }.public-shop-confirmation h1 { margin: 0; color: #142b45; }.public-shop-confirmation button { justify-self: center; color: #fff; background: #2878c7; }.public-order-total { color: #2878c7; font-size: 1.4rem; font-weight: 800; }
+@media (max-width: 560px) { .public-shop-header { align-items: flex-start; flex-direction: column; }.public-shop-header a { align-self: stretch; text-align: center; } }
