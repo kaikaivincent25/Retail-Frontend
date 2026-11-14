@@ -40,10 +40,7 @@ function TopNavigation({ onMenuToggle }) {
       <button className="mobile-menu-toggle" type="button" onClick={onMenuToggle} aria-label="Open navigation" aria-controls="primary-navigation">
         <span /><span /><span />
       </button>
-      <div className="workspace-navigation-label">
-        <strong>{currentItem?.label || "Workspace"}</strong>
-        <span>RIS workspace</span>
-      </div>
+    
       <span className="workspace-breadcrumb">Retail operations <span>/</span> {currentItem?.label || "Overview"}</span>
       <nav
         className="workspace-navigation-links"
