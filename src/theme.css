@@ -1,0 +1,219 @@
+/* Unified light-blue visual theme.
+   This file is loaded last so page-specific legacy styles resolve to one palette. */
+:root {
+  --brand: #4a9bd8;
+  --brand-strong: #2473ad;
+  --brand-soft: #e4f3ff;
+  --navy: #173b5d;
+  --ink: #38566f;
+  --muted: #718aa0;
+  --surface: #ffffff;
+  --canvas: #eef7fd;
+  --line: #d6e8f5;
+  --line-strong: #bfd9ec;
+  --light-blue-50: #f7fbff;
+  --light-blue-100: #edf7fe;
+  --light-blue-200: #dceefb;
+  --light-blue-300: #c6e2f5;
+}
+
+html,
+body,
+#root,
+.app-layout,
+.app-content {
+  color: var(--ink);
+  background: var(--canvas) !important;
+}
+
+/* Shared surfaces */
+.app-content .summary-card,
+.app-content .inventory-panel,
+.app-content .dashboard-section,
+.app-content .expenses-summary,
+.app-content .expenses-form-panel,
+.app-content .expenses-list-panel,
+.app-content .cash-deposit-panel,
+.app-content .activity-panel,
+.app-content .staff-panel,
+.app-content .reports-panel,
+.app-content .profile-card,
+.app-content .history-panel,
+.app-content .sales-grid-panel,
+.app-content .cart-panel,
+.app-content .product-card,
+.app-content .new-product-form,
+.app-content .dashboard-link-card,
+.app-content .modal-card,
+.app-content .bulk-prompt-card,
+.app-content [role="dialog"],
+.app-content .modal,
+.app-content .modal-content,
+.app-content .dialog,
+.app-content .dialog-content {
+  border-color: var(--line) !important;
+  background: linear-gradient(145deg, #ffffff, var(--light-blue-50)) !important;
+  box-shadow: 0 10px 26px rgba(34, 93, 135, 0.08) !important;
+}
+
+.app-content table thead,
+.app-content table th,
+.app-content .top-products-table thead,
+.app-content .top-products-table th,
+.app-content .inventory-table thead,
+.app-content .sales-table thead,
+.app-content .sessions-table thead,
+.app-content .variants-table thead {
+  background: var(--light-blue-100) !important;
+}
+
+.app-content tbody tr:hover {
+  background: var(--light-blue-100) !important;
+}
+
+.app-content input:not([type="checkbox"]):not([type="radio"]),
+.app-content select,
+.app-content textarea,
+.app-content button:not(.mobile-menu-toggle) {
+  border-color: var(--line-strong);
+}
+
+.app-content input:not([type="checkbox"]):not([type="radio"]),
+.app-content select,
+.app-content textarea {
+  background: var(--light-blue-50);
+  color: var(--ink);
+}
+
+.app-content input:not([type="checkbox"]):not([type="radio"]):focus,
+.app-content select:focus,
+.app-content textarea:focus {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgba(74, 155, 216, 0.16) !important;
+}
+
+/* Workspace shell */
+.sidebar,
+.sidebar.sidebar--modern {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f5fbff 100%) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  box-shadow: 5px 0 20px rgba(35, 91, 130, 0.06) !important;
+}
+
+.sidebar-brand-logo,
+.brand-mark,
+.preview-brand-mark {
+  background: linear-gradient(145deg, #62afe5, #2473ad) !important;
+  box-shadow: 0 7px 16px rgba(36, 115, 173, 0.2) !important;
+}
+
+.sidebar-brand-name,
+.sidebar-user-name,
+.sidebar-link.active,
+.sidebar-link:hover,
+.sidebar-toggle,
+.sidebar-brand span,
+.sidebar-footer span:first-child {
+  color: var(--brand-strong) !important;
+}
+
+.sidebar-brand-caption,
+.sidebar-section-label,
+.sidebar-user-role,
+.sidebar-footer {
+  color: var(--muted) !important;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active,
+.sidebar-user,
+.sidebar-toggle:hover {
+  border-color: var(--line) !important;
+  background: var(--brand-soft) !important;
+}
+
+.sidebar-link.active::before,
+.sidebar-link.active .sidebar-active-indicator {
+  background: var(--brand) !important;
+}
+
+.workspace-navigation {
+  border-bottom-color: var(--line) !important;
+  background: linear-gradient(112deg, #e4f3ff 0%, #f8fcff 52%, #eaf6fe 100%) !important;
+  box-shadow: 0 5px 18px rgba(35, 91, 130, 0.07) !important;
+}
+
+.workspace-navigation-link,
+.workspace-breadcrumb {
+  color: var(--muted);
+}
+
+.workspace-navigation-link:hover,
+.workspace-navigation-link.active {
+  border-color: var(--light-blue-300) !important;
+  color: var(--brand-strong) !important;
+  background: var(--brand-soft) !important;
+}
+
+.workspace-navigation-link.active::after {
+  background: var(--brand) !important;
+}
+
+.workspace-role,
+.mobile-menu-toggle {
+  border-color: var(--line) !important;
+  color: var(--brand-strong) !important;
+  background: #ffffff !important;
+}
+
+/* Public and authentication surfaces */
+.landing-page,
+.login-page,
+.signup-page,
+.platform-login-page,
+.platform-dashboard-page,
+.public-shop-page {
+  color: var(--ink) !important;
+  background: var(--canvas) !important;
+}
+
+.landing-nav,
+.landing-trust-strip,
+.landing-workflow,
+.signup-topbar,
+.signup-card,
+.login-card,
+.platform-login-card {
+  border-color: var(--line) !important;
+  background: #ffffff !important;
+}
+
+.landing-cta-primary,
+.signup-submit,
+.login-submit,
+.platform-login-submit,
+.new-product-form button,
+.new-variant-form button {
+  border-color: var(--brand) !important;
+  background: var(--brand) !important;
+  color: #ffffff !important;
+}
+
+.landing-cta-primary:hover,
+.signup-submit:hover:not(:disabled),
+.login-submit:hover,
+.platform-login-submit:hover,
+.new-product-form button:hover,
+.new-variant-form button:hover {
+  background: var(--brand-strong) !important;
+}
+
+@media (max-width: 650px) {
+  .sidebar.sidebar--modern,
+  .sidebar.sidebar--modern.is-collapsed {
+    border-bottom-color: var(--line) !important;
+    box-shadow: 10px 0 30px rgba(35, 91, 130, 0.16) !important;
+  }
+}
