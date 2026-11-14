@@ -232,6 +232,11 @@
   width: 100%;
   max-width: 365px;
   margin: auto;
+  /* The right panel is the card; keep the form content flush with it. */
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .login-footer {
@@ -474,6 +479,17 @@
 
   .brand-content h1 {
     font-size: 36px;
+  }
+}
+
+/* Keep the form aligned with the panel when the two-column layout narrows. */
+@media (min-width: 651px) and (max-width: 900px) {
+  .login-form-panel {
+    padding-inline: clamp(24px, 5vw, 42px);
+  }
+
+  .login-form-container {
+    max-width: 100%;
   }
 }
 

@@ -25,7 +25,6 @@ import PlatformDashboard from "./pages/PlatformDashboard/PlatformDashboard";
 import SyncIssues from "./pages/SyncIssues";
 import "./App.css";
 import "./pages/Landing/Landing.css";
-import "./design.css";
 import DevelopmentNotice from "./components/DevelopmentNotice/DevelopmentNotice";
 import PublicShop from "./pages/PublicShop/PublicShop";
 import Orders from "./pages/Orders/Orders";

@@ -8,6 +8,7 @@ export const NAV_ITEMS = {
       { to: "/products", label: "Products", icon: "products" },
       { to: "/inventory", label: "Inventory", icon: "inventory" },
       { to: "/orders", label: "Online Orders", icon: "sales" },
+      { to: "/staff", label: "Staff", icon: "staff" },
     ],
     top: [
       { to: "/reports/sessions", label: "Cash & Deposits", icon: "cash" },

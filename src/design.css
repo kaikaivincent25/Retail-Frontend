@@ -2140,12 +2140,12 @@ button,
 input,
 select,
 textarea {
-  font-family: "Times New Roman", Times, serif;
+  font-family: var(--sans);
 }
 
 h1, h2, h3, h4, h5, h6,
 .sidebar-brand-name {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--heading);
 }
 
 .app-layout,

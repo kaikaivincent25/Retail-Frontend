@@ -102,6 +102,29 @@
   outline-offset: 2px;
 }
 
+/* Give the shortcut row priority at intermediate widths so Staff is not
+   hidden behind the breadcrumb or account controls. */
+@media (max-width: 1100px) and (min-width: 651px) {
+  .workspace-navigation {
+    gap: 12px;
+    padding-inline: 18px;
+  }
+
+  .workspace-breadcrumb {
+    display: none;
+  }
+
+  .workspace-navigation-links {
+    justify-content: flex-start;
+    gap: 4px;
+  }
+
+  .workspace-navigation-link {
+    gap: 6px;
+    padding-inline: 10px;
+  }
+}
+
 @media (max-width: 650px) {
   .workspace-navigation {
     align-items: stretch;
