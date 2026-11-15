@@ -14,6 +14,8 @@ function Staff() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("cashier");
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     refresh();
@@ -51,44 +53,53 @@ function Staff() {
 
   const activeStaffCount = staff.filter((member) => member.is_active).length;
   const inactiveStaffCount = staff.length - activeStaffCount;
+  const filteredStaff = staff.filter((member) => {
+    const search = searchTerm.trim().toLowerCase();
+    const matchesSearch = !search || member.full_name.toLowerCase().includes(search) || member.username.toLowerCase().includes(search);
+    const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? member.is_active : !member.is_active);
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="staff-page">
-      <header className="staff-header">
+      <header className="staff-header staff-hero">
         <div className="staff-heading-copy">
-          <span className="staff-eyebrow">TEAM MANAGEMENT</span>
-          <h1>Staff</h1>
-          <p>Manage access and roles for the people who keep your shop running.</p>
+          <span className="staff-eyebrow"><span className="staff-eyebrow-dot" /> TEAM MANAGEMENT</span>
+          <h1>Your team, in sync.</h1>
+          <p>Keep your shop moving with the right people and the right access.</p>
         </div>
         <div className="staff-header-note">
-          <span className="staff-header-note-mark" aria-hidden="true">R</span>
-          <span><strong>{staff.length} team members</strong><small>Access managed by you</small></span>
+          <span className="staff-header-note-mark" aria-hidden="true">✦</span>
+          <span><strong>Access, made simple</strong><small>Roles are managed by you</small></span>
         </div>
       </header>
 
       <section className="staff-metrics" aria-label="Team overview">
         <article className="staff-metric-card">
-          <span className="staff-metric-icon" aria-hidden="true">T</span>
+          <span className="staff-metric-icon" aria-hidden="true">◎</span>
           <div><small>Total team</small><strong>{staff.length}</strong></div>
         </article>
         <article className="staff-metric-card is-active-metric">
-          <span className="staff-metric-icon" aria-hidden="true">A</span>
+          <span className="staff-metric-icon" aria-hidden="true">✓</span>
           <div><small>Active</small><strong>{activeStaffCount}</strong></div>
         </article>
         <article className="staff-metric-card is-inactive-metric">
-          <span className="staff-metric-icon" aria-hidden="true">D</span>
+          <span className="staff-metric-icon" aria-hidden="true">—</span>
           <div><small>Deactivated</small><strong>{inactiveStaffCount}</strong></div>
         </article>
       </section>
 
       <section className="staff-create-card">
-        <div className="staff-section-heading">
-          <div className="staff-section-icon" aria-hidden="true">+</div>
-          <div>
-            <span className="staff-section-kicker">GROW YOUR TEAM</span>
-            <h2>Add a staff member</h2>
-            <p>Create an account and assign the right level of access.</p>
+        <div className="staff-create-intro">
+          <div className="staff-section-heading">
+            <div className="staff-section-icon" aria-hidden="true">+</div>
+            <div>
+              <span className="staff-section-kicker">GROW YOUR TEAM</span>
+              <h2>Add a staff member</h2>
+              <p>Create an account and assign the right level of access.</p>
+            </div>
           </div>
+          <div className="staff-tip"><span>✦</span><p><strong>Good to know</strong> Cashiers can process sales, while managers can help oversee day-to-day operations.</p></div>
         </div>
 
         <form className="new-staff-form" onSubmit={handleCreate}>
@@ -129,7 +140,19 @@ function Staff() {
             <h2>Your team</h2>
             <p>Update roles or deactivate access when responsibilities change.</p>
           </div>
-          <span className="staff-count-badge">{staff.length} members</span>
+          <span className="staff-count-badge">{filteredStaff.length} of {staff.length} members</span>
+        </div>
+
+        <div className="staff-directory-toolbar">
+          <label className="staff-search">
+            <span aria-hidden="true">⌕</span>
+            <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search by name or username" aria-label="Search staff" />
+          </label>
+          <div className="staff-filter" role="group" aria-label="Filter staff by status">
+            {[['all', 'All'], ['active', 'Active'], ['inactive', 'Deactivated']].map(([value, label]) => (
+              <button key={value} type="button" className={statusFilter === value ? "is-selected" : ""} onClick={() => setStatusFilter(value)}>{label}</button>
+            ))}
+          </div>
         </div>
 
         {staff.length === 0 ? (
@@ -137,6 +160,12 @@ function Staff() {
             <span aria-hidden="true">T</span>
             <strong>Your team will appear here</strong>
             <p>Add a staff member above to get started.</p>
+          </div>
+        ) : filteredStaff.length === 0 ? (
+          <div className="staff-empty-state staff-no-results">
+            <span aria-hidden="true">⌕</span>
+            <strong>No matching team members</strong>
+            <p>Try a different name or status filter.</p>
           </div>
         ) : (
           <div className="staff-table-wrap">
@@ -151,7 +180,7 @@ function Staff() {
                 </tr>
               </thead>
               <tbody>
-                {staff.map((member) => (
+                {filteredStaff.map((member) => (
                   <tr key={member.id} className={!member.is_active ? "inactive-row" : ""}>
                     <td>
                       <span className="staff-name-mark" aria-hidden="true">{member.full_name?.charAt(0)?.toUpperCase() || "S"}</span>
