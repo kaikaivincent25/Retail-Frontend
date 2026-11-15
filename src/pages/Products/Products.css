@@ -1886,3 +1886,131 @@
     padding-left: 2.7rem;
   }
 }
+
+/* Final product workspace polish: compact type scale and clearer layout. */
+.products-page {
+  --products-ink: #173b5d;
+  --products-muted: #718aa0;
+  --products-line: #d6e8f5;
+  --products-blue: #2473ad;
+  --products-blue-dark: #185b8d;
+  width: min(100%, 1280px);
+  padding-top: clamp(20px, 2.6vw, 32px);
+  font-size: 13px;
+}
+
+.products-page,
+.products-page button,
+.products-page input,
+.products-page select,
+.products-page textarea { font-size: 13px; }
+
+.products-page-heading {
+  position: relative;
+  min-height: 132px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 24px 28px;
+  overflow: hidden;
+  border: 1px solid var(--products-line);
+  border-radius: 20px;
+  background: radial-gradient(circle at 90% 15%, rgba(99, 177, 231, 0.2), transparent 31%), linear-gradient(125deg, #fff, #f3faff);
+  box-shadow: 0 12px 28px rgba(35, 91, 130, 0.07);
+}
+
+.products-page-heading::after {
+  position: absolute;
+  right: -38px;
+  bottom: -100px;
+  width: 205px;
+  height: 205px;
+  border: 1px solid rgba(74, 155, 216, .16);
+  border-radius: 50%;
+  box-shadow: 0 0 0 24px rgba(74, 155, 216, .05), 0 0 0 48px rgba(74, 155, 216, .03);
+  content: "";
+}
+
+.products-page-heading > div { position: relative; z-index: 1; }
+.products-eyebrow { display: inline-flex; align-items: center; gap: 7px; color: var(--products-blue); font-size: 10px; font-weight: 800; letter-spacing: 1.3px; }
+.products-eyebrow::before { width: 7px; height: 7px; border-radius: 50%; background: #4a9bd8; box-shadow: 0 0 0 4px #dff1fd; content: ""; }
+.products-page-heading h1 { margin: 10px 0 5px; color: var(--products-ink); font-size: clamp(27px, 3.3vw, 36px); letter-spacing: -1.2px; }
+.products-page-heading p { color: var(--products-muted); font-size: 12px; }
+.products-heading-actions { gap: 12px; }
+.products-total { min-width: 105px; padding: 8px 12px; border: 1px solid #d9eaf5; border-radius: 11px; background: rgba(255, 255, 255, .72); }
+.products-total span { font-size: 24px; letter-spacing: -0.8px; }
+.products-total small { font-size: 10px; }
+.add-product-cta { min-height: 40px; padding: 0 14px; border-radius: 9px; font-size: 12px; box-shadow: 0 6px 14px rgba(23, 105, 170, .16); }
+.add-product-cta > span { font-size: 18px; }
+
+.new-product-form {
+  display: grid;
+  gap: 17px;
+  margin-bottom: 18px;
+  padding: 20px;
+  border-color: var(--products-line);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fff, #f8fcff);
+  box-shadow: 0 10px 26px rgba(34, 93, 135, .07);
+}
+.form-card-heading { gap: 11px; }
+.form-card-icon { width: 38px; height: 38px; border-radius: 11px; }
+.form-card-heading h2, .inventory-toolbar h2, .new-product-section-heading h2 { font-size: 17px; letter-spacing: -.25px; }
+.form-card-heading p, .inventory-toolbar p, .new-product-section-heading span { font-size: 11px; }
+.new-product-fields { gap: 12px; }
+.products-page .product-field > span, .products-page .product-public-toggle b { font-size: 11px; }
+.products-page .product-field small, .products-page .product-public-toggle small { font-size: 10px; }
+.products-page .product-field input, .products-page .product-field select, .products-page .product-field textarea { min-height: 38px; padding: 8px 10px; border-color: #cfe1ef; font-size: 12px; }
+.products-page .product-field textarea { min-height: 66px; }
+.product-public-toggle { padding: 10px 12px; border-color: #d9eaf5; border-radius: 10px; background: #f6fbff; }
+.new-product-variants { padding: 15px; border-color: #d9eaf5; border-radius: 13px; background: #f8fcff; }
+.new-product-variant-row { gap: 9px; padding: 12px; border-color: #dceaf4; border-radius: 10px; background: #fff; }
+.new-product-submit button, .secondary-action { min-height: 40px; padding: 0 14px; font-size: 12px; }
+
+.inventory-section {
+  border-color: var(--products-line);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fff, #fbfdff);
+  box-shadow: 0 10px 26px rgba(34, 93, 135, .07);
+}
+.inventory-toolbar { padding: 18px 20px 14px; }
+.inventory-toolbar h2 { margin-bottom: 3px; }
+.inventory-toolbar p { margin: 0; }
+.product-search { min-height: 38px; border-color: #cfe1ef; border-radius: 9px; background: #f8fcff; }
+.product-search input { font-size: 12px; }
+.search-icon { font-size: 18px; }
+.inventory-controls { padding: 8px 20px; background: #f6fbff; border-color: #e3eef6; }
+.product-filters button { padding: 6px 10px; font-size: 11px; }
+.result-count { font-size: 10px; }
+.product-list { padding: 0 15px 15px; }
+.product-card { margin-top: 10px; border-color: #d7e7f2; border-radius: 13px; background: #fff; }
+.product-card-header { min-height: 62px; padding: 10px 12px; }
+.product-card-identity { gap: 10px; }
+.product-avatar { width: 38px; height: 38px; border-radius: 11px; font-size: 14px; }
+.product-name, .product-details .product-name { font-size: 13px; }
+.product-category, .product-brand { font-size: 10px; }
+.product-status { font-size: 9px; }
+.product-card-actions { gap: 5px; }
+.product-card-actions button, .product-card-actions .restore-product, .product-card-actions .danger { min-height: 30px; padding: 0 8px; border-radius: 7px; font-size: 10px; }
+.expand-arrow { width: 28px; height: 28px; font-size: 15px; }
+.variants-panel { padding: 0 12px 12px; }
+.variants-table th { padding: 9px 7px 7px; font-size: 9px; }
+.variants-table td { padding: 9px 7px; font-size: 11px; }
+.empty-hint { padding: 30px 12px; font-size: 12px; }
+
+.product-details-editor { width: min(680px, calc(100vw - 28px)); padding: 22px; border-radius: 17px; }
+.editor-dialog-heading { margin-bottom: 18px; padding-bottom: 14px; }
+.editor-dialog-heading h2 { font-size: 19px; }
+.editor-dialog-heading p { font-size: 11px; }
+.product-details-editor-actions { margin-top: 18px; }
+
+@media (max-width: 700px) {
+  .products-page-heading { align-items: flex-start; flex-direction: column; min-height: 0; padding: 22px 19px; border-radius: 17px; }
+  .products-heading-actions { width: 100%; }
+  .products-total { flex: 1; }
+  .add-product-cta { flex: 1; }
+  .new-product-form { padding: 15px; }
+  .inventory-toolbar { align-items: stretch; padding: 15px; }
+  .product-search { width: 100%; }
+  .inventory-controls { padding: 7px 12px; }
+  .product-list { padding-inline: 9px; }
+}
