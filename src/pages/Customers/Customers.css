@@ -708,3 +708,118 @@
 .ledger-reminder-banner {
   max-width: 100%;
 }
+
+/* Customer workspace refresh: compact type scale and professional surfaces. */
+.customers-page {
+  width: min(100%, 1280px);
+  padding: clamp(20px, 2.8vw, 34px) clamp(14px, 3vw, 32px) 46px;
+  font-size: 13px;
+}
+
+.customers-header {
+  position: relative;
+  min-height: 138px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 24px 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: radial-gradient(circle at 88% 12%, rgba(99, 177, 231, .22), transparent 32%), linear-gradient(125deg, #fff, #f2f9fe);
+  box-shadow: 0 12px 28px rgba(35, 91, 130, .07);
+}
+
+.customers-header::after {
+  position: absolute;
+  right: -42px;
+  bottom: -100px;
+  width: 210px;
+  height: 210px;
+  border: 1px solid rgba(74, 155, 216, .16);
+  border-radius: 50%;
+  box-shadow: 0 0 0 24px rgba(74, 155, 216, .05), 0 0 0 48px rgba(74, 155, 216, .03);
+  content: "";
+}
+
+.customers-header > div { position: relative; z-index: 1; }
+.customers-eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 10px; letter-spacing: 1.3px; }
+.customers-eyebrow::before { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px #dff1fd; content: ""; }
+.customers-header h1 { margin-top: 10px; font-size: clamp(27px, 3.3vw, 36px); letter-spacing: -1.2px; }
+.customers-header p { font-size: 12px; }
+.customers-reminder-placeholder { max-width: 320px; padding: 11px 14px; border-style: solid; border-color: #eadfbe; border-radius: 12px; background: rgba(255, 250, 240, .82); font-size: 10px; }
+.customers-reminder-placeholder strong { font-size: 11px; }
+
+.customers-overview { gap: 14px; margin-bottom: 18px; }
+.customers-overview article { min-height: 92px; padding: 16px 18px; border-radius: 16px; background: linear-gradient(145deg, #fff, #f7fbff); box-shadow: 0 8px 20px rgba(35, 91, 130, .055); }
+.customers-overview span { font-size: 10px; }
+.customers-overview strong { font-size: 24px; letter-spacing: -.5px; }
+.customers-overview article:first-child { border-top: 3px solid #2473ad; }
+.customers-overview article:nth-child(2) { border-top: 3px solid #43a879; }
+.customers-overview article:nth-child(3) { border-top: 3px solid #9aabb9; }
+
+.customers-panel { margin-bottom: 18px; padding: 20px 22px; border-radius: 18px; background: linear-gradient(145deg, #fff, #fbfdff); box-shadow: 0 10px 26px rgba(34, 93, 135, .07); }
+.customers-panel-heading { margin-bottom: 15px; }
+.customers-heading-icon { width: 39px; height: 39px; border: 1px solid #d5e8f5; border-radius: 12px; background: #eaf5fd; font-size: 19px; }
+.customers-panel-heading h2, .customers-list-heading h2 { font-size: 17px; }
+.customers-panel-heading p, .customers-list-heading p { font-size: 11px; }
+.customers-form { gap: 10px; }
+.customers-form label { gap: 5px; font-size: 10px; }
+.customers-form label > span { font-size: 10px; }
+.customers-form input, .customers-form textarea, .customers-search input { min-height: 38px; padding: 8px 10px; border-color: #cfe1ef; border-radius: 9px; font-size: 11px; }
+.customers-form textarea { min-height: 62px; }
+.customers-form button { min-height: 38px; padding: 0 13px; border-color: var(--brand-strong); background: var(--brand-strong); font-size: 11px; }
+.customers-form button:hover { background: #185b8d; }
+.customers-form-actions { gap: 7px; }
+.customers-form .customers-secondary-button { border-color: #cfe1ef; font-size: 11px; }
+
+.customers-list-panel { padding-bottom: 14px; }
+.customers-list-heading { margin-bottom: 12px; }
+.customers-archived-toggle { padding: 7px 10px; border: 1px solid #d9eaf5; border-radius: 999px; background: #f5faff; color: #5e768b; font-size: 10px; }
+.customers-search { max-width: 390px; margin-bottom: 12px; }
+.customers-search input { min-height: 38px; background: #f8fcff; }
+.customers-table th { padding: 11px 12px; background: #f4faff; color: #71869a; font-size: 9px; letter-spacing: .7px; }
+.customers-table td { padding: 13px 12px; border-bottom-color: #edf2f7; color: #526b82; font-size: 11px; }
+.customers-table tbody tr:hover { background: #f8fcff; }
+.customers-name-mark { width: 31px; height: 31px; border: 1px solid #d5e8f5; border-radius: 10px; background: #eaf5fd; font-size: 11px; }
+.customer-name-link { gap: 8px; font-size: 11px; }
+.customers-secondary-contact { margin-top: 2px; font-size: 9px; }
+.customers-status { padding: 4px 8px; font-size: 9px; }
+.customers-actions { display: flex; align-items: center; gap: 5px; }
+.customers-btn-ledger { min-height: 29px; padding: 0 8px; border-color: #cfe1ef; border-radius: 7px; background: #eaf5fd; color: var(--brand-strong); font-size: 9px; }
+.customers-btn-ledger:hover { background: #dff0fc; }
+.customers-text-button { margin-right: 4px; padding: 4px 5px; font-size: 10px; }
+.customers-empty { min-height: 150px; display: grid; place-content: center; justify-items: center; gap: 6px; padding: 25px 12px; border: 1px dashed #cfe1ef; border-radius: 13px; background: #f8fcff; }
+.customers-empty > span { font-size: 20px; }
+.customers-empty strong { font-size: 12px; }
+.customers-empty p { font-size: 10px; }
+.customers-message { border: 1px solid transparent; font-size: 11px; }
+.customers-message.is-error { border-color: #f0d4ce; background: #fff5f2; }
+.customers-message.is-success { border-color: #cce8d8; background: #effaf4; }
+
+.customer-modal-backdrop { background: rgba(17, 48, 74, .46); }
+.customer-ledger-modal { width: min(930px, 100%); max-height: 91vh; padding: 22px; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 24px 70px rgba(13, 45, 74, .24); }
+.customer-ledger-modal-header { margin-bottom: 18px; padding-bottom: 14px; }
+.customer-ledger-modal-header h2 { margin-top: 9px; font-size: 21px; letter-spacing: -.5px; }
+.customer-modal-contact { gap: 8px; font-size: 11px; }
+.customer-limit-chip { border: 1px solid #cfe1ef; background: #eef6fd; color: var(--brand-strong); font-size: 9px; }
+.customer-modal-close { padding: 4px 7px; font-size: 22px; }
+.customer-ledger-kpis { gap: 10px; margin-bottom: 18px; }
+.ledger-kpi-card { min-height: 85px; padding: 13px 14px; border-radius: 13px; background: linear-gradient(145deg, #fff, #f7fbff); }
+.ledger-kpi-card span { font-size: 9px; }
+.ledger-kpi-card strong { font-size: 18px; }
+.ledger-kpi-card small { font-size: 9px; }
+.customer-repayment-box { margin-bottom: 18px; padding: 15px; border-color: #d9eaf5; border-radius: 13px; background: #f6fbff; }
+.customer-repayment-box h3, .customer-ledger-section h3 { font-size: 14px; }
+.customer-repayment-form { gap: 9px; }
+.customer-repayment-form label { font-size: 10px; }
+.customer-repayment-form input, .customer-repayment-form select { min-height: 37px; padding: 7px 10px; border-color: #cfe1ef; border-radius: 8px; font-size: 11px; }
+.customer-btn-record { height: 37px; padding: 0 14px; background: var(--brand-strong); font-size: 11px; }
+.customer-ledger-section { margin-bottom: 19px; }
+.invoice-status-chip, .payment-tender-chip { padding: 3px 7px; font-size: 9px; }
+
+@media (max-width: 760px) {
+  .customers-header { align-items: flex-start; min-height: 0; padding: 22px 19px; border-radius: 17px; }
+  .customers-reminder-placeholder { width: 100%; max-width: none; }
+  .customers-panel { padding: 17px 15px; }
+  .customers-actions { flex-wrap: wrap; }
+}
