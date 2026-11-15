@@ -33,19 +33,18 @@ function Receipt({ sale, shopName, shopLocation, cashierName }) {
   const servedBy = cashierName || sale.cashier_name;
 
   return createPortal(
-    <section className="receipt-print-root" aria-hidden="true">
+    <section className="receipt-print-root" aria-label={`${shopName || "Retail Shop"} receipt`}>
       <header className="receipt-header">
         <span className="receipt-brand-mark" aria-hidden="true">
           {(shopName || "D").trim().slice(0, 1).toUpperCase()}
         </span>
         <p className="receipt-brand">{shopName || "Retail Shop"}</p>
         {shopLocation && <p className="receipt-location">{shopLocation}</p>}
-        <p className="receipt-tagline">A little shop, a lot of care</p>
       </header>
 
       <dl className="receipt-meta">
         <div><dt>Receipt</dt><dd className="receipt-number">#{sale.id}</dd></div>
-        <div><dt>Date</dt><dd>{dateLabel}</dd></div>
+        <div><dt>Date &amp; time</dt><dd>{dateLabel}</dd></div>
         {(servedBy || sale.cashier_id) && (
           <div><dt>Served by</dt><dd>{servedBy || `Staff #${sale.cashier_id}`}</dd></div>
         )}
@@ -95,8 +94,7 @@ function Receipt({ sale, shopName, shopLocation, cashierName }) {
       )}
 
       <footer className="receipt-footer">
-        <p>Thank you for choosing us</p>
-        <small>We look forward to seeing you again</small>
+        <p>Thank you for your purchase</p>
       </footer>
     </section>,
     document.body
