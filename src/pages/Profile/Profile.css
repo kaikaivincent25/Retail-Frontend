@@ -1105,3 +1105,95 @@
     animation: none;
   }
 }
+
+/* Profile workspace refresh: tighter type scale, clearer grouping, calmer controls. */
+.profile-page {
+  width: min(100%, 1280px);
+  padding: clamp(20px, 2.8vw, 34px) clamp(14px, 3vw, 32px) 46px;
+  font-size: 13px;
+}
+
+.profile-container { width: 100%; }
+.profile-header {
+  position: relative;
+  min-height: 138px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 24px 28px;
+  overflow: hidden;
+  border-color: var(--line);
+  border-radius: 20px;
+  background: radial-gradient(circle at 88% 12%, rgba(99,177,231,.22), transparent 32%), linear-gradient(125deg, #fff, #f2f9fe);
+  box-shadow: 0 12px 28px rgba(35,91,130,.07);
+}
+.profile-header::after { right: -42px; bottom: -100px; width: 210px; height: 210px; border-color: rgba(74,155,216,.16); box-shadow: 0 0 0 24px rgba(74,155,216,.05), 0 0 0 48px rgba(74,155,216,.03); }
+.profile-header h1 { margin-top: 10px; font-size: clamp(27px, 3.3vw, 36px); letter-spacing: -1.2px; }
+.profile-header > div:first-child > p { margin-top: 7px; font-size: 12px; }
+.profile-eyebrow { margin-bottom: 0; font-size: 10px; letter-spacing: 1.3px; }
+.profile-header-badge { min-width: 205px; padding: 11px 14px; border-color: #cfe2f0; border-radius: 13px; background: rgba(255,255,255,.76); }
+.profile-avatar { width: 42px; height: 42px; border-radius: 13px; font-size: 17px; }
+.profile-header-badge strong { font-size: 12px; }
+.profile-header-badge span { font-size: 10px; }
+
+.profile-overview { gap: 10px; margin-bottom: 18px; }
+.overview-item { gap: 10px; padding: 12px 14px; border-radius: 13px; box-shadow: 0 7px 18px rgba(35,91,130,.05); }
+.overview-icon { width: 36px; height: 36px; border-radius: 11px; font-size: 15px; }
+.overview-item span { margin-bottom: 2px; font-size: 9px; }
+.overview-item strong { font-size: 11px; }
+
+.profile-card { margin-bottom: 17px; border-radius: 18px; box-shadow: 0 10px 26px rgba(34,93,135,.07); }
+.profile-card-header { gap: 12px; padding: 19px 22px 16px; }
+.section-icon { width: 39px; height: 39px; border-radius: 12px; font-size: 16px; }
+.profile-card-header h2 { font-size: 16px; }
+.profile-card-header p { margin-top: 4px; font-size: 11px; }
+.section-label { margin-bottom: 4px; font-size: 9px; }
+.profile-card-content { padding: 20px 22px 21px; }
+.profile-readonly-grid { gap: 10px; }
+.profile-readonly-item { min-height: 76px; padding: 12px 13px; border-color: #d9eaf5; border-radius: 11px; }
+.profile-readonly-item > span { font-size: 9px; }
+.profile-readonly-item > strong { font-size: 12px; }
+.profile-action-row { gap: 14px; margin-top: 14px; padding: 13px 14px; border-color: #d9eaf5; border-radius: 11px; }
+.profile-action-row p { font-size: 11px; }
+.profile-action-button { min-width: 155px; min-height: 38px; border-radius: 9px; font-size: 11px; }
+
+.form-grid { gap: 15px 17px; }
+.profile-field label { margin-bottom: 5px; font-size: 11px; }
+.profile-field input, .profile-field select, .profile-field textarea { min-height: 38px; padding: 8px 11px; border-color: #cfe1ef; font-size: 12px; }
+.field-hint { margin-top: 4px; font-size: 10px; }
+.account-role { gap: 8px; margin-top: 15px; padding: 11px 13px; border-color: #d9eaf5; border-radius: 10px; }
+.role-label { font-size: 9px; }
+.role-badge { padding: 4px 8px; font-size: 10px; }
+.role-description { font-size: 10px; }
+.form-actions { gap: 8px; margin-top: 18px; padding-top: 14px; }
+.primary-button, .secondary-button { min-height: 38px; padding: 0 14px; border-radius: 9px; font-size: 11px; }
+
+.security-notice { gap: 10px; margin-bottom: 17px; padding: 12px 13px; border-color: #d9eaf5; border-radius: 11px; background: #f4faff; }
+.security-notice-icon { width: 22px; height: 22px; font-size: 10px; }
+.security-notice strong { font-size: 11px; }
+.security-notice p { font-size: 10px; }
+
+.shop-summary { gap: 11px; padding: 12px 13px; border-color: #d9eaf5; border-radius: 11px; }
+.shop-summary-mark { width: 40px; height: 40px; border-radius: 12px; font-size: 16px; }
+.shop-summary span { font-size: 9px; }
+.shop-summary strong { font-size: 12px; }
+.shop-summary small { font-size: 10px; }
+.storefront-share-card { gap: 14px; margin-top: 13px; padding: 13px 14px; border-color: #cfe3f4; border-radius: 11px; }
+.storefront-share-label { font-size: 9px; }
+.storefront-share-card strong { font-size: 12px; }
+.storefront-share-card p { font-size: 10px; }
+.storefront-share-card code { font-size: 9px; }
+.storefront-share-actions button, .storefront-open-link { min-height: 35px; padding: 0 11px; font-size: 10px; }
+
+.danger-content strong { font-size: 12px; }
+.danger-content p, .delete-dialog > p { font-size: 11px; }
+.danger-button { min-height: 38px; padding: 0 14px; font-size: 11px; }
+.delete-dialog { padding: 21px; border-radius: 15px; }
+.delete-dialog h2 { font-size: 19px; }
+.profile-footer { margin-top: 21px; font-size: 10px; }
+.profile-loading { font-size: 12px; }
+
+@media (max-width: 760px) {
+  .profile-header { align-items: flex-start; min-height: 0; padding: 22px 19px; border-radius: 17px; }
+  .profile-header-badge { width: 100%; min-width: 0; }
+  .profile-card-header, .profile-card-content { padding-left: 17px; padding-right: 17px; }
+}
