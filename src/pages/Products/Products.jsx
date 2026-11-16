@@ -3,6 +3,7 @@ import {
   listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
   listVariants, createVariant, updateVariant, deactivateVariant, bulkCreateProducts,
+  getProductImportAiSuggestions,
 } from "../../services/catalogApi";
 import api from "../../services/api";
 import { getReceiptProfile } from "../../services/profileApi";
@@ -222,6 +223,7 @@ function Products() {
   const [error, setError] = useState("");
   const [importPreview, setImportPreview] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   const refreshProducts = useCallback(async (searchTerm = productSearch) => {
     try {
@@ -294,6 +296,43 @@ function Products() {
     } finally {
       setIsImporting(false);
     }
+  }
+
+  async function requestAiSuggestions() {
+    if (!importPreview?.products.length) return;
+    setIsAiLoading(true);
+    setError("");
+    try {
+      const products = importPreview.products.map((product) => ({
+        name: product.name,
+        category: product.category,
+        brand: product.brand,
+        description: product.description,
+        variant_names: product.variants.map((variant) => variant.name),
+      }));
+      const result = await getProductImportAiSuggestions(products);
+      setImportPreview((current) => ({ ...current, aiSuggestions: result.suggestions || [], aiApplied: false }));
+    } catch (err) {
+      setError(getErrorMessage(err, "AI suggestions are unavailable. Check the backend AI configuration."));
+    } finally {
+      setIsAiLoading(false);
+    }
+  }
+
+  function applyAiSuggestions() {
+    if (!importPreview?.aiSuggestions?.length) return;
+    const suggestions = new Map(importPreview.aiSuggestions.map((suggestion) => [suggestion.product_name.toLocaleLowerCase(), suggestion]));
+    const products = importPreview.products.map((product) => {
+      const suggestion = suggestions.get(product.name.toLocaleLowerCase());
+      if (!suggestion) return product;
+      return {
+        ...product,
+        name: suggestion.suggested_name || product.name,
+        category: suggestion.suggested_category || product.category,
+        description: suggestion.suggested_description || product.description,
+      };
+    });
+    setImportPreview((current) => ({ ...current, products, aiApplied: true }));
   }
 
   async function handleCreateProduct(e) {
@@ -704,6 +743,31 @@ function Products() {
               </div>
             ) : (
               <>
+                <div className="csv-ai-tools">
+                  <div>
+                    <strong>AI import assistant</strong>
+                    <span>Suggests cleaner names, categories, descriptions, and possible duplicates.</span>
+                  </div>
+                  <div className="csv-ai-actions">
+                    <button type="button" className="secondary-action" disabled={isAiLoading} onClick={requestAiSuggestions}>
+                      {isAiLoading ? "Analyzing..." : importPreview.aiSuggestions ? "Run AI again" : "Get AI suggestions"}
+                    </button>
+                    {importPreview.aiSuggestions?.length > 0 && !importPreview.aiApplied && (
+                      <button type="button" className="secondary-action" onClick={applyAiSuggestions}>Apply suggestions to preview</button>
+                    )}
+                  </div>
+                </div>
+                {importPreview.aiSuggestions?.length > 0 && (
+                  <div className="csv-ai-results">
+                    {importPreview.aiSuggestions.map((suggestion, index) => (
+                      <div className="csv-ai-result" key={`${suggestion.product_name}-${index}`}>
+                        <strong>{suggestion.product_name}</strong>
+                        <span>{suggestion.reason || "No change needed."}</span>
+                        {suggestion.duplicate_with && <em>Possible duplicate of {suggestion.duplicate_with}</em>}
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="csv-preview-table-wrap">
                   <table className="csv-preview-table">
                     <thead><tr><th>Product</th><th>Variants</th><th>Category</th><th>Public</th></tr></thead>
