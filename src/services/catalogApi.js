@@ -33,13 +33,30 @@ export async function uploadProductImage(file) {
   const { data: upload } = await api.post("/products/image-upload", {
     content_type: file.type,
   });
-  const response = await fetch(upload.upload_url, {
-    method: "PUT",
-    headers: { "Content-Type": file.type },
-    body: file,
-  });
+  let response;
+  try {
+    response = await fetch(upload.upload_url, {
+      method: "PUT",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+  } catch (error) {
+    throw new Error(
+      "The browser could not reach Supabase Storage. Check connectivity and the browser console for CORS details.",
+      { cause: error },
+    );
+  }
   if (!response.ok) {
-    throw new Error("The photo could not be uploaded. Check your connection and try again.");
+    let detail = "";
+    try {
+      const payload = await response.json();
+      if (typeof payload.message === "string") detail = payload.message;
+      else if (typeof payload.error === "string") detail = payload.error;
+    } catch {
+      detail = "";
+    }
+    const suffix = detail ? `: ${detail.replace(/\s+/g, " ").slice(0, 200)}` : "";
+    throw new Error(`Supabase Storage rejected the photo upload (HTTP ${response.status})${suffix}.`);
   }
   return upload.image_url;
 }
