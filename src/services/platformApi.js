@@ -11,3 +11,9 @@ platformApi.interceptors.request.use((config) => {
 });
 
 export default platformApi;
+
+export const listPlatformUsers = (shopId) =>
+  platformApi.get(`/platform/shops/${shopId}/users`).then((response) => response.data);
+
+export const updatePlatformUser = (shopId, userId, data) =>
+  platformApi.patch(`/platform/shops/${shopId}/users/${userId}`, data).then((response) => response.data);
