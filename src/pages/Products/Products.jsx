@@ -2,7 +2,7 @@ import { Fragment, useCallback, useEffect, useState } from "react";
 import {
   listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
-  listVariants, createVariant, updateVariant, deactivateVariant,
+  listVariants, createVariant, updateVariant, deactivateVariant, bulkCreateProducts,
 } from "../../services/catalogApi";
 import api from "../../services/api";
 import { getReceiptProfile } from "../../services/profileApi";
@@ -28,6 +28,117 @@ const PRODUCT_EXAMPLES = {
   clothing: "e.g. Cotton T-shirt",
   cosmetics: "e.g. Moisturising lotion",
 };
+
+const CSV_HEADERS = [
+  "product_name", "category", "brand", "description", "variant_name", "unit",
+  "sale_mode", "unit_quantity", "selling_price", "cost_price", "sku", "barcode", "is_public",
+];
+
+function parseCsvText(text) {
+  const rows = [];
+  let row = [];
+  let value = "";
+  let quoted = false;
+  const source = text.replace(/^\uFEFF/, "");
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index];
+    if (character === '"') {
+      if (quoted && source[index + 1] === '"') {
+        value += '"';
+        index += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (character === "," && !quoted) {
+      row.push(value.trim());
+      value = "";
+    } else if ((character === "\n" || character === "\r") && !quoted) {
+      if (character === "\r" && source[index + 1] === "\n") index += 1;
+      row.push(value.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = [];
+      value = "";
+    } else {
+      value += character;
+    }
+  }
+  if (quoted) throw new Error("The CSV contains an unclosed quoted value.");
+  row.push(value.trim());
+  if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function parseBoolean(value) {
+  return ["true", "yes", "1", "public"].includes(String(value).toLowerCase());
+}
+
+function parseProductCsv(text) {
+  const rows = parseCsvText(text);
+  if (rows.length < 2) throw new Error("Add at least one product row to the CSV.");
+  const headers = rows[0].map((header) => header.toLowerCase().replace(/\s+/g, "_").trim());
+  const missingHeaders = ["product_name", "variant_name", "unit", "selling_price"]
+    .filter((header) => !headers.includes(header));
+  if (missingHeaders.length) throw new Error(`Missing required columns: ${missingHeaders.join(", ")}`);
+
+  const indexOf = (header) => headers.indexOf(header);
+  const get = (row, header) => indexOf(header) < 0 ? "" : row[indexOf(header)] || "";
+  const errors = [];
+  const grouped = new Map();
+  rows.slice(1).forEach((row, rowIndex) => {
+    const line = rowIndex + 2;
+    const productName = get(row, "product_name");
+    const variantName = get(row, "variant_name");
+    const unit = get(row, "unit").toLowerCase() || "piece";
+    const saleMode = get(row, "sale_mode").toLowerCase() || "fixed";
+    const sellingPrice = Number(get(row, "selling_price"));
+    const unitQuantity = saleMode === "bulk" ? 1 : Number(get(row, "unit_quantity") || 1);
+    const costPrice = Number(get(row, "cost_price") || 0);
+    const rowErrors = [];
+    if (!productName) rowErrors.push("product_name is required");
+    if (!variantName) rowErrors.push("variant_name is required");
+    if (!UNITS.includes(unit)) rowErrors.push(`unit must be one of: ${UNITS.join(", ")}`);
+    if (!["fixed", "bulk"].includes(saleMode)) rowErrors.push("sale_mode must be fixed or bulk");
+    if (!Number.isFinite(sellingPrice) || sellingPrice < 0) rowErrors.push("selling_price must be a number of 0 or more");
+    if (!Number.isInteger(unitQuantity) || unitQuantity < 1) rowErrors.push("unit_quantity must be a whole number of 1 or more");
+    if (!Number.isFinite(costPrice) || costPrice < 0) rowErrors.push("cost_price must be a number of 0 or more");
+    if (rowErrors.length) {
+      errors.push({ line, message: rowErrors.join("; ") });
+      return;
+    }
+
+    const key = productName.toLocaleLowerCase();
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        name: productName,
+        category: get(row, "category") || null,
+        brand: get(row, "brand") || null,
+        description: get(row, "description") || null,
+        attributes: {},
+        image_url: null,
+        is_public: parseBoolean(get(row, "is_public")),
+        variants: [],
+      });
+    }
+    grouped.get(key).variants.push({
+      name: variantName,
+      unit,
+      sale_mode: saleMode,
+      unit_quantity: unitQuantity,
+      selling_price: sellingPrice,
+      cost_price: costPrice,
+      sku: get(row, "sku") || null,
+      barcode: get(row, "barcode") || null,
+    });
+  });
+
+  const products = [...grouped.values()];
+  const duplicateNames = products.filter((product) => {
+    const names = product.variants.map((variant) => variant.name.toLocaleLowerCase());
+    return names.length !== new Set(names).size;
+  });
+  duplicateNames.forEach((product) => errors.push({ line: "-", message: `Duplicate variant name in ${product.name}` }));
+  return { products, errors, rowCount: rows.length - 1 };
+}
 
 function attributesToObject(rows) {
   const result = {};
@@ -109,6 +220,8 @@ function Products() {
   const [newProductVariants, setNewProductVariants] = useState([createEmptyVariant()]);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const [error, setError] = useState("");
+  const [importPreview, setImportPreview] = useState(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   const refreshProducts = useCallback(async (searchTerm = productSearch) => {
     try {
@@ -135,6 +248,53 @@ function Products() {
       setProductTemplate(type);
     }).catch(() => {});
   }, []);
+
+  function downloadCsvTemplate() {
+    const example = [
+      CSV_HEADERS.join(","),
+      ["Maize Flour", "Food", "Example Brand", "2kg packet", "2kg packet", "packet", "fixed", "1", "250", "190", "MF-001", "6161234567890", "false"].join(","),
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([example], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "products-template.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleCsvSelected(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setError("");
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const result = parseProductCsv(String(reader.result || ""));
+        setImportPreview({ ...result, fileName: file.name });
+      } catch (err) {
+        setImportPreview(null);
+        setError(err.message || "Could not read the CSV file.");
+      }
+    };
+    reader.onerror = () => setError("Could not read the CSV file.");
+    reader.readAsText(file);
+  }
+
+  async function approveCsvImport() {
+    if (!importPreview?.products.length || importPreview.errors.length) return;
+    setIsImporting(true);
+    setError("");
+    try {
+      await bulkCreateProducts(importPreview.products);
+      setImportPreview(null);
+      await refreshProducts();
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not import the approved products."));
+    } finally {
+      setIsImporting(false);
+    }
+  }
 
   async function handleCreateProduct(e) {
     e.preventDefault();
@@ -515,6 +675,57 @@ function Products() {
           </button>
         </div>
       </form>}
+      <section className="csv-import-panel" aria-labelledby="csv-import-heading">
+        <div>
+          <span className="products-eyebrow">BULK SETUP</span>
+          <h2 id="csv-import-heading">Import products from CSV</h2>
+          <p>Upload many products at once. Review the preview before anything is saved.</p>
+        </div>
+        <div className="csv-import-actions">
+          <button type="button" className="secondary-action" onClick={downloadCsvTemplate}>Download template</button>
+          <label className="csv-upload-button">
+            Choose CSV file
+            <input type="file" accept=".csv,text/csv" onChange={handleCsvSelected} />
+          </label>
+        </div>
+        {importPreview && (
+          <div className="csv-preview">
+            <div className="csv-preview-heading">
+              <div>
+                <strong>{importPreview.fileName}</strong>
+                <span>{importPreview.rowCount} rows · {importPreview.products.length} products ready</span>
+              </div>
+              <button type="button" className="secondary-action" onClick={() => setImportPreview(null)}>Clear</button>
+            </div>
+            {importPreview.errors.length > 0 ? (
+              <div className="csv-import-errors" role="alert">
+                <strong>Fix these rows before importing:</strong>
+                {importPreview.errors.map((item, index) => <div key={`${item.line}-${index}`}>Row {item.line}: {item.message}</div>)}
+              </div>
+            ) : (
+              <>
+                <div className="csv-preview-table-wrap">
+                  <table className="csv-preview-table">
+                    <thead><tr><th>Product</th><th>Variants</th><th>Category</th><th>Public</th></tr></thead>
+                    <tbody>{importPreview.products.slice(0, 10).map((product) => (
+                      <tr key={product.name}>
+                        <td>{product.name}</td>
+                        <td>{product.variants.map((variant) => variant.name).join(", ")}</td>
+                        <td>{product.category || "—"}</td>
+                        <td>{product.is_public ? "Yes" : "No"}</td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                </div>
+                {importPreview.products.length > 10 && <small>Showing the first 10 products.</small>}
+                <button type="button" className="csv-approve-button" disabled={isImporting} onClick={approveCsvImport}>
+                  {isImporting ? "Importing..." : `Approve and import ${importPreview.products.length} products`}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </section>
       {error && <div className="form-error" role="alert">{error}</div>}
 
       <section className="inventory-section" aria-label="Product inventory">

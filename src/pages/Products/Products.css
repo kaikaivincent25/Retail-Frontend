@@ -2014,3 +2014,54 @@
   .inventory-controls { padding: 7px 12px; }
   .product-list { padding-inline: 9px; }
 }
+
+.csv-import-panel {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0;
+  padding: 20px;
+  border: 1px solid #d7e7f2;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #fbfdff, #eef7fc);
+}
+
+.csv-import-panel h2 { margin: 4px 0 5px; color: var(--navy); font-size: 18px; }
+.csv-import-panel p { margin: 0; color: var(--muted); font-size: 12px; }
+.csv-import-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.csv-upload-button,
+.csv-approve-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: 1px solid var(--brand);
+  border-radius: 9px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.csv-upload-button input { display: none; }
+.csv-preview { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid #d7e7f2; }
+.csv-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.csv-preview-heading strong, .csv-preview-heading span { display: block; }
+.csv-preview-heading strong { color: var(--navy); font-size: 13px; }
+.csv-preview-heading span, .csv-preview > small { color: var(--muted); font-size: 11px; }
+.csv-preview-table-wrap { overflow-x: auto; }
+.csv-preview-table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 11px; }
+.csv-preview-table th, .csv-preview-table td { padding: 9px 10px; border-bottom: 1px solid #dfeaf2; text-align: left; }
+.csv-preview-table th { background: #eaf4fb; color: #557087; font-size: 10px; text-transform: uppercase; }
+.csv-preview-table td { color: var(--ink); }
+.csv-import-errors { display: grid; gap: 5px; padding: 12px; border: 1px solid #efcfd0; border-radius: 9px; background: #fff3f3; color: #9d4148; font-size: 11px; }
+.csv-import-errors strong { color: #7f2930; }
+.csv-approve-button { justify-self: start; }
+.csv-approve-button:disabled { cursor: wait; opacity: .65; }
+
+@media (max-width: 600px) {
+  .csv-import-panel { padding: 15px; }
+  .csv-import-actions > * { flex: 1 1 100%; }
+  .csv-preview-heading { align-items: flex-start; flex-direction: column; }
+  .csv-preview-heading .secondary-action { align-self: flex-start; }
+}
