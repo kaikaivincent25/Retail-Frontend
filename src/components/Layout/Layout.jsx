@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import TopNavigation from "../Navigation/TopNavigation";
+import BusinessAssistant from "../BusinessAssistant/BusinessAssistant";
 import "./Layout.css";
 
 function Layout({ children }) {
@@ -23,6 +24,7 @@ function Layout({ children }) {
         <TopNavigation onMenuToggle={() => setMobileNavigationOpen((open) => !open)} />
         {children}
       </main>
+      <BusinessAssistant />
     </div>
   );
 }

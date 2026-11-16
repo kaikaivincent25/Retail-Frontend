@@ -1,0 +1,22 @@
+.business-assistant { position: fixed; right: 22px; bottom: 22px; z-index: 30; font-family: var(--sans); }
+.business-assistant-toggle { min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #214563, #67c5c1); color: #fff; box-shadow: 0 12px 28px rgba(13, 35, 55, .24); font-size: 12px; font-weight: 800; cursor: pointer; }
+.business-assistant-toggle span { margin-right: 6px; color: #d7fff9; }
+.business-assistant-panel { position: absolute; right: 0; bottom: 56px; display: grid; gap: 14px; width: min(390px, calc(100vw - 28px)); padding: 18px; border: 1px solid #cfe1ee; border-radius: 18px; background: #fbfdff; box-shadow: 0 22px 60px rgba(18, 50, 77, .2); }
+.business-assistant-heading { display: flex; justify-content: space-between; gap: 12px; }
+.business-assistant-heading h2 { margin: 4px 0; color: var(--navy); font-size: 19px; }
+.business-assistant-heading p { margin: 0; color: var(--muted); font-size: 11px; }
+.business-assistant-heading > button { width: 28px; height: 28px; border: 0; border-radius: 50%; background: #edf5fb; color: var(--navy); font-size: 20px; cursor: pointer; }
+.business-assistant-kicker { color: var(--brand-strong); font-size: 9px; font-weight: 800; letter-spacing: 1.3px; }
+.business-assistant-prompts { display: flex; flex-wrap: wrap; gap: 6px; }
+.business-assistant-prompts button { padding: 7px 9px; border: 1px solid #d5e6f1; border-radius: 999px; background: #f3f9fd; color: #49667d; font-size: 10px; cursor: pointer; }
+.business-assistant-prompts button:hover { border-color: #8dc8c5; background: #e7f8f6; color: #17324d; }
+.business-assistant-answer { padding: 12px; border-radius: 11px; background: #eef8f8; color: #234d63; font-size: 12px; line-height: 1.55; }
+.business-assistant-answer p { margin: 0; white-space: pre-wrap; }
+.business-assistant-answer ul { margin: 9px 0 0; padding-left: 18px; }
+.business-assistant-error { padding: 10px; border: 1px solid #efcfd0; border-radius: 9px; background: #fff3f3; color: #9d4148; font-size: 11px; }
+.business-assistant-form { display: grid; gap: 8px; }
+.business-assistant-form textarea { width: 100%; resize: vertical; padding: 10px; border: 1px solid #cbddea; border-radius: 9px; background: #fff; color: var(--ink); font: inherit; font-size: 12px; box-sizing: border-box; }
+.business-assistant-form button { min-height: 36px; border: 0; border-radius: 9px; background: var(--brand); color: #fff; font-size: 12px; font-weight: 750; cursor: pointer; }
+.business-assistant-form button:disabled { cursor: wait; opacity: .6; }
+.business-assistant-note { color: #8498a9; font-size: 10px; line-height: 1.35; }
+@media (max-width: 650px) { .business-assistant { right: 14px; bottom: 14px; } .business-assistant-panel { bottom: 54px; } }

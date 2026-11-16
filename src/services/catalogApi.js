@@ -5,6 +5,8 @@ export const createProduct = (data) => api.post("/products", data).then((r) => r
 export const bulkCreateProducts = (data) => api.post("/products/bulk", data).then((r) => r.data);
 export const getProductImportAiSuggestions = (products) =>
   api.post("/ai/product-import/suggestions", { products }).then((r) => r.data);
+export const askBusinessAssistant = (question) =>
+  api.post("/ai/business-assistant", { question }).then((r) => r.data);
 export const updateProduct = (id, data) => api.patch(`/products/${id}`, data).then((r) => r.data);
 export const deactivateProduct = (id) => api.delete(`/products/${id}`);
 export const reactivateProduct = (id) => api.post(`/products/${id}/reactivate`).then((r) => r.data);
