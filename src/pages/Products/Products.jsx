@@ -181,6 +181,18 @@ function getErrorMessage(err, fallback) {
   return fallback;
 }
 
+function resolveProductImageUrl(value) {
+  const imageUrl = value.trim();
+  if (!imageUrl) return null;
+  try {
+    const parsed = new URL(imageUrl);
+    if (parsed.protocol !== "https:") throw new Error();
+  } catch {
+    throw new Error("Paste a complete image link that starts with https://.");
+  }
+  return imageUrl;
+}
+
 function normalizeProduct(product) {
   if (!product || typeof product !== "object" || product.id == null) return null;
 
@@ -207,6 +219,8 @@ function Products() {
   const [variantsByProduct, setVariantsByProduct] = useState({});
   const [editingImageId, setEditingImageId] = useState(null);
   const [imageFileDraft, setImageFileDraft] = useState(null);
+  const [imageSource, setImageSource] = useState("upload");
+  const [imageUrlDraft, setImageUrlDraft] = useState("");
   const [uploadingImageId, setUploadingImageId] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [priceEditor, setPriceEditor] = useState(null);
@@ -221,6 +235,8 @@ function Products() {
   const [newProductDescription, setNewProductDescription] = useState("");
   const [newProductAttributes, setNewProductAttributes] = useState([EMPTY_ATTRIBUTE()]);
   const [newProductImageFile, setNewProductImageFile] = useState(null);
+  const [newProductImageSource, setNewProductImageSource] = useState("upload");
+  const [newProductImageUrl, setNewProductImageUrl] = useState("");
   const [newProductIsPublic, setNewProductIsPublic] = useState(false);
   const [newProductVariants, setNewProductVariants] = useState([createEmptyVariant()]);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
@@ -344,9 +360,18 @@ function Products() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    let imageUrl;
+    try {
+      imageUrl = newProductImageSource === "url"
+        ? resolveProductImageUrl(newProductImageUrl)
+        : null;
+    } catch (err) {
+      setError(err.message);
+      return;
+    }
     setIsCreatingProduct(true);
     let created;
-    const imageFile = newProductImageFile;
+    const imageFile = newProductImageSource === "upload" ? newProductImageFile : null;
     try {
       created = await createProduct({
         name: newProductName,
@@ -354,7 +379,7 @@ function Products() {
         brand: newProductBrand.trim() || null,
         description: newProductDescription.trim() || null,
         attributes: attributesToObject(newProductAttributes),
-        image_url: null,
+        image_url: imageUrl,
         is_public: newProductIsPublic,
         variants: newProductVariants.map((variant) => ({
           name: variant.name,
@@ -380,6 +405,8 @@ function Products() {
       setNewProductDescription("");
       setNewProductAttributes([EMPTY_ATTRIBUTE()]);
       setNewProductImageFile(null);
+      setNewProductImageSource("upload");
+      setNewProductImageUrl("");
       setNewProductIsPublic(false);
       setNewProductVariants([createEmptyVariant()]);
       setIsAddFormOpen(false);
@@ -432,21 +459,40 @@ function Products() {
   }
 
   async function handleSaveProductImage(productId) {
-    const file = imageFileDraft?.productId === productId ? imageFileDraft.file : null;
-    if (!file) {
-      setError("Choose a photo first.");
-      return;
+    const file = imageSource === "upload" && imageFileDraft?.productId === productId
+      ? imageFileDraft.file
+      : null;
+    let image_url;
+    if (imageSource === "url") {
+      try {
+        image_url = resolveProductImageUrl(imageUrlDraft);
+      } catch (err) {
+        setError(err.message);
+        return;
+      }
+      if (!image_url) {
+        setError("Paste an image link or choose Upload photo.");
+        return;
+      }
+    } else {
+      if (!file) {
+        setError("Choose a photo first.");
+        return;
+      }
     }
     setError("");
     setSuccess("");
-    setUploadingImageId(productId);
+    if (file) setUploadingImageId(productId);
     try {
-      const image_url = await uploadProductImage(file);
-      const updated = await updateProduct(productId, { image_url });
+      if (file) image_url = await uploadProductImage(file);
+      const updated = await updateProduct(productId, {
+        image_url,
+        public_image_url: null,
+      });
       setProducts((current) => current.map((product) => product.id === productId ? updated : product));
       setImageFileDraft(null);
       setEditingImageId(null);
-      setSuccess("Product photo updated.");
+      setSuccess("Product image updated.");
     } catch (err) {
       setError(getErrorMessage(err, "Could not save the product photo."));
     } finally {
@@ -664,6 +710,10 @@ function Products() {
             <ProductImagePicker
               imageUrl={null}
               file={newProductImageFile}
+              source={newProductImageSource}
+              onSourceChange={setNewProductImageSource}
+              urlValue={newProductImageUrl}
+              onUrlChange={setNewProductImageUrl}
               onFileChange={setNewProductImageFile}
               onInvalid={setError}
               disabled={isCreatingProduct}
@@ -993,10 +1043,12 @@ function Products() {
                   className="restore-product"
                   onClick={() => {
                     setEditingImageId(editingImageId === product.id ? null : product.id);
-                        setImageFileDraft(null);
+                    setImageFileDraft(null);
+                    setImageSource("upload");
+                    setImageUrlDraft(product.image_url || "");
                   }}
                 >
-                      {product.image_url ? "Change photo" : "Add photo"}
+                  {product.image_url ? "Change image" : "Add image"}
                 </button>
                 <button type="button" className="restore-product" onClick={() => editingProduct?.id === product.id ? setEditingProduct(null) : startEditingProduct(product)}>
                   {editingProduct?.id === product.id ? "Close details" : "Edit details"}
@@ -1048,6 +1100,16 @@ function Products() {
                 <ProductImagePicker
                   imageUrl={product.image_url}
                   file={imageFileDraft?.productId === product.id ? imageFileDraft.file : null}
+                  source={imageSource}
+                  onSourceChange={(source) => {
+                    setImageSource(source);
+                    setError("");
+                  }}
+                  urlValue={imageUrlDraft}
+                  onUrlChange={(value) => {
+                    setImageUrlDraft(value);
+                    setError("");
+                  }}
                   onFileChange={(file) => setImageFileDraft(file ? { productId: product.id, file } : null)}
                   onRemove={() => handleRemoveProductImage(product.id)}
                   onInvalid={setError}
@@ -1058,9 +1120,13 @@ function Products() {
                     type="button"
                     className="restore-product"
                     onClick={() => handleSaveProductImage(product.id)}
-                    disabled={uploadingImageId === product.id || !imageFileDraft?.file}
+                    disabled={
+                      uploadingImageId === product.id
+                      || (imageSource === "upload" && !imageFileDraft?.file)
+                      || (imageSource === "url" && !imageUrlDraft.trim())
+                    }
                   >
-                    {uploadingImageId === product.id ? "Uploading photo..." : "Save photo"}
+                    {uploadingImageId === product.id ? "Uploading image..." : "Save image"}
                   </button>
                   <button
                     type="button"

@@ -20,11 +20,11 @@ Offline checkout requires a previously cached active till and product catalog.
 M-Pesa checkout and catalog or till changes still require a connection.
 
 Product images are stored as an optional URL on each product and are shared by
-its variants. Choose a JPG, PNG, or WebP photo (up to 5 MB) from the Products
-page; the browser uploads it directly to the configured Supabase Storage
-bucket using a signed URL from the backend. The bucket must allow public reads
-for images to appear on public shop pages. Never put the Supabase service-role
-key in frontend configuration.
+its variants. From the Products page, upload a JPG, PNG, or WebP photo (up to
+5 MB) directly to the configured Supabase Storage bucket using a signed URL,
+or paste a public HTTPS image URL. The bucket must allow public reads for
+uploaded images to appear on public shop pages. Never put the Supabase secret
+or service-role key in frontend configuration.
 
 To inspect the local database in Chrome, open the app from `npm run dev`, then
 open DevTools > Application > IndexedDB > `dukaos`. The `variants` store is

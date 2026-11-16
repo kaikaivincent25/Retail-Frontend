@@ -6,6 +6,10 @@ const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 export default function ProductImagePicker({
   imageUrl,
   file,
+  source,
+  onSourceChange,
+  urlValue,
+  onUrlChange,
   onFileChange,
   onRemove,
   onInvalid,
@@ -49,31 +53,71 @@ export default function ProductImagePicker({
     onFileChange(null);
   }
 
+  const previewImage = source === "upload" && preview.file === file && preview.url
+    ? preview.url
+    : source === "url" && urlValue?.trim()
+      ? urlValue.trim()
+      : imageUrl;
+
   return (
     <div className="product-image-picker">
       <div className="product-image-picker-preview">
-        {(preview.file === file && preview.url) || imageUrl ? (
-          <img
-            src={preview.file === file && preview.url ? preview.url : imageUrl}
-            alt="Product preview"
-          />
+        {previewImage ? (
+          <img src={previewImage} alt="Product preview" />
         ) : (
           <span aria-hidden="true">+</span>
         )}
       </div>
       <div className="product-image-picker-controls">
-        <label className="product-image-picker-button" htmlFor={inputId}>
-          {file ? "Choose another photo" : imageUrl ? "Change photo" : "Choose photo"}
-          <input
-            id={inputId}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleFileChange}
+        <div className="product-image-source-switch" aria-label="Choose photo source">
+          <button
+            type="button"
+            className={source === "upload" ? "selected" : ""}
+            aria-pressed={source === "upload"}
+            onClick={() => onSourceChange("upload")}
             disabled={disabled}
-          />
-        </label>
-        <small>JPG, PNG, or WebP · Up to 5 MB</small>
-        {file && (
+          >
+            Upload photo
+          </button>
+          <button
+            type="button"
+            className={source === "url" ? "selected" : ""}
+            aria-pressed={source === "url"}
+            onClick={() => onSourceChange("url")}
+            disabled={disabled}
+          >
+            Use image URL
+          </button>
+        </div>
+        {source === "upload" ? (
+          <>
+            <label className="product-image-picker-button" htmlFor={inputId}>
+              {file ? "Choose another photo" : imageUrl ? "Change photo" : "Choose photo"}
+              <input
+                id={inputId}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileChange}
+                disabled={disabled}
+              />
+            </label>
+            <small>JPG, PNG, or WebP · Up to 5 MB</small>
+          </>
+        ) : (
+          <label className="product-image-url-input">
+            <span>Paste a secure image link</span>
+            <input
+              type="url"
+              inputMode="url"
+              placeholder="https://example.com/photo.jpg"
+              value={urlValue}
+              onChange={(event) => onUrlChange(event.target.value)}
+              maxLength={2048}
+              disabled={disabled}
+            />
+          </label>
+        )}
+        {source === "upload" && file && (
           <button
             type="button"
             className="restore-product"
