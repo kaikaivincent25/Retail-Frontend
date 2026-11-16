@@ -3,11 +3,12 @@ import {
   listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
   listVariants, createVariant, updateVariant, deactivateVariant, bulkCreateProducts,
-  getProductImportAiSuggestions,
+  getProductImportAiSuggestions, uploadProductImage,
 } from "../../services/catalogApi";
 import api from "../../services/api";
 import { getReceiptProfile } from "../../services/profileApi";
 import { toCents, fromCents } from "../../utils/money";
+import ProductImagePicker from "../../components/ProductImagePicker";
 import "./Products.css";
 
 const UNITS = ["piece", "each", "pair", "set", "packet", "pack", "box", "case", "dozen", "bottle", "can", "sheet", "roll", "gram", "kg", "ml", "litre", "metre", "centimetre"];
@@ -205,8 +206,11 @@ function Products() {
   const [expandedId, setExpandedId] = useState(null);
   const [variantsByProduct, setVariantsByProduct] = useState({});
   const [editingImageId, setEditingImageId] = useState(null);
-  const [imageUrlDraft, setImageUrlDraft] = useState("");
+  const [imageFileDraft, setImageFileDraft] = useState(null);
+  const [uploadingImageId, setUploadingImageId] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [priceEditor, setPriceEditor] = useState(null);
+  const [isSavingPrice, setIsSavingPrice] = useState(false);
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
 
   const [newProductName, setNewProductName] = useState("");
@@ -216,7 +220,7 @@ function Products() {
   const [newProductBrand, setNewProductBrand] = useState("");
   const [newProductDescription, setNewProductDescription] = useState("");
   const [newProductAttributes, setNewProductAttributes] = useState([EMPTY_ATTRIBUTE()]);
-  const [newProductImageUrl, setNewProductImageUrl] = useState("");
+  const [newProductImageFile, setNewProductImageFile] = useState(null);
   const [newProductIsPublic, setNewProductIsPublic] = useState(false);
   const [newProductVariants, setNewProductVariants] = useState([createEmptyVariant()]);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
@@ -224,6 +228,7 @@ function Products() {
   const [importPreview, setImportPreview] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const refreshProducts = useCallback(async (searchTerm = productSearch) => {
     try {
@@ -338,15 +343,18 @@ function Products() {
   async function handleCreateProduct(e) {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setIsCreatingProduct(true);
+    let created;
+    const imageFile = newProductImageFile;
     try {
-      await createProduct({
+      created = await createProduct({
         name: newProductName,
         category: newProductCategory || null,
         brand: newProductBrand.trim() || null,
         description: newProductDescription.trim() || null,
         attributes: attributesToObject(newProductAttributes),
-        image_url: newProductImageUrl.trim() || null,
+        image_url: null,
         is_public: newProductIsPublic,
         variants: newProductVariants.map((variant) => ({
           name: variant.name,
@@ -359,21 +367,34 @@ function Products() {
           barcode: variant.barcode.trim() || null,
         })),
       });
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not create product and variants."));
+      setIsCreatingProduct(false);
+      return;
+    }
+
+    try {
       setNewProductName("");
       setNewProductCategory("");
       setNewProductBrand("");
       setNewProductDescription("");
       setNewProductAttributes([EMPTY_ATTRIBUTE()]);
-      setNewProductImageUrl("");
+      setNewProductImageFile(null);
       setNewProductIsPublic(false);
       setNewProductVariants([createEmptyVariant()]);
       setIsAddFormOpen(false);
       setExpandedId(null);
-      // Re-read the catalog response instead of rendering the create response
-      // directly. The list endpoint has the stable shape used by this page.
       await refreshProducts();
+      if (imageFile) {
+        const image_url = await uploadProductImage(imageFile);
+        const updated = await updateProduct(created.id, { image_url });
+        setProducts((current) => current.map((product) => product.id === updated.id ? updated : product));
+      }
+      setSuccess(`“${created.name}” was added.`);
     } catch (err) {
-      setError(getErrorMessage(err, "Could not create product and variants."));
+      setError(
+        `“${created.name}” was added, but its photo could not be uploaded. You can try again using Add photo on the product. ${getErrorMessage(err, "Upload failed.")}`,
+      );
     } finally {
       setIsCreatingProduct(false);
     }
@@ -411,13 +432,105 @@ function Products() {
   }
 
   async function handleSaveProductImage(productId) {
+    const file = imageFileDraft?.productId === productId ? imageFileDraft.file : null;
+    if (!file) {
+      setError("Choose a photo first.");
+      return;
+    }
     setError("");
+    setSuccess("");
+    setUploadingImageId(productId);
     try {
-      const updated = await updateProduct(productId, { image_url: imageUrlDraft.trim() || null });
+      const image_url = await uploadProductImage(file);
+      const updated = await updateProduct(productId, { image_url });
       setProducts((current) => current.map((product) => product.id === productId ? updated : product));
+      setImageFileDraft(null);
       setEditingImageId(null);
+      setSuccess("Product photo updated.");
     } catch (err) {
-      setError(getErrorMessage(err, "Could not update product image."));
+      setError(getErrorMessage(err, "Could not save the product photo."));
+    } finally {
+      setUploadingImageId(null);
+    }
+  }
+
+  async function handleRemoveProductImage(productId) {
+    setError("");
+    setSuccess("");
+    try {
+      const updated = await updateProduct(productId, {
+        image_url: null,
+        public_image_url: null,
+      });
+      setProducts((current) => current.map((product) => product.id === productId ? updated : product));
+      setImageFileDraft(null);
+      setEditingImageId(null);
+      setSuccess("Product photo removed.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not remove the product photo."));
+    }
+  }
+
+  async function openPriceEditor(product) {
+    setError("");
+    setSuccess("");
+    try {
+      const variants = await listVariants(product.id, true);
+      setVariantsByProduct((current) => ({ ...current, [product.id]: variants }));
+      const activeVariants = variants.filter((variant) => variant.is_active);
+      if (!activeVariants.length) {
+        setError("This product has no active versions to change the price for.");
+        return;
+      }
+      const variant = activeVariants.length === 1 ? activeVariants[0] : null;
+      setPriceEditor({
+        product,
+        variants: activeVariants,
+        variantId: variant ? String(variant.id) : "",
+        price: variant ? String(variant.selling_price) : "",
+      });
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not load product prices."));
+    }
+  }
+
+  function choosePriceVariant(variantId) {
+    const variant = priceEditor?.variants.find((item) => String(item.id) === variantId);
+    setPriceEditor((current) => current && ({
+      ...current,
+      variantId,
+      price: variant ? String(variant.selling_price) : "",
+    }));
+  }
+
+  async function handleSavePrice(event) {
+    event.preventDefault();
+    const variant = priceEditor?.variants.find((item) => String(item.id) === priceEditor.variantId);
+    const priceValue = Number(priceEditor?.price);
+    if (!variant || !Number.isFinite(priceValue) || priceValue < 0) {
+      setError("Enter a valid price of zero or more.");
+      return;
+    }
+
+    setIsSavingPrice(true);
+    setError("");
+    setSuccess("");
+    try {
+      const updated = await updateVariant(variant.id, {
+        selling_price: fromCents(toCents(priceEditor.price)),
+      });
+      setVariantsByProduct((current) => ({
+        ...current,
+        [priceEditor.product.id]: (current[priceEditor.product.id] || []).map((item) =>
+          item.id === updated.id ? updated : item
+        ),
+      }));
+      setPriceEditor(null);
+      setSuccess(`${variant.name} price updated.`);
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not update the selling price."));
+    } finally {
+      setIsSavingPrice(false);
     }
   }
 
@@ -428,7 +541,6 @@ function Products() {
       category: product.category || "",
       brand: product.brand || "",
       description: product.description || "",
-      image_url: product.image_url || "",
       is_public: product.is_public || false,
       attributes: attributeRows(product.attributes),
     });
@@ -443,7 +555,6 @@ function Products() {
         category: draft.category.trim() || null,
         brand: draft.brand.trim() || null,
         description: draft.description.trim() || null,
-        image_url: draft.image_url.trim() || null,
         is_public: draft.is_public,
         attributes: attributesToObject(draft.attributes),
       });
@@ -548,15 +659,16 @@ function Products() {
               required
             />
           </label>
-          <label className="product-field product-image-url-field">
-            <span>Product image <small>Optional · shared by variants</small></span>
-            <input
-              type="url"
-              placeholder="https://…"
-              value={newProductImageUrl}
-              onChange={(e) => setNewProductImageUrl(e.target.value)}
+          <div className="product-field">
+            <span>Product photo <small>Optional · shared by variants</small></span>
+            <ProductImagePicker
+              imageUrl={null}
+              file={newProductImageFile}
+              onFileChange={setNewProductImageFile}
+              onInvalid={setError}
+              disabled={isCreatingProduct}
             />
-          </label>
+          </div>
           <label className="product-field">
             <span>Category <small>Optional</small></span>
             <input
@@ -791,6 +903,7 @@ function Products() {
         )}
       </section>
       {error && <div className="form-error" role="alert">{error}</div>}
+      {success && <div className="product-success" role="status">{success}</div>}
 
       <section className="inventory-section" aria-label="Product inventory">
         <div className="inventory-toolbar">
@@ -867,15 +980,23 @@ function Products() {
                 {!product.is_active && <span className="product-status">Deactivated</span>}
               </button>
               <div className="product-card-actions">
+                    <button
+                      type="button"
+                      className="restore-product quick-price-action"
+                      onClick={() => openPriceEditor(product)}
+                      disabled={!product.is_active}
+                    >
+                      Change price
+                    </button>
                 <button
                   type="button"
                   className="restore-product"
                   onClick={() => {
                     setEditingImageId(editingImageId === product.id ? null : product.id);
-                    setImageUrlDraft(product.image_url || "");
+                        setImageFileDraft(null);
                   }}
                 >
-                  {product.image_url ? "Change image" : "Add image"}
+                      {product.image_url ? "Change photo" : "Add photo"}
                 </button>
                 <button type="button" className="restore-product" onClick={() => editingProduct?.id === product.id ? setEditingProduct(null) : startEditingProduct(product)}>
                   {editingProduct?.id === product.id ? "Close details" : "Edit details"}
@@ -919,22 +1040,38 @@ function Products() {
             </div>
 
             {editingImageId === product.id && (
-              <form
-                className="product-image-editor"
-                onSubmit={(event) => { event.preventDefault(); handleSaveProductImage(product.id); }}
-              >
-                <label className="product-field">
-                  <span>Image URL <small>applies to every variant of this product</small></span>
-                  <input
-                    type="url"
-                    placeholder="https://…"
-                    value={imageUrlDraft}
-                    onChange={(event) => setImageUrlDraft(event.target.value)}
-                  />
-                </label>
-                <button type="submit">Save image</button>
-                <button type="button" className="restore-product" onClick={() => setEditingImageId(null)}>Cancel</button>
-              </form>
+              <div className="product-image-editor">
+                <div>
+                  <strong>Product photo</strong>
+                  <p>This photo is shared by all versions of this product.</p>
+                </div>
+                <ProductImagePicker
+                  imageUrl={product.image_url}
+                  file={imageFileDraft?.productId === product.id ? imageFileDraft.file : null}
+                  onFileChange={(file) => setImageFileDraft(file ? { productId: product.id, file } : null)}
+                  onRemove={() => handleRemoveProductImage(product.id)}
+                  onInvalid={setError}
+                  disabled={uploadingImageId === product.id}
+                />
+                <div className="product-image-editor-actions">
+                  <button
+                    type="button"
+                    className="restore-product"
+                    onClick={() => handleSaveProductImage(product.id)}
+                    disabled={uploadingImageId === product.id || !imageFileDraft?.file}
+                  >
+                    {uploadingImageId === product.id ? "Uploading photo..." : "Save photo"}
+                  </button>
+                  <button
+                    type="button"
+                    className="restore-product"
+                    onClick={() => { setEditingImageId(null); setImageFileDraft(null); }}
+                    disabled={uploadingImageId === product.id}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             )}
 
             {editingProduct?.id === product.id && (
@@ -953,7 +1090,6 @@ function Products() {
                   <label className="product-field"><span>Product name</span><input value={editingProduct.name} onChange={(event) => setEditingProduct({ ...editingProduct, name: event.target.value })} required maxLength={150} /></label>
                   <label className="product-field"><span>Category</span><input list="product-category-options" value={editingProduct.category} onChange={(event) => setEditingProduct({ ...editingProduct, category: event.target.value })} maxLength={100} /></label>
                   <label className="product-field"><span>Brand</span><input value={editingProduct.brand} onChange={(event) => setEditingProduct({ ...editingProduct, brand: event.target.value })} maxLength={100} /></label>
-                  <label className="product-field"><span>Image URL</span><input type="url" value={editingProduct.image_url} onChange={(event) => setEditingProduct({ ...editingProduct, image_url: event.target.value })} maxLength={2048} /></label>
                   <label className="product-field product-description-field"><span>Description</span><textarea rows={2} value={editingProduct.description} onChange={(event) => setEditingProduct({ ...editingProduct, description: event.target.value })} maxLength={2000} /></label>
                   <label className="product-public-toggle"><input type="checkbox" checked={editingProduct.is_public} onChange={(event) => setEditingProduct({ ...editingProduct, is_public: event.target.checked })} /><span><b>List publicly</b><small>Customers can see active variants and selling prices.</small></span></label>
                 </div>
@@ -986,6 +1122,111 @@ function Products() {
         )}
       </div>
       </section>
+
+      {priceEditor && (
+        <div className="price-editor-backdrop">
+          <button
+            type="button"
+            className="price-editor-dismiss"
+            aria-label="Close price editor"
+            onClick={() => setPriceEditor(null)}
+          />
+          <form
+            className="price-editor-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="price-editor-title"
+            onSubmit={handleSavePrice}
+          >
+            <div className="price-editor-heading">
+              <div>
+                <span className="products-eyebrow">SELLING PRICE</span>
+                <h2 id="price-editor-title">Change a price</h2>
+                <p>{priceEditor.product.name}</p>
+              </div>
+              <button
+                type="button"
+                className="editor-close"
+                onClick={() => setPriceEditor(null)}
+                aria-label="Close price editor"
+              >
+                ×
+              </button>
+            </div>
+
+            {priceEditor.variants.length > 1 ? (
+              <label className="product-field">
+                <span>Choose size or version</span>
+                <select
+                  value={priceEditor.variantId}
+                  onChange={(event) => choosePriceVariant(event.target.value)}
+                  required
+                >
+                  <option value="">Choose one</option>
+                  {priceEditor.variants.map((variant) => (
+                    <option key={variant.id} value={variant.id}>
+                      {variant.name} — KSh {variant.selling_price}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <p className="price-editor-variant">{priceEditor.variants[0].name}</p>
+            )}
+
+            {priceEditor.variantId && (
+              <>
+                {priceEditor.product.is_public && (
+                  <p className="price-editor-public-note">
+                    This product is listed publicly. Customers will see the new price after you save.
+                  </p>
+                )}
+                <div className="price-editor-current">
+                  Current price: <strong>KSh {priceEditor.variants.find((variant) => String(variant.id) === priceEditor.variantId)?.selling_price}</strong>
+                </div>
+                <label className="product-field price-editor-input">
+                  <span>New selling price</span>
+                  <div className="money-input">
+                    <span>KSh</span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      step="0.01"
+                      value={priceEditor.price}
+                      onChange={(event) => setPriceEditor((current) => current && ({ ...current, price: event.target.value }))}
+                      required
+                      autoFocus
+                    />
+                  </div>
+                </label>
+                {error && <div className="form-error" role="alert">{error}</div>}
+                <div className="price-editor-preview">
+                  New price: <strong>KSh {Number(priceEditor.price || 0).toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                </div>
+              </>
+            )}
+
+            <div className="price-editor-actions">
+              <button
+                type="button"
+                className="restore-product"
+                onClick={() => setPriceEditor(null)}
+                disabled={isSavingPrice}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="price-editor-save"
+                disabled={isSavingPrice || !priceEditor.variantId}
+              >
+                {isSavingPrice ? "Saving price..." : "Save new price"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

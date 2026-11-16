@@ -28,3 +28,18 @@ export const initiatePublicMpesa = (token) =>
   api.post(`/public/orders/${encodeURIComponent(token)}/mpesa`).then((r) => r.data);
 export const getPublicMpesaStatus = (token) =>
   api.get(`/public/orders/${encodeURIComponent(token)}/mpesa/status`).then((r) => r.data);
+
+export async function uploadProductImage(file) {
+  const { data: upload } = await api.post("/products/image-upload", {
+    content_type: file.type,
+  });
+  const response = await fetch(upload.upload_url, {
+    method: "PUT",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+  if (!response.ok) {
+    throw new Error("The photo could not be uploaded. Check your connection and try again.");
+  }
+  return upload.image_url;
+}
