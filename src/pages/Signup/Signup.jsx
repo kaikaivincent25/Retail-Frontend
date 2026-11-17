@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { extractErrorMessage } from "../../services/errorHandling";
 import "./Signup.css";
 
 function Signup() {
@@ -32,7 +33,7 @@ function Signup() {
       });
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.detail || "Could not create your shop. Please try again.");
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -218,10 +219,10 @@ function Signup() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Create a password"
                       required
-                      minLength={6}
+                      minLength={8}
                       autoComplete="new-password"
                     />
-                    <small>Use at least 6 characters.</small>
+                    <small>Use at least 8 characters.</small>
                   </div>
                 </div>
 
