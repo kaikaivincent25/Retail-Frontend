@@ -4,6 +4,10 @@
   font-family: var(--sans);
 }
 
+.business-assistant.is-open {
+  z-index: 999;
+}
+
 .business-assistant-toggle {
   display: inline-flex;
   align-items: center;
