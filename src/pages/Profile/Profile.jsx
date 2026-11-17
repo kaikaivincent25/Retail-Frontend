@@ -13,6 +13,19 @@ import {
 } from "../../services/profileApi";
 import "./Profile.css";
 
+function minutesToTime(minutes) {
+  if (!Number.isInteger(minutes) || minutes < 0 || minutes >= 1440) return "";
+  const hour = String(Math.floor(minutes / 60)).padStart(2, "0");
+  const minute = String(minutes % 60).padStart(2, "0");
+  return `${hour}:${minute}`;
+}
+
+function timeToMinutes(value) {
+  if (!value) return null;
+  const [hour, minute] = value.split(":").map(Number);
+  return hour * 60 + minute;
+}
+
 function Profile() {
   const { user, completeShopDeletion } = useAuth();
   const navigate = useNavigate();
@@ -34,6 +47,9 @@ function Profile() {
   const [shopName, setShopName] = useState("");
   const [shopLocation, setShopLocation] = useState("");
   const [shopBusinessType, setShopBusinessType] = useState("general_retail");
+  const [breakfastStartMinute, setBreakfastStartMinute] = useState(360);
+  const [breakfastEndMinute, setBreakfastEndMinute] = useState(630);
+  const [eveningStartMinute, setEveningStartMinute] = useState(960);
   const [shopCurrency, setShopCurrency] = useState("");
   const [shopPochiNumber, setShopPochiNumber] = useState("");
   const [shopTillNumber, setShopTillNumber] = useState("");
@@ -60,6 +76,9 @@ function Profile() {
         setShopName(data.name);
         setShopLocation(data.location || "");
         setShopBusinessType(data.business_type || "general_retail");
+        setBreakfastStartMinute(data.breakfast_start_minute ?? 360);
+        setBreakfastEndMinute(data.breakfast_end_minute ?? 630);
+        setEveningStartMinute(data.evening_start_minute ?? 960);
         setShopCurrency(data.currency);
         setShopPochiNumber(data.mpesa_pochi_number || "");
         setShopTillNumber(data.mpesa_till_number || "");
@@ -118,12 +137,18 @@ function Profile() {
         location: shopLocation || null,
         currency: shopCurrency,
         business_type: shopBusinessType,
+        breakfast_start_minute: breakfastStartMinute,
+        breakfast_end_minute: breakfastEndMinute,
+        evening_start_minute: eveningStartMinute,
         mpesa_pochi_number: shopPochiNumber || null,
         mpesa_till_number: shopTillNumber || null,
         mpesa_paybill_number: shopPaybillNumber || null,
         mpesa_paybill_account_number: shopPaybillAccountNumber || null,
       });
       setShop(updated);
+      setBreakfastStartMinute(updated.breakfast_start_minute);
+      setBreakfastEndMinute(updated.breakfast_end_minute);
+      setEveningStartMinute(updated.evening_start_minute);
       setShopPochiNumber(updated.mpesa_pochi_number || "");
       setShopTillNumber(updated.mpesa_till_number || "");
       setShopPaybillNumber(updated.mpesa_paybill_number || "");
@@ -587,6 +612,19 @@ function Profile() {
                     <span className="field-hint">Controls recommended product fields and examples.</span>
                   </div>
                   <div className="profile-field">
+                    <label htmlFor="sales-breakfast-start">Breakfast recommendations start</label>
+                    <input id="sales-breakfast-start" type="time" required value={minutesToTime(breakfastStartMinute)} onChange={(event) => setBreakfastStartMinute(timeToMinutes(event.target.value))} />
+                  </div>
+                  <div className="profile-field">
+                    <label htmlFor="sales-breakfast-end">Breakfast recommendations end</label>
+                    <input id="sales-breakfast-end" type="time" required value={minutesToTime(breakfastEndMinute)} onChange={(event) => setBreakfastEndMinute(timeToMinutes(event.target.value))} />
+                  </div>
+                  <div className="profile-field">
+                    <label htmlFor="sales-evening-start">Evening recommendations start</label>
+                    <input id="sales-evening-start" type="time" required value={minutesToTime(eveningStartMinute)} onChange={(event) => setEveningStartMinute(timeToMinutes(event.target.value))} />
+                  </div>
+                  <p className="field-hint sales-schedule-hint">Times follow the cashier device’s local clock. The afternoon window is the time between breakfast and evening recommendations.</p>
+                  <div className="profile-field">
                     <label htmlFor="shop-mpesa-pochi">Pochi la Biashara number</label>
                     <input
                       id="shop-mpesa-pochi"
@@ -650,6 +688,9 @@ function Profile() {
                       setShopLocation(shop.location || "");
                       setShopCurrency(shop.currency);
                       setShopBusinessType(shop.business_type || "general_retail");
+                      setBreakfastStartMinute(shop.breakfast_start_minute ?? 360);
+                      setBreakfastEndMinute(shop.breakfast_end_minute ?? 630);
+                      setEveningStartMinute(shop.evening_start_minute ?? 960);
                       setShopPochiNumber(shop.mpesa_pochi_number || "");
                       setShopTillNumber(shop.mpesa_till_number || "");
                       setShopPaybillNumber(shop.mpesa_paybill_number || "");

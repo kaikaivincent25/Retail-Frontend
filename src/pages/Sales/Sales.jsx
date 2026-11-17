@@ -13,6 +13,12 @@ import { useToast } from "../../context/ToastContext";
 import Receipt, { printReceipt } from "../../components/Receipt/Receipt";
 import { toCents, fromCents, formatCurrency } from "../../utils/money";
 import { listCustomers, createCustomer } from "../../services/customersApi";
+import {
+  DEFAULT_SALES_SCHEDULE,
+  formatMinute,
+  getSalesPeriod,
+  sortRecommendedItems,
+} from "../../utils/salesRecommendations";
 import "./Sales.css";
 
 const DENOMINATIONS = [100, 200, 500, 1000];
@@ -28,7 +34,7 @@ function Sales() {
   const [session, setSession] = useState(undefined); // undefined = loading, null = none open
 
   const [popular, setPopular] = useState([]);
-  const [viewMode, setViewMode] = useState("popular");
+  const [viewMode, setViewMode] = useState("recommended");
   const [searchQuery, setSearchQuery] = useState("");
   const [allItems, setAllItems] = useState([]);
   const [cart, setCart] = useState([]); // [{ variant, quantity }]
@@ -69,6 +75,12 @@ function Sales() {
   const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false);
   const [cartPanelInView, setCartPanelInView] = useState(false);
   const saleCompleteButtonRef = useRef(null);
+  const [clock, setClock] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setClock(new Date()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -194,7 +206,9 @@ function Sales() {
   }, [session, showToast]);
 
   useEffect(() => {
-    browseVariants().catch((err) => showToast(extractErrorMessage(err), "error"));
+    browseVariants()
+      .then(setAllItems)
+      .catch((err) => showToast(extractErrorMessage(err), "error"));
   }, [showToast]);
 
   useEffect(() => {
@@ -415,7 +429,18 @@ function Sales() {
         account_number: manualSale.payment_account_number,
       }
     : selectedDestination;
-  const visibleItems = viewMode === "popular" ? popular : allItems;
+  const salesSchedule = {
+    breakfast_start_minute: receiptProfile?.breakfast_start_minute ?? DEFAULT_SALES_SCHEDULE.breakfast_start_minute,
+    breakfast_end_minute: receiptProfile?.breakfast_end_minute ?? DEFAULT_SALES_SCHEDULE.breakfast_end_minute,
+    evening_start_minute: receiptProfile?.evening_start_minute ?? DEFAULT_SALES_SCHEDULE.evening_start_minute,
+  };
+  const salesPeriod = getSalesPeriod(clock, salesSchedule);
+  const recommendedItems = sortRecommendedItems(allItems, salesPeriod);
+  const visibleItems = viewMode === "popular"
+    ? popular
+    : viewMode === "recommended"
+      ? recommendedItems
+      : allItems;
   const itemCount = cart.reduce((count, line) => count + line.quantity, 0);
 
   async function handleQuickCreateCustomer(e) {
@@ -673,6 +698,12 @@ function Sales() {
         <div className="sales-view-controls">
           <div className="view-tabs">
             <button
+              className={viewMode === "recommended" ? "active" : ""}
+              onClick={() => setViewMode("recommended")}
+            >
+              Recommended now
+            </button>
+            <button
               className={viewMode === "popular" ? "active" : ""}
               onClick={() => setViewMode("popular")}
             >
@@ -699,7 +730,15 @@ function Sales() {
 
         {message && <div className={`sale-message ${message.type}`} role="status" aria-live="polite">{message.text}</div>}
 
-        <div className="sales-catalogue-hint">Tap or click a product to add it to the customer's order. Use Tab and Enter with a keyboard.</div>
+        <div className="sales-catalogue-hint">
+          {viewMode === "recommended"
+            ? salesPeriod === "breakfast"
+              ? `Breakfast products first · ${formatMinute(salesSchedule.breakfast_start_minute)}–${formatMinute(salesSchedule.breakfast_end_minute)}`
+              : salesPeriod === "evening"
+                ? `Evening staples first · from ${formatMinute(salesSchedule.evening_start_minute)}`
+                : `Balanced product selection · ${formatMinute(salesSchedule.breakfast_end_minute)}–${formatMinute(salesSchedule.evening_start_minute)}`
+            : "Tap or click a product to add it to the customer's order. Use Tab and Enter with a keyboard."}
+        </div>
         <div className="quick-sell-grid">
           {visibleItems.map((item) => (
             <button

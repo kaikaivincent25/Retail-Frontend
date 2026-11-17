@@ -26,6 +26,14 @@ or paste a public HTTPS image URL. The bucket must allow public reads for
 uploaded images to appear on public shop pages. Never put the Supabase secret
 or service-role key in frontend configuration.
 
+The Sales page's **Recommended now** view prioritizes products assigned to the
+Breakfast or Evening staples group and interleaves product groups during the
+afternoon. Assign a group when creating or editing a product; Popular remains
+based on recorded sales, and All Items remains searchable. Shop admins can
+adjust the recommendation times in Profile > Manage shop settings. Times use
+the cashier device's local clock. No barcode scanner is needed for this
+feature.
+
 To inspect the local database in Chrome, open the app from `npm run dev`, then
 open DevTools > Application > IndexedDB > `dukaos`. The `variants` store is
 populated after the Sales page loads while online. The `outbox` store holds

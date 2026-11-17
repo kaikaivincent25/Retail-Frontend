@@ -231,6 +231,7 @@ function Products() {
   const [businessType, setBusinessType] = useState("general_retail");
   const [productTemplate, setProductTemplate] = useState("general_retail");
   const [newProductCategory, setNewProductCategory] = useState("");
+  const [newProductSalesGroup, setNewProductSalesGroup] = useState("");
   const [newProductBrand, setNewProductBrand] = useState("");
   const [newProductDescription, setNewProductDescription] = useState("");
   const [newProductAttributes, setNewProductAttributes] = useState([EMPTY_ATTRIBUTE()]);
@@ -376,6 +377,7 @@ function Products() {
       created = await createProduct({
         name: newProductName,
         category: newProductCategory || null,
+        sales_group: newProductSalesGroup || null,
         brand: newProductBrand.trim() || null,
         description: newProductDescription.trim() || null,
         attributes: attributesToObject(newProductAttributes),
@@ -401,6 +403,7 @@ function Products() {
     try {
       setNewProductName("");
       setNewProductCategory("");
+      setNewProductSalesGroup("");
       setNewProductBrand("");
       setNewProductDescription("");
       setNewProductAttributes([EMPTY_ATTRIBUTE()]);
@@ -585,6 +588,7 @@ function Products() {
       id: product.id,
       name: product.name,
       category: product.category || "",
+      sales_group: product.sales_group || "",
       brand: product.brand || "",
       description: product.description || "",
       is_public: product.is_public || false,
@@ -599,6 +603,7 @@ function Products() {
       const updated = await updateProduct(draft.id, {
         name: draft.name,
         category: draft.category.trim() || null,
+        sales_group: draft.sales_group || null,
         brand: draft.brand.trim() || null,
         description: draft.description.trim() || null,
         is_public: draft.is_public,
@@ -727,6 +732,15 @@ function Products() {
               value={newProductCategory}
               onChange={(e) => setNewProductCategory(e.target.value)}
             />
+          </label>
+          <label className="product-field">
+            <span>Sales suggestion group <small>Optional</small></span>
+            <select value={newProductSalesGroup} onChange={(event) => setNewProductSalesGroup(event.target.value)}>
+              <option value="">Not grouped</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="everyday">Everyday</option>
+              <option value="evening">Evening staples</option>
+            </select>
           </label>
           <label className="product-field">
             <span>Brand <small>Optional</small></span>
@@ -1155,6 +1169,7 @@ function Products() {
                 <div className="product-details-editor-grid">
                   <label className="product-field"><span>Product name</span><input value={editingProduct.name} onChange={(event) => setEditingProduct({ ...editingProduct, name: event.target.value })} required maxLength={150} /></label>
                   <label className="product-field"><span>Category</span><input list="product-category-options" value={editingProduct.category} onChange={(event) => setEditingProduct({ ...editingProduct, category: event.target.value })} maxLength={100} /></label>
+                  <label className="product-field"><span>Sales suggestion group</span><select value={editingProduct.sales_group} onChange={(event) => setEditingProduct({ ...editingProduct, sales_group: event.target.value })}><option value="">Not grouped</option><option value="breakfast">Breakfast</option><option value="everyday">Everyday</option><option value="evening">Evening staples</option></select></label>
                   <label className="product-field"><span>Brand</span><input value={editingProduct.brand} onChange={(event) => setEditingProduct({ ...editingProduct, brand: event.target.value })} maxLength={100} /></label>
                   <label className="product-field product-description-field"><span>Description</span><textarea rows={2} value={editingProduct.description} onChange={(event) => setEditingProduct({ ...editingProduct, description: event.target.value })} maxLength={2000} /></label>
                   <label className="product-public-toggle"><input type="checkbox" checked={editingProduct.is_public} onChange={(event) => setEditingProduct({ ...editingProduct, is_public: event.target.checked })} /><span><b>List publicly</b><small>Customers can see active variants and selling prices.</small></span></label>
