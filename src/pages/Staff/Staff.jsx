@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { listUsers, createUser, updateUser } from "../../services/usersApi";
+import { extractErrorMessage } from "../../services/errorHandling";
 import "./Staff.css";
 
 const ROLES = ["cashier", "manager", "admin"];
@@ -21,8 +22,12 @@ function Staff() {
     refresh();
   }, []);
 
-  function refresh() {
-    listUsers().then(setStaff);
+  async function refresh() {
+    try {
+      setStaff(await listUsers());
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    }
   }
 
   async function handleCreate(e) {
@@ -31,9 +36,9 @@ function Staff() {
     try {
       await createUser({ full_name: fullName, username, password, role });
       setFullName(""); setUsername(""); setPassword(""); setRole("cashier");
-      refresh();
+      await refresh();
     } catch (err) {
-      setError(err.response?.data?.detail || "Could not create user.");
+      setError(extractErrorMessage(err));
     }
   }
 
@@ -41,14 +46,24 @@ function Staff() {
     if (member.id === currentUser.id) return; // blocked server-side too, but skip the request
     const label = member.is_active ? "deactivate" : "reactivate";
     if (!window.confirm(`Are you sure you want to ${label} ${member.full_name}?`)) return;
-    await updateUser(member.id, { is_active: !member.is_active });
-    refresh();
+    setError("");
+    try {
+      await updateUser(member.id, { is_active: !member.is_active });
+      await refresh();
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    }
   }
 
   async function handleRoleChange(member, newRole) {
     if (member.id === currentUser.id) return;
-    await updateUser(member.id, { role: newRole });
-    refresh();
+    setError("");
+    try {
+      await updateUser(member.id, { role: newRole });
+      await refresh();
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    }
   }
 
   const activeStaffCount = staff.filter((member) => member.is_active).length;
@@ -115,11 +130,11 @@ function Staff() {
             Temporary password
             <input
               type="password"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
             />
           </label>
           <label>
