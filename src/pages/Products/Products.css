@@ -2344,10 +2344,12 @@
 .csv-preview-heading strong { color: var(--navy); font-size: 13px; }
 .csv-preview-heading span, .csv-preview > small { color: var(--muted); font-size: 11px; }
 .csv-preview-table-wrap { overflow-x: auto; }
-.csv-preview-table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 11px; }
+.csv-preview-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 11px; }
 .csv-preview-table th, .csv-preview-table td { padding: 9px 10px; border-bottom: 1px solid #dfeaf2; text-align: left; }
 .csv-preview-table th { background: #eaf4fb; color: #557087; font-size: 10px; text-transform: uppercase; }
 .csv-preview-table td { color: var(--ink); }
+.csv-opening-stock-guidance { color: var(--muted); font-size: 12px; }
+.csv-opening-quantity { width: 100px; min-height: 34px; padding: 5px 8px; border: 1px solid #c9d9e5; border-radius: 6px; font: inherit; }
 .csv-import-errors { display: grid; gap: 5px; padding: 12px; border: 1px solid #efcfd0; border-radius: 9px; background: #fff3f3; color: #9d4148; font-size: 11px; }
 .csv-import-errors strong { color: #7f2930; }
 .csv-approve-button { justify-self: start; }

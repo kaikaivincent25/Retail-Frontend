@@ -25,6 +25,35 @@
   line-height: 1.55;
 }
 
+.inventory-current-price {
+  margin: -8px 0 16px;
+  color: #607b91;
+  font-size: .86rem;
+}
+
+.inventory-current-price strong {
+  color: #304137;
+}
+
+.inventory-cost-change-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #315b79;
+  font-size: .86rem;
+}
+
+.price-history-section {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.price-history-section h4 {
+  margin: 0;
+  color: #493D39;
+}
+
 .modal-card small {
   color: #607b91;
   line-height: 1.45;

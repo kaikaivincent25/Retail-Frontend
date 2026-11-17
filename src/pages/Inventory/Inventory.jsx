@@ -8,6 +8,7 @@ import {
   listInventoryCosts,
   adjustStock,
   getMovements,
+  getVariantPriceHistory,
   resolveMissingCosts,
   recordStaffConsumption,
 } from "../../services/inventoryApi";
@@ -28,6 +29,8 @@ function Inventory() {
   const [consumingVariant, setConsumingVariant] = useState(null);
   const [historyVariant, setHistoryVariant] = useState(null);
   const [movements, setMovements] = useState([]);
+  const [priceHistory, setPriceHistory] = useState([]);
+  const [historyError, setHistoryError] = useState("");
 
   const refresh = useCallback(() => {
     const inventoryRequest = tab === "all" ? listInventory() : listLowStock();
@@ -46,8 +49,19 @@ function Inventory() {
 
   async function openHistory(variant) {
     setHistoryVariant(variant);
-    const data = await getMovements(variant.id);
-    setMovements(data);
+    setHistoryError("");
+    setMovements([]);
+    setPriceHistory([]);
+    try {
+      const [movementRows, priceRows] = await Promise.all([
+        getMovements(variant.id),
+        getVariantPriceHistory(variant.id),
+      ]);
+      setMovements(movementRows);
+      setPriceHistory(priceRows);
+    } catch (error) {
+      setHistoryError(error.response?.data?.detail || "Could not load stock and price history.");
+    }
   }
 
   return (
@@ -110,6 +124,7 @@ function Inventory() {
                 <th>Sale Mode</th>
                 <th>Available Quantity</th>
                 <th>Average Cost</th>
+                <th>Selling Price</th>
                 <th>Reorder Level</th>
                 <th className="actions-heading">Actions</th>
               </tr>
@@ -150,6 +165,8 @@ function Inventory() {
                     </span>
                   </td>
 
+                  <td>{formatCurrency(Number(v.selling_price))}</td>
+
                   <td>
                     <span className="reorder-value">{v.reorder_level}</span>
                   </td>
@@ -181,7 +198,7 @@ function Inventory() {
 
               {variants.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="empty-hint">
+                  <td colSpan={7} className="empty-hint">
                     <div className="inventory-empty">
                       <span className="inventory-empty-icon">▤</span>
                       <strong>
@@ -213,6 +230,7 @@ function Inventory() {
       {adjustingVariant && (
         <AdjustModal
           variant={adjustingVariant}
+          existingCost={variantCosts[adjustingVariant.id]}
           onClose={() => setAdjustingVariant(null)}
           onSaved={() => {
             setAdjustingVariant(null);
@@ -240,7 +258,11 @@ function Inventory() {
           onClose={() => {
             setHistoryVariant(null);
             setMovements([]);
+            setPriceHistory([]);
+            setHistoryError("");
           }}
+          priceHistory={priceHistory}
+          error={historyError}
         />
       )}
 
@@ -248,12 +270,18 @@ function Inventory() {
   );
 }
 
-function AdjustModal({ variant, onClose, onSaved }) {
+function AdjustModal({ variant, existingCost, onClose, onSaved }) {
   const [direction, setDirection] = useState("add");
   const [movementType, setMovementType] = useState("purchase");
   const [amount, setAmount] = useState("");
   const [countedQuantity, setCountedQuantity] = useState("");
-  const [unitCost, setUnitCost] = useState("");
+  const [changeUnitCost, setChangeUnitCost] = useState(!existingCost?.cost_price_is_known);
+  const [unitCost, setUnitCost] = useState(() => {
+    if (!existingCost?.cost_price_is_known) return "";
+    return String(
+      existingCost.latest_purchase_unit_cost ?? existingCost.cost_price,
+    );
+  });
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
 
@@ -278,7 +306,8 @@ function AdjustModal({ variant, onClose, onSaved }) {
     }
 
     try {
-      if (movementType === "purchase" && (!unitCost || Number(unitCost) < 0)) {
+      const needsUnitCost = !existingCost?.cost_price_is_known || changeUnitCost;
+      if (movementType === "purchase" && needsUnitCost && (!unitCost || Number(unitCost) < 0)) {
         setError("Enter the purchase cost per unit.");
         return;
       }
@@ -287,7 +316,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
         delta,
         movement_type: movementType,
         reason: reason || null,
-        unit_cost: movementType === "purchase" ? Number(unitCost) : null,
+        unit_cost: movementType === "purchase" && needsUnitCost ? Number(unitCost) : null,
       });
       onSaved();
     } catch (err) {
@@ -319,6 +348,9 @@ function AdjustModal({ variant, onClose, onSaved }) {
             {variant.quantity} {unitLabel}{variant.sale_mode === "bulk" ? "" : "s"}
           </strong>
         </div>
+        <p className="inventory-current-price">
+          Current selling price: <strong>{formatCurrency(Number(variant.selling_price))}</strong>
+        </p>
 
         <div className="modal-form-content">
 
@@ -385,18 +417,37 @@ function AdjustModal({ variant, onClose, onSaved }) {
 
           {direction === "add" && movementType === "purchase" && (
             <>
-              <label htmlFor="stock-unit-cost">Purchase cost per {unitLabel}</label>
-              <input
-                id="stock-unit-cost"
-                className="modal-input"
-                type="number"
-                min="0"
-                step="0.01"
-                value={unitCost}
-                onChange={(e) => setUnitCost(e.target.value)}
-                required
-              />
-              <small>This creates a new purchase batch. Older stock will be sold first, then this batch.</small>
+              {existingCost?.cost_price_is_known && (
+                <label className="inventory-cost-change-toggle">
+                  <input
+                    type="checkbox"
+                    checked={changeUnitCost}
+                    onChange={(event) => setChangeUnitCost(event.target.checked)}
+                  />
+                  Supplier cost changed for this delivery
+                </label>
+              )}
+              {(!existingCost?.cost_price_is_known || changeUnitCost) && (
+                <>
+                  <label htmlFor="stock-unit-cost">Purchase cost per {unitLabel}</label>
+                  <input
+                    id="stock-unit-cost"
+                    className="modal-input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={unitCost}
+                    onChange={(e) => setUnitCost(e.target.value)}
+                    required
+                  />
+                </>
+              )}
+              <small>
+                {existingCost?.cost_price_is_known
+                  ? `The last recorded unit cost (${formatCurrency(Number(existingCost.latest_purchase_unit_cost ?? existingCost.cost_price))}) is used unless you change it.`
+                  : "A unit cost is required for the first stock receipt."}
+                {" "}Each receipt is saved as a separate costed batch.
+              </small>
             </>
           )}
 
@@ -437,7 +488,7 @@ function AdjustModal({ variant, onClose, onSaved }) {
   );
 }
 
-function HistoryModal({ variant, movements, onClose }) {
+function HistoryModal({ variant, movements, priceHistory, error, onClose }) {
   const [resolutionCost, setResolutionCost] = useState("");
   const [resolutionMessage, setResolutionMessage] = useState("");
   const [resolving, setResolving] = useState(false);
@@ -475,6 +526,7 @@ function HistoryModal({ variant, movements, onClose }) {
           <span>Recorded stock movements</span>
           <strong>{movements.length}</strong>
         </div>
+        {error && <div className="form-error" role="alert">{error}</div>}
 
         <div className="history-cost-repair">
           <strong>Repair legacy missing costs</strong>
@@ -496,7 +548,9 @@ function HistoryModal({ variant, movements, onClose }) {
                 <th>Movement Type</th>
                 <th>Change</th>
                 <th>Before → After</th>
-                <th>Recorded unit cost</th>
+                <th>Unit cost</th>
+                <th>Movement value</th>
+                <th>Recorded by</th>
                 <th>Reason</th>
               </tr>
             </thead>
@@ -522,11 +576,9 @@ function HistoryModal({ variant, movements, onClose }) {
                     </span>
                   </td>
 
-                  <td>
-                    {m.unit_cost_at_time != null
-                      ? formatCurrency(Number(m.unit_cost_at_time) * Math.abs(m.quantity))
-                      : "—"}
-                  </td>
+                  <td>{m.unit_cost_at_time != null ? formatCurrency(Number(m.unit_cost_at_time)) : "—"}</td>
+                  <td>{m.unit_cost_at_time != null ? formatCurrency(Number(m.unit_cost_at_time) * Math.abs(m.quantity)) : "—"}</td>
+                  <td>{m.user_name || "—"}</td>
 
                   <td>{m.reason || "—"}</td>
                 </tr>
@@ -534,7 +586,7 @@ function HistoryModal({ variant, movements, onClose }) {
 
               {movements.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="empty-hint">
+                  <td colSpan={8} className="empty-hint">
                     <div className="inventory-empty">
                       <span className="inventory-empty-icon">◷</span>
                       <strong>No movements recorded</strong>
@@ -545,6 +597,33 @@ function HistoryModal({ variant, movements, onClose }) {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="price-history-section">
+          <h4>Selling price history</h4>
+          <div className="history-table-container">
+            <table className="history-table">
+              <thead>
+                <tr><th>Date &amp; Time</th><th>Price change</th><th>Changed by</th></tr>
+              </thead>
+              <tbody>
+                {priceHistory.map((change) => (
+                  <tr key={change.id}>
+                    <td>{new Date(change.created_at).toLocaleString()}</td>
+                    <td>
+                      {change.old_price == null
+                        ? `Initial price: ${formatCurrency(Number(change.new_price))}`
+                        : `${formatCurrency(Number(change.old_price))} → ${formatCurrency(Number(change.new_price))}`}
+                    </td>
+                    <td>{change.changed_by_name}</td>
+                  </tr>
+                ))}
+                {priceHistory.length === 0 && (
+                  <tr><td colSpan={3} className="empty-hint">No selling price changes recorded since tracking began.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="modal-actions">

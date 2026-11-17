@@ -7,7 +7,7 @@ import {
 } from "../../services/catalogApi";
 import api from "../../services/api";
 import { getReceiptProfile } from "../../services/profileApi";
-import { toCents, fromCents } from "../../utils/money";
+import { toCents, fromCents, formatCurrency } from "../../utils/money";
 import ProductImagePicker from "../../components/ProductImagePicker";
 import "./Products.css";
 
@@ -33,7 +33,8 @@ const PRODUCT_EXAMPLES = {
 
 const CSV_HEADERS = [
   "product_name", "category", "brand", "description", "variant_name", "unit",
-  "sale_mode", "unit_quantity", "selling_price", "cost_price", "sku", "barcode", "is_public",
+  "sale_mode", "unit_quantity", "selling_price", "cost_price", "initial_quantity",
+  "sku", "barcode", "is_public",
 ];
 
 function parseCsvText(text) {
@@ -95,6 +96,7 @@ function parseProductCsv(text) {
     const sellingPrice = Number(get(row, "selling_price"));
     const unitQuantity = saleMode === "bulk" ? 1 : Number(get(row, "unit_quantity") || 1);
     const costPrice = Number(get(row, "cost_price") || 0);
+    const initialQuantity = Number(get(row, "initial_quantity") || 0);
     const rowErrors = [];
     if (!productName) rowErrors.push("product_name is required");
     if (!variantName) rowErrors.push("variant_name is required");
@@ -103,6 +105,8 @@ function parseProductCsv(text) {
     if (!Number.isFinite(sellingPrice) || sellingPrice < 0) rowErrors.push("selling_price must be a number of 0 or more");
     if (!Number.isInteger(unitQuantity) || unitQuantity < 1) rowErrors.push("unit_quantity must be a whole number of 1 or more");
     if (!Number.isFinite(costPrice) || costPrice < 0) rowErrors.push("cost_price must be a number of 0 or more");
+    if (!Number.isInteger(initialQuantity) || initialQuantity < 0) rowErrors.push("initial_quantity must be a whole number of 0 or more");
+    if (initialQuantity > 0 && costPrice <= 0) rowErrors.push("cost_price must be greater than 0 when adding opening stock");
     if (rowErrors.length) {
       errors.push({ line, message: rowErrors.join("; ") });
       return;
@@ -128,6 +132,7 @@ function parseProductCsv(text) {
       unit_quantity: unitQuantity,
       selling_price: sellingPrice,
       cost_price: costPrice,
+      initial_quantity: initialQuantity,
       sku: get(row, "sku") || null,
       barcode: get(row, "barcode") || null,
     });
@@ -276,7 +281,7 @@ function Products() {
   function downloadCsvTemplate() {
     const example = [
       CSV_HEADERS.join(","),
-      ["Maize Flour", "Food", "Example Brand", "2kg packet", "2kg packet", "packet", "fixed", "1", "250", "190", "MF-001", "6161234567890", "false"].join(","),
+      ["Maize Flour", "Food", "Example Brand", "2kg packet", "2kg packet", "packet", "fixed", "1", "250", "190", "0", "MF-001", "6161234567890", "false"].join(","),
     ].join("\n");
     const url = URL.createObjectURL(new Blob([example], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a");
@@ -307,6 +312,7 @@ function Products() {
 
   async function approveCsvImport() {
     if (!importPreview?.products.length || importPreview.errors.length) return;
+    if (hasInvalidOpeningStock()) return;
     setIsImporting(true);
     setError("");
     try {
@@ -318,6 +324,35 @@ function Products() {
     } finally {
       setIsImporting(false);
     }
+  }
+
+  function hasInvalidOpeningStock() {
+    return Boolean(importPreview?.products.some((product) =>
+      product.variants.some((variant) =>
+        !Number.isInteger(variant.initial_quantity)
+        || variant.initial_quantity < 0
+        || (variant.initial_quantity > 0 && Number(variant.cost_price) <= 0)
+      )
+    ));
+  }
+
+  function updateImportQuantity(productIndex, variantIndex, rawValue) {
+    const quantity = rawValue === "" ? "" : Number(rawValue);
+    setImportPreview((current) => ({
+      ...current,
+      products: current.products.map((product, currentProductIndex) => (
+        currentProductIndex !== productIndex
+          ? product
+          : {
+            ...product,
+            variants: product.variants.map((variant, currentVariantIndex) => (
+              currentVariantIndex === variantIndex
+                ? { ...variant, initial_quantity: quantity }
+                : variant
+            )),
+          }
+      )),
+    }));
   }
 
   async function requestAiSuggestions() {
@@ -944,21 +979,45 @@ function Products() {
                     ))}
                   </div>
                 )}
+                <p className="csv-opening-stock-guidance">
+                  Enter opening quantities here. Costs and selling prices come from the CSV; cost is required for any quantity above zero.
+                </p>
                 <div className="csv-preview-table-wrap">
                   <table className="csv-preview-table">
-                    <thead><tr><th>Product</th><th>Variants</th><th>Category</th><th>Public</th></tr></thead>
-                    <tbody>{importPreview.products.slice(0, 10).map((product) => (
-                      <tr key={product.name}>
-                        <td>{product.name}</td>
-                        <td>{product.variants.map((variant) => variant.name).join(", ")}</td>
-                        <td>{product.category || "—"}</td>
-                        <td>{product.is_public ? "Yes" : "No"}</td>
-                      </tr>
-                    ))}</tbody>
+                    <thead><tr><th>Product</th><th>Variant</th><th>Unit cost</th><th>Selling price</th><th>Opening quantity</th></tr></thead>
+                    <tbody>{importPreview.products.flatMap((product, productIndex) =>
+                      product.variants.map((variant, variantIndex) => (
+                        <tr key={`${product.name}-${variant.name}`}>
+                          <td>{product.name}</td>
+                          <td>{variant.name}</td>
+                          <td>{formatCurrency(Number(variant.cost_price))}</td>
+                          <td>{formatCurrency(Number(variant.selling_price))}</td>
+                          <td>
+                            <input
+                              className="csv-opening-quantity"
+                              type="number"
+                              min="0"
+                              step="1"
+                              aria-label={`Opening quantity for ${product.name}, ${variant.name}`}
+                              value={variant.initial_quantity}
+                              onChange={(event) => updateImportQuantity(
+                                productIndex,
+                                variantIndex,
+                                event.target.value,
+                              )}
+                            />
+                          </td>
+                        </tr>
+                      ))
+                    )}</tbody>
                   </table>
                 </div>
-                {importPreview.products.length > 10 && <small>Showing the first 10 products.</small>}
-                <button type="button" className="csv-approve-button" disabled={isImporting} onClick={approveCsvImport}>
+                {hasInvalidOpeningStock() && (
+                  <div className="csv-import-errors" role="alert">
+                    Opening quantity must be a whole number of 0 or more, and quantities above zero need a recorded unit cost.
+                  </div>
+                )}
+                <button type="button" className="csv-approve-button" disabled={isImporting || hasInvalidOpeningStock()} onClick={approveCsvImport}>
                   {isImporting ? "Importing..." : `Approve and import ${importPreview.products.length} products`}
                 </button>
               </>
