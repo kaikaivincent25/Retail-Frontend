@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import "./Toast.css";
 
 const ToastContext = createContext(null);
@@ -14,12 +14,27 @@ export function ToastProvider({ children }) {
     }, 5000);
   }, []);
 
+  useEffect(() => {
+    const reportUnexpectedError = (event) => {
+      console.error("An uncaught application error occurred.", event.error || event.reason || event.message);
+      showToast("An unexpected error occurred. Please try again.", "error");
+    };
+
+    window.addEventListener("error", reportUnexpectedError);
+    window.addEventListener("unhandledrejection", reportUnexpectedError);
+
+    return () => {
+      window.removeEventListener("error", reportUnexpectedError);
+      window.removeEventListener("unhandledrejection", reportUnexpectedError);
+    };
+  }, [showToast]);
+
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="toast-container">
+      <div className="toast-container" aria-live="polite">
         {toasts.map((t) => (
-          <div key={t.id} className={`toast toast-${t.type}`}>{t.message}</div>
+          <div key={t.id} className={`toast toast-${t.type}`} role="alert">{t.message}</div>
         ))}
       </div>
     </ToastContext.Provider>

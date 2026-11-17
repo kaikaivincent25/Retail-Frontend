@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout/Layout";
 import Landing from "./pages/Landing/Landing";
@@ -28,6 +28,7 @@ import "./pages/Landing/Landing.css";
 import DevelopmentNotice from "./components/DevelopmentNotice/DevelopmentNotice";
 import PublicShop from "./pages/PublicShop/PublicShop";
 import Orders from "./pages/Orders/Orders";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
@@ -189,14 +190,22 @@ function AppRoutes() {
   );
 }
 
+function RouteErrorBoundary({ children }) {
+  const location = useLocation();
+
+  return <ErrorBoundary key={location.pathname}>{children}</ErrorBoundary>;
+}
+
 function App() {
   return (
     <ToastProvider>
       <AuthProvider>
         <BrowserRouter>
-          <DevelopmentNotice>
-            <AppRoutes />
-          </DevelopmentNotice>
+          <RouteErrorBoundary>
+            <DevelopmentNotice>
+              <AppRoutes />
+            </DevelopmentNotice>
+          </RouteErrorBoundary>
         </BrowserRouter>
       </AuthProvider>
     </ToastProvider>
