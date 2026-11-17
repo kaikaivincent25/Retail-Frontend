@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { askBusinessAssistant } from "../../services/catalogApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import "./BusinessAssistant.css";
@@ -33,8 +34,24 @@ function BusinessAssistant() {
   }
 
   return (
-    <aside className={`business-assistant${open ? " is-open" : ""}`} aria-label="AI business assistant">
-      {open && (
+    <>
+      <aside className="business-assistant" aria-label="AI business assistant">
+        <button
+          className="business-assistant-toggle"
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-label={open ? "Close AI assistant" : "Open AI assistant"}
+          aria-expanded={open}
+          aria-controls={open ? "business-assistant-panel" : undefined}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" />
+            <path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z" />
+          </svg>
+          <span>Ask AI</span>
+        </button>
+      </aside>
+      {open && createPortal(
         <div className="business-assistant-panel" id="business-assistant-panel">
           <div className="business-assistant-heading">
             <div>
@@ -69,23 +86,10 @@ function BusinessAssistant() {
             <button type="submit" disabled={loading || !question.trim()}>{loading ? "Thinking..." : "Ask assistant"}</button>
           </form>
           <small className="business-assistant-note">AI suggestions are advisory. Confirm important decisions in the relevant page.</small>
-        </div>
+        </div>,
+        document.body,
       )}
-      <button
-        className="business-assistant-toggle"
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-label={open ? "Close AI assistant" : "Open AI assistant"}
-        aria-expanded={open}
-        aria-controls={open ? "business-assistant-panel" : undefined}
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" />
-          <path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z" />
-        </svg>
-        <span>Ask AI</span>
-      </button>
-    </aside>
+    </>
   );
 }
 
