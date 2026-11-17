@@ -2,6 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { NAV_ICONS, NAV_ITEMS } from "./navigationItems";
 import SyncStatus from "../SyncStatus";
+import BusinessAssistant from "../BusinessAssistant/BusinessAssistant";
 import "./TopNavigation.css";
 
 function TopNavigation({ onMenuToggle }) {
@@ -63,7 +64,11 @@ function TopNavigation({ onMenuToggle }) {
           </NavLink>
         ))}
       </nav>
-      <div className="workspace-navigation-actions"><SyncStatus /><span className="workspace-role">{user?.role || "Account"}</span></div>
+      <div className="workspace-navigation-actions">
+        <BusinessAssistant />
+        <SyncStatus />
+        <span className="workspace-role">{user?.role || "Account"}</span>
+      </div>
     </header>
   );
 }

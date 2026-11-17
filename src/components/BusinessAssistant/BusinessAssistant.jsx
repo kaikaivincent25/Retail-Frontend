@@ -35,12 +35,12 @@ function BusinessAssistant() {
   return (
     <aside className={`business-assistant${open ? " is-open" : ""}`} aria-label="AI business assistant">
       {open && (
-        <div className="business-assistant-panel">
+        <div className="business-assistant-panel" id="business-assistant-panel">
           <div className="business-assistant-heading">
             <div>
               <span className="business-assistant-kicker">SHOP INTELLIGENCE</span>
-              <h2>Ask your shop</h2>
-              <p>Answers use your sales, stock, credit, and order data.</p>
+              <h2>How can I help?</h2>
+              <p>Ask about using the system or your shop's performance.</p>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close AI assistant">×</button>
           </div>
@@ -50,7 +50,7 @@ function BusinessAssistant() {
             ))}
           </div>
           {answer && (
-            <div className="business-assistant-answer">
+            <div className="business-assistant-answer" aria-live="polite">
               <p>{answer.answer}</p>
               {answer.actions?.length > 0 && (
                 <ul>{answer.actions.map((action) => <li key={action}>{action}</li>)}</ul>
@@ -71,8 +71,19 @@ function BusinessAssistant() {
           <small className="business-assistant-note">AI suggestions are advisory. Confirm important decisions in the relevant page.</small>
         </div>
       )}
-      <button className="business-assistant-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open}>
-        <span aria-hidden="true">✦</span> {open ? "Close assistant" : "Ask your shop"}
+      <button
+        className="business-assistant-toggle"
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-label={open ? "Close AI assistant" : "Open AI assistant"}
+        aria-expanded={open}
+        aria-controls={open ? "business-assistant-panel" : undefined}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" />
+          <path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z" />
+        </svg>
+        <span>Ask AI</span>
       </button>
     </aside>
   );
