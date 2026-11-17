@@ -17,6 +17,11 @@
   --light-blue-300: #c6e2f5;
 }
 
+/* Keep public pages in step with the shared document-inspired typography. */
+.lp-page {
+  font-family: var(--sans) !important;
+}
+
 html,
 body,
 #root,

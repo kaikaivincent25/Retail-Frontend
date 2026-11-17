@@ -42,7 +42,7 @@
   color: var(--billing-ink);
   font-size: clamp(29px, 4vw, 40px);
   font-weight: 760;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
@@ -113,7 +113,7 @@
   margin: 0 0 4px;
   color: #174b42;
   font-size: 15px;
-  letter-spacing: -0.01em;
+  letter-spacing: normal;
 }
 
 .billing-core-promise p {
@@ -161,7 +161,7 @@
   margin: 7px 0 7px;
   color: var(--billing-ink);
   font-size: 24px;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.015em;
 }
 
 .billing-current-price {
@@ -175,7 +175,7 @@
 .billing-current-price strong {
   color: var(--billing-accent);
   font-size: 24px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.015em;
 }
 
 .billing-current-price > span {
@@ -375,7 +375,7 @@
   margin: 6px 0 7px;
   color: var(--billing-ink);
   font-size: 21px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.015em;
 }
 
 .billing-plan-tagline {
@@ -397,7 +397,7 @@
   color: #1e5f8a;
   font-size: 25px;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.015em;
 }
 
 .billing-plan-price span {

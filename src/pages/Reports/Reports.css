@@ -94,10 +94,10 @@
 .reports-page .reports-hero h1 {
   margin: 10px 0 8px;
   color: #fff;
-  font-family: var(--sans);
+  font-family: var(--heading);
   font-size: clamp(30px, 4vw, 43px);
   font-weight: 750;
-  letter-spacing: -1.4px;
+  letter-spacing: -0.5px;
   line-height: 1.1;
 }
 
@@ -402,10 +402,10 @@
 .report-section h2 {
   margin: 0 0 5px;
   color: var(--reports-ink);
-  font-family: var(--sans);
+  font-family: var(--heading);
   font-size: 18px;
   font-weight: 750;
-  letter-spacing: -0.45px;
+  letter-spacing: normal;
 }
 
 .section-heading p {
@@ -912,7 +912,7 @@
 .reports-page .reports-hero h1 {
   margin: 12px 0 10px;
   font-size: clamp(32px, 4vw, 46px);
-  letter-spacing: -1.5px;
+  letter-spacing: -0.5px;
 }
 
 .reports-hero p {
@@ -1521,7 +1521,7 @@
     margin: 0 !important;
     padding: 0 !important;
     color: #1a1a1a !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+    font-family: "Times New Roman", Times, serif !important;
     background: #fff !important;
   }
 
@@ -1925,7 +1925,7 @@
   margin: 9px 0;
   color: #173b5d;
   font-size: clamp(25px, 4vw, 34px);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.015em;
   line-height: 1.15;
 }
 
