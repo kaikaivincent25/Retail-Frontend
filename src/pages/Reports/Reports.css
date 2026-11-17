@@ -1884,3 +1884,139 @@
     border-left: 0;
   }
 }
+
+.reports-plan-gate {
+  display: grid;
+  min-height: min(72vh, 760px);
+  place-items: center;
+}
+
+.reports-plan-gate-card {
+  width: min(100%, 680px);
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid #dce5ed;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #fff, #f7fafc);
+  box-shadow: 0 18px 48px rgba(27, 55, 81, 0.09);
+  text-align: center;
+}
+
+.reports-plan-gate-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  place-items: center;
+  border-radius: 16px;
+  background: #e6f1f8;
+  color: #267baa;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.reports-plan-gate-kicker {
+  color: #2878a4;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.reports-plan-gate-card h1 {
+  margin: 9px 0;
+  color: #173b5d;
+  font-size: clamp(25px, 4vw, 34px);
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.reports-plan-gate-card > p {
+  margin: 0 auto 10px;
+  color: #64788b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.reports-plan-gate-card .reports-plan-gate-detail {
+  color: #8190a0;
+  font-size: 11px;
+}
+
+.reports-plan-gate-button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin: 13px 0 22px;
+  padding: 0 18px;
+  border-radius: 9px;
+  background: #2478ad;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.reports-plan-gate-button:hover {
+  background: #1c648f;
+}
+
+.reports-plan-gate-button:focus-visible,
+.reports-plan-gate-core a:focus-visible {
+  outline: 3px solid rgba(36, 120, 173, 0.24);
+  outline-offset: 3px;
+}
+
+.reports-plan-gate-card .reports-plan-gate-admin-note {
+  margin: 13px 0 22px;
+  color: #536e83;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.reports-plan-gate-core {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #d1e8df;
+  border-radius: 13px;
+  background: #f2faf6;
+  color: #245c4e;
+  font-size: 11px;
+  text-align: left;
+}
+
+.reports-plan-gate-core > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.reports-plan-gate-core a {
+  padding: 7px 10px;
+  border: 1px solid #cce3d9;
+  border-radius: 8px;
+  background: #fff;
+  color: #25674f;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.reports-plan-gate-core a:hover {
+  background: #e6f5ee;
+}
+
+@media (max-width: 600px) {
+  .reports-plan-gate {
+    min-height: 65vh;
+  }
+
+  .reports-plan-gate-card {
+    padding: 24px 18px;
+    border-radius: 17px;
+  }
+
+  .reports-plan-gate-core > div {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

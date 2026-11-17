@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { getPeriodSummary } from "../../services/reportsApi";
 import { getReceiptProfile } from "../../services/profileApi";
 import { formatCurrency } from "../../utils/money";
@@ -43,11 +45,13 @@ function formatShortDate(value) {
 }
 
 function Reports() {
+  const { user } = useAuth();
   const [startDate, setStartDate] = useState(PRESETS[0].start());
   const [endDate, setEndDate] = useState(PRESETS[0].end());
   const [report, setReport] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [planRestricted, setPlanRestricted] = useState(false);
   const [shopProfile, setShopProfile] = useState(null);
 
   useEffect(() => {
@@ -64,6 +68,7 @@ function Reports() {
         if (!isCurrentRequest) return null;
         setLoading(true);
         setError("");
+        setPlanRestricted(false);
         return getPeriodSummary(startDate, endDate);
       })
       .then((data) => {
@@ -73,6 +78,7 @@ function Reports() {
       .catch((err) => {
         if (isCurrentRequest) {
           setReport(null);
+          setPlanRestricted(err.response?.status === 402);
           setError(err.response?.data?.detail || "Could not load report.");
         }
       })
@@ -105,6 +111,33 @@ function Reports() {
   const activePreset = PRESETS.find(
     (preset) => preset.start() === startDate && preset.end() === endDate,
   );
+
+  if (!loading && planRestricted) {
+    return (
+      <main className="reports-page reports-plan-gate">
+        <section className="reports-plan-gate-card" aria-labelledby="reports-plan-gate-title">
+          <span className="reports-plan-gate-icon" aria-hidden="true">↗</span>
+          <span className="reports-plan-gate-kicker">PLAN FEATURE</span>
+          <h1 id="reports-plan-gate-title">Unlock detailed business reports</h1>
+          <p>Advanced performance and profitability reports are available on selected paid plans.</p>
+          <p className="reports-plan-gate-detail">{error}</p>
+          {user?.role === "admin" ? (
+            <Link className="reports-plan-gate-button" to="/billing">Compare plans</Link>
+          ) : (
+            <p className="reports-plan-gate-admin-note">Ask your shop administrator to review the plan options.</p>
+          )}
+          <div className="reports-plan-gate-core">
+            <strong>Your core shop tools stay available on Free:</strong>
+            <div>
+              <Link to="/sales">Sales</Link>
+              <Link to="/products">Add products</Link>
+              <Link to="/inventory">Inventory</Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="reports-page">

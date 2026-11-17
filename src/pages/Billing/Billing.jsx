@@ -8,6 +8,40 @@ const money = new Intl.NumberFormat("en-KE", {
   maximumFractionDigits: 0,
 });
 
+const PLAN_DETAILS = {
+  free: {
+    tagline: "Start selling and keep your shop organized at no cost.",
+    audience: "For getting started",
+  },
+  starter: {
+    tagline: "Add more day-to-day control as your shop grows.",
+    audience: "For small teams",
+  },
+  business: {
+    tagline: "Turn shop activity into clearer business decisions.",
+    audience: "For growing shops",
+  },
+  pro: {
+    tagline: "Give a larger team more room to work together.",
+    audience: "For larger teams",
+  },
+};
+
+const FEATURE_LABELS = {
+  "reports.basic": "Daily sales snapshot",
+  "inventory.reports": "Stock insights",
+  expenses: "Expense tracking",
+  "reports.full": "Detailed sales and profitability reports",
+  "reports.export": "Print-ready report summaries",
+  "audit.logs": "Activity history",
+};
+
+function planFeatures(plan) {
+  return Object.entries(plan.features || {})
+    .filter(([key, enabled]) => enabled && FEATURE_LABELS[key])
+    .map(([key]) => FEATURE_LABELS[key]);
+}
+
 function Billing() {
   const [billing, setBilling] = useState(null);
   const [plans, setPlans] = useState([]);
@@ -29,10 +63,8 @@ function Billing() {
       });
   }, []);
 
-  if (error) return <div className="billing-page"><div className="billing-error">{error}</div></div>;
-  if (!billing) return <div className="billing-page"><p className="billing-loading">Loading billing…</p></div>;
-
-  const canStartTrial = billing.plan.code === "free" && !billing.trial_ends_at;
+  const canStartTrial =
+    billing?.plan.code === "free" && !billing.trial_used && !billing.trial_ends_at;
 
   async function startTrial() {
     setStartingTrial(true);
@@ -49,7 +81,8 @@ function Billing() {
 
   async function startMpesaCheckout(plan) {
     if (!phoneNumber.trim()) {
-      setError("Enter the M-Pesa phone number that should approve this payment.");
+      setError("Enter the M-Pesa number that should approve this payment.");
+      document.getElementById("billing-phone-number")?.focus();
       return;
     }
     setCheckoutPlan(plan.code);
@@ -61,19 +94,25 @@ function Billing() {
         phone_number: phoneNumber,
       });
       setPaymentMessage(response.data.message);
+      let paymentResolved = false;
       for (let attempt = 0; attempt < 12; attempt += 1) {
         await new Promise((resolve) => setTimeout(resolve, 5000));
         const statusResponse = await api.get(`/billing/mpesa/payments/${response.data.payment_id}`);
         if (statusResponse.data.status === "completed") {
+          paymentResolved = true;
           setPaymentMessage(`Payment confirmed. ${statusResponse.data.plan_name} is now active.`);
           const billingResponse = await api.get("/billing");
           setBilling(billingResponse.data);
           break;
         }
         if (statusResponse.data.status === "failed") {
+          paymentResolved = true;
           setError("M-Pesa did not complete the payment. You can try again.");
           break;
         }
+      }
+      if (!paymentResolved) {
+        setPaymentMessage("Your payment is still processing. Refresh this page before trying again to avoid a duplicate payment.");
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Could not start the M-Pesa payment.");
@@ -83,75 +122,188 @@ function Billing() {
   }
 
   async function cancelPlan() {
-    if (!window.confirm("Cancel this plan and move the shop to the Free plan?")) return;
+    if (!window.confirm("Move this shop to the Free plan? Sales, products, and inventory will remain available.")) return;
     setCanceling(true);
     setError("");
     try {
       const response = await api.post("/billing/cancel");
       setBilling(response.data);
-      setPaymentMessage("Your shop is now on the Free plan. Core sales, products, and inventory remain available.");
+      setPaymentMessage("Your shop is now on the Free plan. Sales, products, and inventory remain available.");
     } catch (err) {
-      setError(err.response?.data?.detail || "Could not cancel the plan.");
+      setError(err.response?.data?.detail || "Could not change your plan.");
     } finally {
       setCanceling(false);
     }
   }
 
+  if (error && !billing) {
+    return <main className="billing-page"><div className="billing-error" role="alert">{error}</div></main>;
+  }
+  if (!billing) {
+    return <main className="billing-page"><p className="billing-loading" role="status">Loading your plan details…</p></main>;
+  }
+
+  const isFreePlan = billing.plan.code === "free";
+  const isTrialing = billing.status === "trialing";
+  const currentStatus = isTrialing
+    ? "Free trial"
+    : isFreePlan
+      ? "Free plan"
+      : billing.status.replaceAll("_", " ");
+  const currentPeriodDescription = isTrialing
+    ? `${billing.days_remaining} days left in your trial`
+    : isFreePlan
+      ? "No expiry · core shop tools stay available"
+      : billing.status === "active"
+        ? `${billing.days_remaining} days in this billing period`
+        : "Review your plan options below";
+
   return (
-    <div className="billing-page">
+    <main className="billing-page">
       <header className="billing-heading">
-        <div>
-          <span className="billing-eyebrow">SUBSCRIPTION</span>
-          <h1>Plans and billing</h1>
-          <p>Choose the plan that fits your shop as it grows.</p>
+        <div className="billing-heading-copy">
+          <span className="billing-eyebrow">SIMPLE, FLEXIBLE PLANS</span>
+          <h1>Plans that grow with your shop</h1>
+          <p>Start free, then add more tools and team capacity when you need them.</p>
         </div>
-        <div className="billing-status-card">
-          <span>{billing.status === "trialing" ? "Free trial" : billing.status}</span>
-          <strong>{billing.days_remaining} days remaining</strong>
-          <small>{billing.active_users} active user{billing.active_users === 1 ? "" : "s"}</small>
-        </div>
+        <aside className="billing-status-card" aria-label="Current subscription status">
+          <span className="billing-status-label">YOUR PLAN</span>
+          <strong>{currentStatus}</strong>
+          <small>{currentPeriodDescription}</small>
+          <small>{billing.active_users} active team member{billing.active_users === 1 ? "" : "s"}</small>
+        </aside>
       </header>
 
-      <section className="billing-current-card">
+      <section className="billing-core-promise" aria-label="Features included on every plan">
+        <div className="billing-core-icon" aria-hidden="true">✓</div>
         <div>
+          <h2>Core shop tools are always free</h2>
+          <p>Make sales, add products, and manage inventory on the Free plan. These essentials stay available without a paid subscription.</p>
+        </div>
+        <ul>
+          <li>Sales &amp; checkout</li>
+          <li>Product catalog</li>
+          <li>Inventory management</li>
+        </ul>
+      </section>
+
+      <section className="billing-current-card" aria-label="Current plan details">
+        <div className="billing-current-copy">
           <span className="billing-card-label">CURRENT PLAN</span>
           <h2>{billing.plan.name}</h2>
-          <p>{billing.status === "trialing" ? "You are using the full Business plan during your 45-day free trial. Plan changes are locked until the trial ends or is canceled." : "Your shop subscription and feature access."}</p>
+          <p>
+            {isTrialing
+              ? "Your trial includes Business plan access. Plan changes are locked during the trial; choose a paid plan after it ends to keep advanced features."
+              : PLAN_DETAILS[billing.plan.code]?.tagline || "Your shop plan and included features."}
+          </p>
         </div>
         <div className="billing-current-price">
-          <strong>{money.format(billing.plan.monthly_price)}</strong>
-          <span>per month after trial</span>
-          {canStartTrial && <button type="button" className="billing-trial-button" onClick={startTrial} disabled={startingTrial}>{startingTrial ? "Starting…" : "Start 45-day free trial"}</button>}
-          {billing.plan.code !== "free" && <button type="button" className="billing-cancel-button" onClick={cancelPlan} disabled={canceling}>{canceling ? "Canceling…" : billing.status === "trialing" ? "Cancel trial" : "Cancel plan"}</button>}
+          <strong>{isFreePlan ? "Free" : money.format(billing.plan.monthly_price)}</strong>
+          {!isFreePlan && <span>per month</span>}
+          {canStartTrial && (
+            <button type="button" className="billing-trial-button" onClick={startTrial} disabled={startingTrial}>
+              {startingTrial ? "Starting your trial…" : "Try Business free for 45 days"}
+            </button>
+          )}
+          {!isFreePlan && (
+            <button type="button" className="billing-cancel-button" onClick={cancelPlan} disabled={canceling}>
+              {canceling ? "Updating plan…" : "Switch to Free"}
+            </button>
+          )}
         </div>
       </section>
 
-      <section className="billing-plans-section">
+      <section className="billing-plans-section" aria-labelledby="billing-plans-title">
         <div className="billing-section-heading">
-          <div><span className="billing-card-label">PLANS</span><h2>Grow at your own pace</h2></div>
-          <label className="billing-phone-field">M-Pesa number<input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} placeholder="0712 345 678" inputMode="tel" /></label>
+          <div>
+            <span className="billing-card-label">CHOOSE YOUR NEXT STEP</span>
+            <h2 id="billing-plans-title">Compare plans</h2>
+            <p>All prices are in Kenyan shillings and billed monthly.</p>
+          </div>
+          <label className="billing-phone-field" htmlFor="billing-phone-number">
+            <span>M-Pesa number</span>
+            <input
+              id="billing-phone-number"
+              type="tel"
+              autoComplete="tel"
+              value={phoneNumber}
+              onChange={(event) => setPhoneNumber(event.target.value)}
+              placeholder="0712 345 678"
+              inputMode="tel"
+              aria-describedby="billing-phone-help"
+            />
+            <small id="billing-phone-help">You’ll approve the payment on your phone.</small>
+          </label>
         </div>
-        {paymentMessage && <div className="billing-success">{paymentMessage}</div>}
+
+        {error && <div className="billing-error" role="alert">{error}</div>}
+        {paymentMessage && <div className="billing-success" role="status">{paymentMessage}</div>}
+
         <div className="billing-plan-grid">
-          {plans.map((plan) => (
-            <article className={`billing-plan-card ${plan.code === billing.plan.code ? "is-current" : ""}`} key={plan.code}>
-              {plan.code === billing.plan.code && <span className="billing-current-badge">Current</span>}
-              <h3>{plan.name}</h3>
-              <div className="billing-plan-price">{money.format(plan.monthly_price)}<small>/month</small></div>
-              <p>{plan.max_users ? `Up to ${plan.max_users} active users` : "Unlimited active users"}</p>
-              <ul>
-                {Object.entries(plan.features).filter(([, enabled]) => enabled).map(([feature]) => (
-                  <li key={feature}>{feature.replaceAll(".", " ")}</li>
-                ))}
-              </ul>
-              <button type="button" disabled={plan.code === "free" || billing.status === "trialing" || (plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status)) || Boolean(checkoutPlan)} onClick={() => startMpesaCheckout(plan)}>
-                {billing.status === "trialing" && plan.code !== billing.plan.code ? "Locked during trial" : plan.code === billing.plan.code && ["active", "trialing"].includes(billing.status) ? "Current plan" : checkoutPlan === plan.code ? "Waiting for payment…" : plan.code === billing.plan.code ? "Renew with M-Pesa" : "Pay with M-Pesa"}
-              </button>
-            </article>
-          ))}
+          {plans.map((plan) => {
+            const isCurrent = plan.code === billing.plan.code;
+            const isRecommended = plan.code === "business";
+            const isLockedDuringTrial = isTrialing && !isCurrent;
+            const isPaid = plan.code !== "free";
+            const features = planFeatures(plan);
+            const planDescription = PLAN_DETAILS[plan.code];
+            const teamSize = plan.max_users
+              ? `Up to ${plan.max_users} active team members`
+              : "Unlimited team members";
+            let buttonLabel = isCurrent
+              ? "Current plan"
+              : isLockedDuringTrial
+                ? "Plan changes locked during trial"
+                : checkoutPlan === plan.code
+                  ? "Waiting for M-Pesa approval…"
+                  : `Choose ${plan.name}`;
+
+            if (isTrialing && isCurrent) buttonLabel = "Business trial active";
+
+            return (
+              <article
+                className={`billing-plan-card${isCurrent ? " is-current" : ""}${isRecommended ? " is-recommended" : ""}`}
+                key={plan.code}
+              >
+                <div className="billing-plan-badges">
+                  {isRecommended && <span className="billing-recommended-badge">MOST POPULAR</span>}
+                  {isCurrent && <span className="billing-current-badge">YOUR PLAN</span>}
+                </div>
+                <span className="billing-plan-audience">{planDescription?.audience || "Flexible plan"}</span>
+                <h3>{plan.name}</h3>
+                <p className="billing-plan-tagline">{planDescription?.tagline || "Tools to help your shop run smoothly."}</p>
+                <div className="billing-plan-price">
+                  <strong>{money.format(plan.monthly_price)}</strong>
+                  <span>/ month</span>
+                </div>
+                <div className="billing-plan-team">{teamSize}</div>
+                <div className="billing-plan-includes">Everything you need to run your shop, plus:</div>
+                <ul className="billing-feature-list">
+                  {features.length > 0
+                    ? features.map((feature) => <li key={feature}>{feature}</li>)
+                    : <li>Core sales, products, and inventory</li>}
+                </ul>
+                {isPaid ? (
+                  <button
+                    type="button"
+                    className="billing-plan-button"
+                    disabled={isCurrent || isLockedDuringTrial || Boolean(checkoutPlan)}
+                    onClick={() => startMpesaCheckout(plan)}
+                  >
+                    {buttonLabel}
+                  </button>
+                ) : (
+                  <div className="billing-free-plan-note">
+                    {isCurrent ? "You’re already on Free" : "Switch to Free using the button above"}
+                  </div>
+                )}
+              </article>
+            );
+          })}
         </div>
+        <p className="billing-payment-note">Payments are made securely through M-Pesa. Your plan changes after payment is confirmed.</p>
       </section>
-    </div>
+    </main>
   );
 }
 
