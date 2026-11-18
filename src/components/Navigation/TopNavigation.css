@@ -44,6 +44,8 @@
   padding: 4px 2px 6px;
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
+  scroll-behavior: smooth;
+  overscroll-behavior-inline: contain;
 }
 
 .workspace-navigation-link {
@@ -60,6 +62,11 @@
   font-weight: 650;
   text-decoration: none;
   white-space: nowrap;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
 }
 
 .workspace-navigation-link svg {
@@ -76,6 +83,7 @@
 .workspace-navigation-link:hover {
   color: var(--brand-strong);
   background: #f4f8fc;
+  transform: translateY(-1px);
 }
 
 .workspace-navigation-link.active {
@@ -100,6 +108,33 @@
 .workspace-navigation-link:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
+}
+
+.mobile-menu-toggle span {
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.mobile-menu-toggle.is-open span:first-child {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.mobile-menu-toggle.is-open span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.is-open span:last-child {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-navigation-links {
+    scroll-behavior: auto;
+  }
+
+  .workspace-navigation-link,
+  .mobile-menu-toggle span {
+    transition: none;
+  }
 }
 
 /* Give the shortcut row priority at intermediate widths so Staff is not

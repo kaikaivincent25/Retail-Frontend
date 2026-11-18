@@ -1377,21 +1377,21 @@ tbody tr:hover {
   --screen-shadow: 0 10px 28px rgba(25, 67, 101, .065);
 }
 
-.app-content > .dashboard-page,
-.app-content > .cashier-dashboard,
-.app-content > .sales-page,
-.app-content > .reports-page,
-.app-content > .accounting-page,
-.app-content > .staff-page,
-.app-content > .customers-page,
-.app-content > .inventory-page,
-.app-content > .expenses-page,
-.app-content > .cash-sessions-page,
-.app-content > .activity-page,
-.app-content > .profile-page,
-.app-content > .sales-history-page,
-.app-content > .billing-page,
-.app-content > .sync-issues-page {
+.app-page-transition > .dashboard-page,
+.app-page-transition > .cashier-dashboard,
+.app-page-transition > .sales-page,
+.app-page-transition > .reports-page,
+.app-page-transition > .accounting-page,
+.app-page-transition > .staff-page,
+.app-page-transition > .customers-page,
+.app-page-transition > .inventory-page,
+.app-page-transition > .expenses-page,
+.app-page-transition > .cash-sessions-page,
+.app-page-transition > .activity-page,
+.app-page-transition > .profile-page,
+.app-page-transition > .sales-history-page,
+.app-page-transition > .billing-page,
+.app-page-transition > .sync-issues-page {
   width: min(100%, var(--screen-max-width));
   margin-inline: auto;
 }

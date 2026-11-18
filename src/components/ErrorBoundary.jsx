@@ -2,7 +2,14 @@ import { Component } from "react";
 import "./ErrorBoundary.css";
 
 class ErrorBoundary extends Component {
-  state = { hasError: false };
+  state = { hasError: false, resetKey: null };
+
+  static getDerivedStateFromProps(props, state) {
+    if (props.resetKey !== state.resetKey) {
+      return { hasError: false, resetKey: props.resetKey };
+    }
+    return null;
+  }
 
   static getDerivedStateFromError() {
     return { hasError: true };

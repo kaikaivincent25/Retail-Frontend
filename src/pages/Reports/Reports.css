@@ -1936,9 +1936,39 @@
   line-height: 1.6;
 }
 
-.reports-plan-gate-card .reports-plan-gate-detail {
-  color: #8190a0;
-  font-size: 11px;
+.reports-plan-gate-benefits {
+  display: grid;
+  gap: 10px;
+  max-width: 470px;
+  margin: 18px auto;
+  padding: 16px 18px;
+  border: 1px solid #e0eaf1;
+  border-radius: 13px;
+  background: #fff;
+  color: #39566d;
+  font-size: 12px;
+  line-height: 1.5;
+  list-style: none;
+  text-align: left;
+}
+
+.reports-plan-gate-benefits li {
+  position: relative;
+  padding-left: 22px;
+}
+
+.reports-plan-gate-benefits li::before {
+  position: absolute;
+  left: 0;
+  color: #278361;
+  font-weight: 800;
+  content: "✓";
+}
+
+.reports-plan-gate-card .reports-plan-gate-plan-status {
+  margin: 0 auto 12px;
+  color: #46647b;
+  font-size: 12px;
 }
 
 .reports-plan-gate-button {
@@ -1954,10 +1984,13 @@
   font-size: 12px;
   font-weight: 750;
   text-decoration: none;
+  transition: background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 
 .reports-plan-gate-button:hover {
+  transform: translateY(-1px);
   background: #1c648f;
+  box-shadow: 0 7px 16px rgba(28, 100, 143, 0.18);
 }
 
 .reports-plan-gate-button:focus-visible,

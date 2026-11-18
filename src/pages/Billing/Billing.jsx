@@ -36,6 +36,8 @@ const FEATURE_LABELS = {
   "audit.logs": "Activity history",
   "mpesa.tools": "M-Pesa payment tools",
   online_store: "Public storefront and online orders",
+  "scheduled.reports": "Scheduled reports",
+  multi_branch: "Multi-branch tools",
 };
 
 function planFeatures(plan) {
@@ -314,7 +316,9 @@ function Billing() {
                   <span>/ month</span>
                 </div>
                 <div className="billing-plan-team">{teamSize}</div>
-                <div className="billing-plan-includes">Everything you need to run your shop, plus:</div>
+                <div className="billing-plan-includes">
+                  {plan.code === "free" ? "Included with Free:" : "Everything on Free, plus:"}
+                </div>
                 <ul className="billing-feature-list">
                   {features.length > 0
                     ? features.map((feature) => <li key={feature}>{feature}</li>)

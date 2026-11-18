@@ -6,10 +6,15 @@ import TopNavigation from "../Navigation/TopNavigation";
 import "./Layout.css";
 
 function Layout({ children }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
-  const contentRef = useRef(null);
   const location = useLocation();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavigation, setMobileNavigation] = useState(() => ({
+    locationKey: location.key,
+    open: false,
+  }));
+  const contentRef = useRef(null);
+  const mobileNavigationOpen =
+    mobileNavigation.locationKey === location.key && mobileNavigation.open;
 
   useLayoutEffect(() => {
     if (contentRef.current) {
@@ -19,20 +24,36 @@ function Layout({ children }) {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  function closeMobileNavigation() {
+    setMobileNavigation({ locationKey: location.key, open: false });
+  }
+
+  function toggleMobileNavigation() {
+    setMobileNavigation({
+      locationKey: location.key,
+      open: !mobileNavigationOpen,
+    });
+  }
+
   return (
     <div className={`app-layout${sidebarCollapsed ? " sidebar-collapsed" : ""}${mobileNavigationOpen ? " mobile-navigation-open" : ""}`}>
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
         mobileOpen={mobileNavigationOpen}
-        onMobileClose={() => setMobileNavigationOpen(false)}
+        onMobileClose={closeMobileNavigation}
       />
       {mobileNavigationOpen && (
-        <button className="mobile-navigation-backdrop" type="button" aria-label="Close navigation" onClick={() => setMobileNavigationOpen(false)} />
+        <button className="mobile-navigation-backdrop" type="button" aria-label="Close navigation" onClick={closeMobileNavigation} />
       )}
       <main className="app-content" ref={contentRef}>
-        <TopNavigation onMenuToggle={() => setMobileNavigationOpen((open) => !open)} />
-        {children}
+        <TopNavigation
+          mobileMenuOpen={mobileNavigationOpen}
+          onMenuToggle={toggleMobileNavigation}
+        />
+        <div className="app-page-transition" key={location.pathname}>
+          {children}
+        </div>
       </main>
     </div>
   );

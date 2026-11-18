@@ -193,7 +193,7 @@ function AppRoutes() {
 function RouteErrorBoundary({ children }) {
   const location = useLocation();
 
-  return <ErrorBoundary key={location.pathname}>{children}</ErrorBoundary>;
+  return <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>;
 }
 
 function App() {

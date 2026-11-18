@@ -5,12 +5,16 @@ import SyncStatus from "../SyncStatus";
 import BusinessAssistant from "../BusinessAssistant/BusinessAssistant";
 import "./TopNavigation.css";
 
-function TopNavigation({ onMenuToggle }) {
+function TopNavigation({ mobileMenuOpen, onMenuToggle }) {
   const { user } = useAuth();
   const location = useLocation();
   const items = NAV_ITEMS[user?.role]?.top || [];
   const sidebarItems = NAV_ITEMS[user?.role]?.sidebar || [];
-  const currentItem = [...sidebarItems, ...items].find((item) => item.to === location.pathname);
+  const utilityItems = [
+    { to: "/profile", label: "Profile" },
+    { to: "/sync-issues", label: "Sync issues" },
+  ];
+  const currentItem = [...sidebarItems, ...items, ...utilityItems].find((item) => item.to === location.pathname);
 
   if (items.length === 0) return null;
 
@@ -38,7 +42,14 @@ function TopNavigation({ onMenuToggle }) {
 
   return (
     <header className="workspace-navigation">
-      <button className="mobile-menu-toggle" type="button" onClick={onMenuToggle} aria-label="Open navigation" aria-controls="primary-navigation">
+      <button
+        className={`mobile-menu-toggle${mobileMenuOpen ? " is-open" : ""}`}
+        type="button"
+        onClick={onMenuToggle}
+        aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
+        aria-expanded={mobileMenuOpen}
+        aria-controls="primary-navigation"
+      >
         <span /><span /><span />
       </button>
     

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getPeriodSummary } from "../../services/reportsApi";
 import { getReceiptProfile } from "../../services/profileApi";
+import api from "../../services/api";
 import { formatCurrency } from "../../utils/money";
 import "./Reports.css";
 
@@ -52,6 +53,9 @@ function Reports() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [planRestricted, setPlanRestricted] = useState(false);
+  const [restrictionType, setRestrictionType] = useState("not-included");
+  const [reportPlans, setReportPlans] = useState(null);
+  const [planOptionsError, setPlanOptionsError] = useState("");
   const [shopProfile, setShopProfile] = useState(null);
 
   useEffect(() => {
@@ -69,6 +73,7 @@ function Reports() {
         setLoading(true);
         setError("");
         setPlanRestricted(false);
+        setRestrictionType("not-included");
         return getPeriodSummary(startDate, endDate);
       })
       .then((data) => {
@@ -79,7 +84,22 @@ function Reports() {
         if (isCurrentRequest) {
           setReport(null);
           setPlanRestricted(err.response?.status === 402);
-          setError(err.response?.data?.detail || "Could not load report.");
+          if (err.response?.status === 402) {
+            setReportPlans(null);
+            setPlanOptionsError("");
+          }
+          const detail = String(err.response?.data?.detail || "");
+          const normalizedDetail = detail.toLowerCase();
+          setRestrictionType(
+            normalizedDetail.includes("suspended by")
+              ? "feature-paused"
+              : normalizedDetail.includes("optional services are suspended")
+                ? "services-paused"
+                : normalizedDetail.includes("subscription has expired")
+                  ? "expired"
+                  : "not-included",
+          );
+          setError(detail || "Could not load report.");
         }
       })
       .finally(() => {
@@ -90,6 +110,30 @@ function Reports() {
       isCurrentRequest = false;
     };
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (!planRestricted || restrictionType === "feature-paused") return undefined;
+
+    let isCurrentRequest = true;
+    api.get("/billing/plans")
+      .then(({ data }) => {
+        if (isCurrentRequest) {
+          setReportPlans(data
+            .filter((plan) => plan.features?.["reports.full"])
+            .map((plan) => plan.name));
+        }
+      })
+      .catch((err) => {
+        if (isCurrentRequest) {
+          console.error("Could not load plan options for the reports access message.", err);
+          setPlanOptionsError("Plan details aren’t available right now. You can still compare the current options.");
+        }
+      });
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [planRestricted, restrictionType]);
 
   function applyPreset(preset) {
     setStartDate(preset.start());
@@ -113,21 +157,62 @@ function Reports() {
   );
 
   if (!loading && planRestricted) {
+    const isFeaturePaused = restrictionType === "feature-paused";
+    const isServicesPaused = restrictionType === "services-paused";
+    const isExpired = restrictionType === "expired";
+
     return (
       <main className="reports-page reports-plan-gate">
         <section className="reports-plan-gate-card" aria-labelledby="reports-plan-gate-title">
           <span className="reports-plan-gate-icon" aria-hidden="true">↗</span>
-          <span className="reports-plan-gate-kicker">PLAN FEATURE</span>
-          <h1 id="reports-plan-gate-title">Unlock detailed business reports</h1>
-          <p>Advanced performance and profitability reports are available on selected paid plans.</p>
-          <p className="reports-plan-gate-detail">{error}</p>
-          {user?.role === "admin" ? (
-            <Link className="reports-plan-gate-button" to="/billing">Compare plans</Link>
-          ) : (
-            <p className="reports-plan-gate-admin-note">Ask your shop administrator to review the plan options.</p>
+          <span className="reports-plan-gate-kicker">{isFeaturePaused ? "A QUICK ACCESS UPDATE" : "MORE CLARITY FOR YOUR SHOP"}</span>
+          <h1 id="reports-plan-gate-title">
+            {isFeaturePaused
+              ? "Detailed reports are temporarily paused"
+              : isExpired
+                ? "Let’s get your reports back on track"
+                : "See the full story behind your sales"}
+          </h1>
+          <p>
+            {isFeaturePaused
+              ? "This reporting feature has been paused for your shop. Your everyday sales, products, and inventory tools are still available."
+              : isServicesPaused
+                ? "Your shop’s optional services are currently paused. Review the plan details to see how to restore access."
+                : isExpired
+                  ? "Your current plan period has ended. Review the available options to restore detailed reporting for your shop."
+                  : "Bring sales, costs, expenses, and product performance together so you can understand what’s working and where to focus."}
+          </p>
+          {!isFeaturePaused && (
+            <ul className="reports-plan-gate-benefits">
+              <li>Compare sales, costs, and estimated profit over time</li>
+              <li>See which products are performing best or need attention</li>
+              <li>Review expenses and stock write-offs alongside sales</li>
+            </ul>
           )}
+          {!isFeaturePaused && reportPlans === null && !planOptionsError && (
+            <p className="reports-plan-gate-plan-status" role="status">Checking which plans include full reports…</p>
+          )}
+          {!isFeaturePaused && reportPlans?.length > 0 && (
+            <p className="reports-plan-gate-plan-status">
+              Full reports are included with <strong>{reportPlans.join(" and ")}</strong>.
+            </p>
+          )}
+          {!isFeaturePaused && reportPlans?.length === 0 && (
+            <p className="reports-plan-gate-plan-status">See the current plan comparison for the latest reporting options.</p>
+          )}
+          {planOptionsError && <p className="reports-plan-gate-plan-status" role="status">{planOptionsError}</p>}
+          {isFeaturePaused && (
+            <p className="reports-plan-gate-admin-note">Please ask your shop administrator to contact RIS support for help restoring access.</p>
+          )}
+          {!isFeaturePaused && user?.role === "admin" ? (
+            <Link className="reports-plan-gate-button" to="/billing">
+              {isServicesPaused ? "Review plan status" : "Explore plans"}
+            </Link>
+          ) : !isFeaturePaused ? (
+            <p className="reports-plan-gate-admin-note">Your shop administrator can review the plan options. Your core shop tools remain ready to use.</p>
+          ) : null}
           <div className="reports-plan-gate-core">
-            <strong>Your core shop tools stay available on Free:</strong>
+            <strong>Your everyday shop tools are still here:</strong>
             <div>
               <Link to="/sales">Sales</Link>
               <Link to="/products">Add products</Link>
