@@ -34,6 +34,8 @@ const FEATURE_LABELS = {
   "reports.full": "Detailed sales and profitability reports",
   "reports.export": "Print-ready report summaries",
   "audit.logs": "Activity history",
+  "mpesa.tools": "M-Pesa payment tools",
+  online_store: "Public storefront and online orders",
 };
 
 function planFeatures(plan) {
@@ -51,6 +53,7 @@ function Billing() {
   const [checkoutPlan, setCheckoutPlan] = useState("");
   const [paymentMessage, setPaymentMessage] = useState("");
   const [canceling, setCanceling] = useState(false);
+  const [resumingTrial, setResumingTrial] = useState(false);
 
   useEffect(() => {
     Promise.all([api.get("/billing"), api.get("/billing/plans")])
@@ -122,17 +125,36 @@ function Billing() {
   }
 
   async function cancelPlan() {
-    if (!window.confirm("Move this shop to the Free plan? Sales, products, and inventory will remain available.")) return;
+    const confirmation = billing.status === "trialing"
+      ? "Cancel your trial? Your Business features will remain available until the original trial end date. You can resume the trial before then, and payment will only be available after the trial ends."
+      : "Move this shop to the Free plan? Sales, products, and inventory will remain available.";
+    if (!window.confirm(confirmation)) return;
     setCanceling(true);
     setError("");
     try {
       const response = await api.post("/billing/cancel");
       setBilling(response.data);
-      setPaymentMessage("Your shop is now on the Free plan. Sales, products, and inventory remain available.");
+      setPaymentMessage(billing.status === "trialing"
+        ? "Trial cancellation scheduled. Your trial access remains active until its original end date."
+        : "Your shop is now on the Free plan. Sales, products, and inventory remain available.");
     } catch (err) {
       setError(err.response?.data?.detail || "Could not change your plan.");
     } finally {
       setCanceling(false);
+    }
+  }
+
+  async function resumeTrial() {
+    setResumingTrial(true);
+    setError("");
+    try {
+      const response = await api.post("/billing/resume-trial");
+      setBilling(response.data);
+      setPaymentMessage("Your Business trial is active again through its original end date.");
+    } catch (err) {
+      setError(err.response?.data?.detail || "Could not resume your trial.");
+    } finally {
+      setResumingTrial(false);
     }
   }
 
@@ -145,13 +167,16 @@ function Billing() {
 
   const isFreePlan = billing.plan.code === "free";
   const isTrialing = billing.status === "trialing";
+  const trialCancellationPending = isTrialing && Boolean(billing.canceled_at);
   const currentStatus = isTrialing
-    ? "Free trial"
+    ? trialCancellationPending ? "Trial ending" : "Free trial"
     : isFreePlan
       ? "Free plan"
       : billing.status.replaceAll("_", " ");
   const currentPeriodDescription = isTrialing
-    ? `${billing.days_remaining} days left in your trial`
+    ? trialCancellationPending
+      ? `${billing.days_remaining} days left · cancellation scheduled`
+      : `${billing.days_remaining} days left in your trial`
     : isFreePlan
       ? "No expiry · core shop tools stay available"
       : billing.status === "active"
@@ -193,7 +218,9 @@ function Billing() {
           <h2>{billing.plan.name}</h2>
           <p>
             {isTrialing
-              ? "Your trial includes Business plan access. Plan changes are locked during the trial; choose a paid plan after it ends to keep advanced features."
+              ? trialCancellationPending
+                ? "Your trial remains active until its original end date. Resume it here any time before then; paid plans become available only after the trial ends."
+                : "Your trial includes Business plan access. You can cancel and resume it until the original end date; paid plans become available only after the trial ends."
               : PLAN_DETAILS[billing.plan.code]?.tagline || "Your shop plan and included features."}
           </p>
         </div>
@@ -205,7 +232,17 @@ function Billing() {
               {startingTrial ? "Starting your trial…" : "Try Business free for 45 days"}
             </button>
           )}
-          {!isFreePlan && (
+          {isTrialing && !trialCancellationPending && (
+            <button type="button" className="billing-cancel-button" onClick={cancelPlan} disabled={canceling}>
+              {canceling ? "Updating trial…" : "Cancel trial"}
+            </button>
+          )}
+          {trialCancellationPending && (
+            <button type="button" className="billing-trial-button" onClick={resumeTrial} disabled={resumingTrial}>
+              {resumingTrial ? "Resuming trial…" : "Resume trial"}
+            </button>
+          )}
+          {!isFreePlan && !isTrialing && (
             <button type="button" className="billing-cancel-button" onClick={cancelPlan} disabled={canceling}>
               {canceling ? "Updating plan…" : "Switch to Free"}
             </button>
@@ -241,7 +278,7 @@ function Billing() {
 
         <div className="billing-plan-grid">
           {plans.map((plan) => {
-            const isCurrent = plan.code === billing.plan.code;
+            const isCurrent = plan.code === billing.plan.code && (billing.status === "active" || isTrialing);
             const isRecommended = plan.code === "business";
             const isLockedDuringTrial = isTrialing && !isCurrent;
             const isPaid = plan.code !== "free";

@@ -28,3 +28,14 @@
 .platform-future-badge { color: #2878c7; font-size: 9px; font-weight: 800; letter-spacing: 1px; }
 .platform-future-card button { width: max-content; border: 0; padding: 0; background: transparent; color: #8ba0b2; font: inherit; font-size: 11px; font-weight: 700; }
 @media (max-width: 700px) { .platform-future-grid { grid-template-columns: 1fr; } }
+.platform-feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px; }
+.platform-feature-option { display:flex; align-items:flex-start; gap:10px; padding:13px; border:1px solid #d7e6f1; border-radius:10px; background:#fbfdff; cursor:pointer; }
+.platform-feature-option input { width:16px; height:16px; margin:2px 0 0; accent-color:#2878c7; }
+.platform-feature-option span { display:grid; gap:4px; }
+.platform-feature-option strong { color:#285b83; font-size:13px; }
+.platform-feature-option small { color:#698198; font-size:11px; }
+.platform-save-features { margin-top:15px; border:1px solid #2878c7; border-radius:8px; padding:10px 14px; background:#2878c7; color:#fff; font-weight:700; cursor:pointer; }
+.platform-save-features:disabled { opacity:.6; cursor:wait; }
+.platform-feature-success { margin:12px 0 0; color:#176b4b; font-size:12px; }
+.platform-table td small.platform-suspended { margin-top:3px; }
+.platform-actions { flex-wrap:wrap; }
