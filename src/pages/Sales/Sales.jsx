@@ -36,6 +36,7 @@ function Sales() {
   const [popular, setPopular] = useState([]);
   const [viewMode, setViewMode] = useState("recommended");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [allItems, setAllItems] = useState([]);
   const [cart, setCart] = useState([]); // [{ variant, quantity }]
   const [amountReceived, setAmountReceived] = useState("");
@@ -436,11 +437,15 @@ function Sales() {
   };
   const salesPeriod = getSalesPeriod(clock, salesSchedule);
   const recommendedItems = sortRecommendedItems(allItems, salesPeriod);
-  const visibleItems = viewMode === "popular"
+  const categoryOptions = Array.from(new Set([...allItems, ...popular].map((item) => item.category).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  const catalogueItems = viewMode === "popular"
     ? popular
     : viewMode === "recommended"
       ? recommendedItems
       : allItems;
+  const visibleItems = selectedCategory === "all"
+    ? catalogueItems
+    : catalogueItems.filter((item) => item.category === selectedCategory);
   const itemCount = cart.reduce((count, line) => count + line.quantity, 0);
 
   async function handleQuickCreateCustomer(e) {
@@ -727,6 +732,36 @@ function Sales() {
             onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
+
+        {categoryOptions.length > 0 && (
+          <div className="sales-category-filter" role="group" aria-label="Filter products by category">
+            <div className="sales-category-filter-heading">
+              <strong>Categories</strong>
+              <span>{categoryOptions.length} available</span>
+            </div>
+            <div className="sales-category-options">
+              <button
+                type="button"
+                className={selectedCategory === "all" ? "active" : ""}
+                aria-pressed={selectedCategory === "all"}
+                onClick={() => setSelectedCategory("all")}
+              >
+                All categories <span>{catalogueItems.length}</span>
+              </button>
+              {categoryOptions.map((category) => (
+                <button
+                  type="button"
+                  className={selectedCategory === category ? "active" : ""}
+                  aria-pressed={selectedCategory === category}
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category} <span>{catalogueItems.filter((item) => item.category === category).length}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {message && <div className={`sale-message ${message.type}`} role="status" aria-live="polite">{message.text}</div>}
 

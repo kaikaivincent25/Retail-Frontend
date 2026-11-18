@@ -32,7 +32,16 @@ export default function PublicShop() {
     getPublicShop(slug).then(setShop).catch((err) => setError(err.response?.status === 404 ? "This shop catalogue is not available." : "Could not load this shop catalogue."));
   }, [slug]);
 
-  const categories = useMemo(() => ["all", ...new Set((shop?.products || []).map((product) => product.category).filter(Boolean))], [shop]);
+  const categories = useMemo(() => {
+    const counts = new Map();
+    (shop?.products || []).forEach((product) => {
+      if (product.category) counts.set(product.category, (counts.get(product.category) || 0) + 1);
+    });
+    return [
+      { name: "all", count: (shop?.products || []).length },
+      ...Array.from(counts, ([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)),
+    ];
+  }, [shop]);
   const products = (shop?.products || []).filter((product) => {
     const haystack = `${product.name} ${product.brand || ""} ${product.description || ""}`.toLowerCase();
     return (selectedCategory === "all" || product.category === selectedCategory) && haystack.includes(search.toLowerCase().trim());
@@ -101,7 +110,26 @@ export default function PublicShop() {
     </div>
     <section className="public-shop-toolbar" aria-label="Catalogue filters">
       <div className="public-search"><span aria-hidden="true">⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search products, brands, or categories" aria-label="Search products" /></div>
-      <div className="public-shop-categories">{categories.map((category) => <button className={selectedCategory === category ? "selected" : ""} key={category} onClick={() => setSelectedCategory(category)}>{category === "all" ? "All products" : category}</button>)}</div>
+    </section>
+    <section className="public-category-section" aria-label="Browse by category">
+      <div className="public-category-heading">
+        <span>Browse</span>
+        <strong>Shop by category</strong>
+        <small>{categories.length - 1} {categories.length - 1 === 1 ? "category" : "categories"}</small>
+      </div>
+      <div className="public-shop-categories">
+        {categories.map((category) => (
+          <button
+            className={selectedCategory === category.name ? "selected" : ""}
+            key={category.name}
+            onClick={() => setSelectedCategory(category.name)}
+            aria-pressed={selectedCategory === category.name}
+          >
+            <span>{category.name === "all" ? "All products" : category.name}</span>
+            <small>{category.count}</small>
+          </button>
+        ))}
+      </div>
     </section>
     {error && <p className="public-form-error public-page-error">{error}</p>}
     <div className="public-results-row"><p>{products.length} {products.length === 1 ? "product" : "products"}</p>{itemCount > 0 && <button className="public-cart-pill" onClick={() => setCheckoutOpen(true)}>Cart · {itemCount} <strong>{formatPrice(cartTotal, shop.currency)}</strong></button>}</div>

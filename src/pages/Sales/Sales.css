@@ -3408,6 +3408,83 @@
   }
 }
 
+.sales-category-filter {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 11px 12px;
+  background: #f8fafc;
+  border: 1px solid #dfe7ef;
+  border-radius: 11px;
+}
+
+.sales-category-filter-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sales-category-filter-heading strong {
+  color: var(--sales-ink);
+  font-size: 12px;
+}
+
+.sales-category-filter-heading span {
+  color: var(--sales-muted);
+  font-size: 10px;
+}
+
+.sales-category-options {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 1px 1px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #c9d8e6 transparent;
+}
+
+.sales-category-options button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 5px 8px;
+  color: #52657a;
+  background: #fff;
+  border: 1px solid #d8e2eb;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sales-category-options button:hover {
+  color: var(--sales-green-dark);
+  background: #f0f6fb;
+  border-color: #bcd6eb;
+}
+
+.sales-category-options button.active {
+  color: #fff;
+  background: var(--sales-green);
+  border-color: var(--sales-green);
+}
+
+.sales-category-options button span {
+  min-width: 18px;
+  padding: 2px 4px;
+  color: #60758a;
+  background: #edf2f6;
+  border-radius: 4px;
+  font-size: 10px;
+  text-align: center;
+}
+
+.sales-category-options button.active span {
+  color: #fff;
+  background: #ffffff30;
+}
+
 .payment-method-card.credit .payment-method-icon {
   color: #1e40af;
   background: #dbeafe;
