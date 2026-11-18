@@ -59,6 +59,17 @@
   box-shadow: 0 5px 18px rgba(28, 55, 82, 0.035);
 }
 
+.activity-error {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #f0caca;
+  border-radius: 10px;
+  background: #fff5f4;
+  color: #963d42;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .activity-filter-copy {
   display: grid;
   gap: 3px;

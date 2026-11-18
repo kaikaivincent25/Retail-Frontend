@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { formatCurrency } from "../../utils/money";
 import { useAuth } from "../../context/AuthContext";
+import { extractErrorMessage } from "../../services/errorHandling";
 import {
   listInventory,
   listLowStock,
@@ -60,7 +61,7 @@ function Inventory() {
       setMovements(movementRows);
       setPriceHistory(priceRows);
     } catch (error) {
-      setHistoryError(error.response?.data?.detail || "Could not load stock and price history.");
+      setHistoryError(extractErrorMessage(error));
     }
   }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { listActivity } from "../../services/auditApi";
+import { extractErrorMessage } from "../../services/errorHandling";
 import { listUsers } from "../../services/usersApi";
 import "./ActivityLog.css";
 
@@ -22,6 +23,7 @@ function ActivityLog() {
   const [highRiskOnly, setHighRiskOnly] = useState(false);
   const [userId, setUserId] = useState("");
   const [skip, setSkip] = useState(0);
+  const [error, setError] = useState("");
   const PAGE_SIZE = 50;
 
   useEffect(() => {
@@ -29,7 +31,15 @@ function ActivityLog() {
   }, []);
 
   useEffect(() => {
-    listActivity({ highRiskOnly, userId: userId || undefined, skip, limit: PAGE_SIZE }).then(setEntries);
+    listActivity({ highRiskOnly, userId: userId || undefined, skip, limit: PAGE_SIZE })
+      .then((result) => {
+        setEntries(result);
+        setError("");
+      })
+      .catch((requestError) => {
+        setEntries([]);
+        setError(extractErrorMessage(requestError));
+      });
   }, [highRiskOnly, userId, skip]);
 
   function staffName(id) {
@@ -75,6 +85,7 @@ function ActivityLog() {
         </div>
       </div>
 
+      {error && <p className="activity-error" role="alert">{error}</p>}
       <section className="activity-list" aria-label="Recent activity">
         <div className="activity-list-header">
           <div>
@@ -108,7 +119,7 @@ function ActivityLog() {
             </div>
           </article>
         ))}
-        {entries.length === 0 && (
+        {!error && entries.length === 0 && (
           <div className="empty-hint">
             <span className="empty-mark" aria-hidden="true">—</span>
             <p>{highRiskOnly ? "No high-risk actions recorded." : "No activity recorded yet."}</p>

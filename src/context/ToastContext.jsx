@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { extractErrorMessage } from "../services/errorHandling";
 import "./Toast.css";
 
 const ToastContext = createContext(null);
@@ -16,8 +17,14 @@ export function ToastProvider({ children }) {
 
   useEffect(() => {
     const reportUnexpectedError = (event) => {
-      console.error("An uncaught application error occurred.", event.error || event.reason || event.message);
-      showToast("An unexpected error occurred. Please try again.", "error");
+      const error = event.error || event.reason;
+      console.error("An uncaught application error occurred.", error || event.message);
+      showToast(
+        error?.response?.status === 402
+          ? extractErrorMessage(error)
+          : "An unexpected error occurred. Please try again.",
+        "error",
+      );
     };
 
     window.addEventListener("error", reportUnexpectedError);

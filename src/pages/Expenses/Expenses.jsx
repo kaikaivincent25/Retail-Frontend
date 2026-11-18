@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getCurrentSession } from "../../services/cashSessionApi";
+import { extractErrorMessage } from "../../services/errorHandling";
 import { createExpense, listExpenses } from "../../services/expensesApi";
 import { formatCurrency } from "../../utils/money";
 import "./Expenses.css";
@@ -40,9 +41,7 @@ function Expenses() {
       })
       .catch((requestError) => {
         if (current) {
-          setError(
-            requestError.response?.data?.detail || "Could not load expenses and till status.",
-          );
+          setError(extractErrorMessage(requestError));
         }
       })
       .finally(() => {
@@ -73,7 +72,7 @@ function Expenses() {
       setDescription("");
       setSuccess("Expense recorded against the current till session.");
     } catch (requestError) {
-      setError(requestError.response?.data?.detail || "Could not record this expense.");
+      setError(extractErrorMessage(requestError));
     } finally {
       setSaving(false);
     }
@@ -84,7 +83,7 @@ function Expenses() {
     try {
       await refreshExpenses();
     } catch (requestError) {
-      setError(requestError.response?.data?.detail || "Could not refresh expenses.");
+      setError(extractErrorMessage(requestError));
     }
   }
 
