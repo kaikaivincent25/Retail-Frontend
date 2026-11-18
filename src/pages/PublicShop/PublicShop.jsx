@@ -8,16 +8,28 @@ function formatPrice(value, currency) {
 }
 
 function getErrorMessage(error, fallback) {
-  if (!error.response) return "Could not reach the shop server. Check your connection and try again.";
+  if (!error.response) {
+    if (error.request) return "Could not reach the shop server. Check your connection and try again.";
+    return error.message || fallback;
+  }
   const detail = error.response?.data?.detail;
   if (Array.isArray(detail)) return detail.map((item) => item.msg || item.message).filter(Boolean).join(" ") || fallback;
-  if (error.response.status >= 500 && error.response.data?.error_id) return `${fallback} Reference: ${error.response.data.error_id}`;
-  return detail || fallback;
+  if (typeof detail === "string") return detail;
+  if (detail && typeof detail === "object") {
+    if (typeof detail.message === "string") return detail.message;
+    if (typeof detail.msg === "string") return detail.msg;
+  }
+  if (error.response.status >= 500) {
+    const errorId = error.response.data?.error_id;
+    return errorId ? `${fallback} Reference: ${errorId}` : fallback;
+  }
+  return fallback;
 }
 
 export default function PublicShop() {
   const { slug } = useParams();
-  const [shop, setShop] = useState(null);
+  const [shopResponse, setShopResponse] = useState({ slug: null, shop: null, error: "" });
+  const [reloadKey, setReloadKey] = useState(0);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [error, setError] = useState("");
@@ -29,8 +41,26 @@ export default function PublicShop() {
   const [checkout, setCheckout] = useState({ customer_name: "", customer_phone: "", fulfilment: "delivery", payment_method: "pay_on_delivery", delivery_address: "", estate: "", landmark: "", delivery_instructions: "", preferred_delivery_time: "" });
 
   useEffect(() => {
-    getPublicShop(slug).then(setShop).catch((err) => setError(err.response?.status === 404 ? "This shop catalogue is not available." : "Could not load this shop catalogue."));
-  }, [slug]);
+    let active = true;
+    getPublicShop(slug).then((data) => {
+      if (!data || typeof data.name !== "string" || !Array.isArray(data.products) ||
+        data.products.some((product) => !product || typeof product.name !== "string" || !Array.isArray(product.variants))) {
+        throw new Error("The shop catalogue returned incomplete data. Please try again.");
+      }
+      if (active) setShopResponse({ slug, shop: data, error: "" });
+    }).catch((err) => {
+      if (!active) return;
+      const message = err.response?.status === 404
+        ? "This shop catalogue is not available."
+        : getErrorMessage(err, "Could not load this shop catalogue.");
+      setShopResponse({ slug, shop: null, error: message });
+    });
+    return () => { active = false; };
+  }, [slug, reloadKey]);
+
+  const currentResponse = shopResponse.slug === slug ? shopResponse : null;
+  const shop = currentResponse?.shop || null;
+  const loadError = currentResponse?.error || "";
 
   const categories = useMemo(() => {
     const counts = new Map();
@@ -43,7 +73,7 @@ export default function PublicShop() {
     ];
   }, [shop]);
   const products = (shop?.products || []).filter((product) => {
-    const haystack = `${product.name} ${product.brand || ""} ${product.description || ""}`.toLowerCase();
+    const haystack = `${product.name} ${product.brand || ""} ${product.description || ""} ${product.category || ""}`.toLowerCase();
     return (selectedCategory === "all" || product.category === selectedCategory) && haystack.includes(search.toLowerCase().trim());
   });
   const cartItems = Object.values(cart);
@@ -90,8 +120,8 @@ export default function PublicShop() {
     finally { setSubmitting(false); }
   }
 
-  if (error && !shop) return <main className="public-shop-error"><h1>{error}</h1><p>Check the link and try again.</p></main>;
-  if (!shop) return <main className="public-shop-loading">Loading shop catalogue…</main>;
+  if (loadError) return <main className="public-shop-error" role="alert"><div><h1>{loadError}</h1><p>Check the link or your connection, then try again.</p><button type="button" onClick={() => setReloadKey((key) => key + 1)}>Try again</button></div></main>;
+  if (!shop) return <main className="public-shop-loading" role="status">Loading shop catalogue…</main>;
   if (order) return <main className="public-shop-confirmation"><div className="confirmation-card"><div className="confirmation-check">✓</div><span className="public-shop-kicker">ORDER RECEIVED</span><h1>Thank you, {order.customer_name}.</h1><p>Your order <strong>{order.order_number}</strong> has been sent to {shop.name}.</p><p className="public-order-total">{formatPrice(order.total, shop.currency)}</p>{paymentError && <p className="public-form-error">{paymentError}</p>}{order.payment_method === "manual_mpesa" && <p className={`public-payment-state ${order.payment_status}`}>M-Pesa payment: {order.payment_status}</p>}{order.payment_method === "manual_mpesa" && order.payment_status === "initiated" && <button onClick={() => getPublicMpesaStatus(order.public_token).then(setOrder).catch((err) => setPaymentError(getErrorMessage(err, "Could not check payment status.")))}>Check payment status</button>}<button onClick={() => { setOrder(null); setPaymentError(""); }}>Continue shopping</button></div></main>;
 
   return <main className="public-shop">

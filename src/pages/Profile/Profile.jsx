@@ -63,32 +63,71 @@ function Profile() {
   const [deleteShopPassword, setDeleteShopPassword] = useState("");
   const [deletingShop, setDeletingShop] = useState(false);
   const [copyingStorefrontLink, setCopyingStorefrontLink] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [profileError, setProfileError] = useState("");
+  const [shopError, setShopError] = useState("");
+  const [profileLoadAttempt, setProfileLoadAttempt] = useState(0);
+  const [shopLoadAttempt, setShopLoadAttempt] = useState(0);
+  const [loadingShop, setLoadingShop] = useState(user?.role === "admin");
 
   useEffect(() => {
+    let active = true;
     getMe().then((data) => {
+      if (!active) return;
+      if (!data || typeof data !== "object") {
+        throw new Error("The server returned incomplete profile data. Please try again.");
+      }
       setMe(data);
-      setFullName(data.full_name);
-      setUsername(data.username);
+      setFullName(data.full_name || "");
+      setUsername(data.username || "");
+    }).catch((err) => {
+      if (active) setProfileError(extractErrorMessage(err));
+    }).finally(() => {
+      if (active) setLoadingProfile(false);
     });
+    return () => { active = false; };
+  }, [user, profileLoadAttempt]);
 
-    if (user?.role === "admin") {
-      getShop().then((data) => {
-        setShop(data);
-        setShopName(data.name);
-        setShopLocation(data.location || "");
-        setShopWhatsappNumber(data.whatsapp_number || "");
-        setShopBusinessType(data.business_type || "general_retail");
-        setBreakfastStartMinute(data.breakfast_start_minute ?? 360);
-        setBreakfastEndMinute(data.breakfast_end_minute ?? 630);
-        setEveningStartMinute(data.evening_start_minute ?? 960);
-        setShopCurrency(data.currency);
-        setShopPochiNumber(data.mpesa_pochi_number || "");
-        setShopTillNumber(data.mpesa_till_number || "");
-        setShopPaybillNumber(data.mpesa_paybill_number || "");
-        setShopPaybillAccountNumber(data.mpesa_paybill_account_number || "");
-      });
-    }
-  }, [user]);
+  useEffect(() => {
+    if (user?.role !== "admin") return undefined;
+    let active = true;
+    getShop().then((data) => {
+      if (!active) return;
+      if (!data || typeof data !== "object" || typeof data.name !== "string") {
+        throw new Error("The server returned incomplete shop settings. Please try again.");
+      }
+      setShop(data);
+      setShopName(data.name || "");
+      setShopLocation(data.location || "");
+      setShopWhatsappNumber(data.whatsapp_number || "");
+      setShopBusinessType(data.business_type || "general_retail");
+      setBreakfastStartMinute(data.breakfast_start_minute ?? 360);
+      setBreakfastEndMinute(data.breakfast_end_minute ?? 630);
+      setEveningStartMinute(data.evening_start_minute ?? 960);
+      setShopCurrency(data.currency || "KES");
+      setShopPochiNumber(data.mpesa_pochi_number || "");
+      setShopTillNumber(data.mpesa_till_number || "");
+      setShopPaybillNumber(data.mpesa_paybill_number || "");
+      setShopPaybillAccountNumber(data.mpesa_paybill_account_number || "");
+    }).catch((err) => {
+      if (active) setShopError(extractErrorMessage(err));
+    }).finally(() => {
+      if (active) setLoadingShop(false);
+    });
+    return () => { active = false; };
+  }, [user, shopLoadAttempt]);
+
+  function loadProfile() {
+    setLoadingProfile(true);
+    setProfileError("");
+    setProfileLoadAttempt((attempt) => attempt + 1);
+  }
+
+  function loadShop() {
+    setLoadingShop(true);
+    setShopError("");
+    setShopLoadAttempt((attempt) => attempt + 1);
+  }
 
   async function handleProfileSubmit(e) {
     e.preventDefault();
@@ -197,12 +236,24 @@ function Profile() {
     }
   }
 
-  if (!me) {
+  if (loadingProfile) {
     return (
       <div className="profile-page">
         <div className="profile-loading" role="status" aria-live="polite">
           <div className="profile-loading-spinner" />
           <span>Loading your account...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (profileError || !me) {
+    return (
+      <div className="profile-page">
+        <div className="profile-load-error" role="alert">
+          <h1>Profile could not be loaded</h1>
+          <p>{profileError || "Your account details are unavailable right now."}</p>
+          <button type="button" className="primary-button" onClick={loadProfile}>Try again</button>
         </div>
       </div>
     );
@@ -753,6 +804,22 @@ function Profile() {
             </div>
           </section>
           </>
+        )}
+
+        {user?.role === "admin" && shopError && (
+          <section className="profile-card profile-inline-error" role="alert">
+            <div className="profile-card-content">
+              <strong>Shop settings could not be loaded.</strong>
+              <p>{shopError}</p>
+              <button type="button" className="primary-button" onClick={loadShop}>Try again</button>
+            </div>
+          </section>
+        )}
+
+        {user?.role === "admin" && !shop && loadingShop && (
+          <section className="profile-card" role="status">
+            <div className="profile-card-content">Loading shop settings...</div>
+          </section>
         )}
 
         {showDeleteShop && shop && (

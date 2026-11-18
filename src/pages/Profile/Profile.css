@@ -741,6 +741,22 @@
   animation: profile-spin 0.8s linear infinite;
 }
 
+.profile-load-error,
+.profile-inline-error {
+  width: min(100%, 720px);
+  margin: 3rem auto;
+  padding: 2rem;
+  color: #5d3030;
+  background: #fff5f3;
+  border: 1px solid #f0c9c3;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(34, 93, 135, .07);
+}
+
+.profile-load-error h1 { margin-top: 0; color: #7f3028; font-size: 1.35rem; }
+.profile-load-error p, .profile-inline-error p { margin: .5rem 0 1rem; }
+.profile-inline-error { box-sizing: border-box; margin: 1rem auto; }
+
 @keyframes profile-spin {
   to {
     transform: rotate(360deg);
