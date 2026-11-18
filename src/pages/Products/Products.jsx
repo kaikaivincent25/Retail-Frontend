@@ -397,10 +397,14 @@ function Products() {
     setError("");
     setSuccess("");
     let imageUrl;
+    let variantImageUrls;
     try {
       imageUrl = newProductImageSource === "url"
         ? resolveProductImageUrl(newProductImageUrl)
         : null;
+      variantImageUrls = newProductVariants.map((variant) => (
+        variant.imageSource === "url" ? resolveProductImageUrl(variant.imageUrl) : null
+      ));
     } catch (err) {
       setError(err.message);
       return;
@@ -408,6 +412,9 @@ function Products() {
     setIsCreatingProduct(true);
     let created;
     const imageFile = newProductImageSource === "upload" ? newProductImageFile : null;
+    const variantImageFiles = newProductVariants.map((variant) => (
+      variant.imageSource === "upload" ? variant.imageFile : null
+    ));
     try {
       created = await createProduct({
         name: newProductName,
@@ -418,8 +425,9 @@ function Products() {
         attributes: attributesToObject(newProductAttributes),
         image_url: imageUrl,
         is_public: newProductIsPublic,
-        variants: newProductVariants.map((variant) => ({
+        variants: newProductVariants.map((variant, index) => ({
           name: variant.name,
+          image_url: variantImageUrls[index],
           unit: variant.unit,
           sale_mode: variant.saleMode,
           unit_quantity: variant.saleMode === "bulk" ? 1 : parseInt(variant.unitQuantity, 10),
@@ -455,10 +463,15 @@ function Products() {
         const updated = await updateProduct(created.id, { image_url });
         setProducts((current) => current.map((product) => product.id === updated.id ? updated : product));
       }
+      await Promise.all(variantImageFiles.map(async (file, index) => {
+        if (!file) return;
+        const image_url = await uploadProductImage(file);
+        await updateVariant(created.variants[index].id, { image_url });
+      }));
       setSuccess(`“${created.name}” was added.`);
     } catch (err) {
       setError(
-        `“${created.name}” was added, but its photo could not be uploaded. You can try again using Add photo on the product. ${getErrorMessage(err, "Upload failed.")}`,
+        `“${created.name}” was added, but one or more photos could not be saved. You can retry from the product or variant editor. ${getErrorMessage(err, "Upload failed.")}`,
       );
     } finally {
       setIsCreatingProduct(false);
@@ -906,6 +919,20 @@ function Products() {
                 <span>Barcode <small>Optional</small></span>
                 <input aria-label={`Variant ${index + 1} barcode`} inputMode="numeric" value={variant.barcode} onChange={(e) => updateNewVariant(index, "barcode", e.target.value)} maxLength={64} />
               </label>
+            </div>
+            <div className="variant-image-field">
+              <span>Variant photo <small>Optional · overrides the product photo</small></span>
+              <ProductImagePicker
+                imageUrl={variant.image_url || null}
+                file={variant.imageFile}
+                source={variant.imageSource}
+                onSourceChange={(value) => updateNewVariant(index, "imageSource", value)}
+                urlValue={variant.imageUrl}
+                onUrlChange={(value) => updateNewVariant(index, "imageUrl", value)}
+                onFileChange={(value) => updateNewVariant(index, "imageFile", value)}
+                onInvalid={setError}
+                disabled={isCreatingProduct}
+              />
             </div>
             </Fragment>
           ))}
@@ -1380,6 +1407,9 @@ function VariantsPanel({ productId, variants, onChange }) {
   const [unitQuantity, setUnitQuantity] = useState("1");
   const [sellingPrice, setSellingPrice] = useState("");
   const [costPrice, setCostPrice] = useState("");
+  const [newVariantImageSource, setNewVariantImageSource] = useState("upload");
+  const [newVariantImageUrl, setNewVariantImageUrl] = useState("");
+  const [newVariantImageFile, setNewVariantImageFile] = useState(null);
   const [error, setError] = useState("");
   const [expandedPresetVariant, setExpandedPresetVariant] = useState(null);
   const [presetsByVariant, setPresetsByVariant] = useState({});
@@ -1391,9 +1421,20 @@ function VariantsPanel({ productId, variants, onChange }) {
   async function handleCreateVariant(e) {
     e.preventDefault();
     setError("");
+    let image_url;
     try {
-      await createVariant(productId, {
+      image_url = newVariantImageSource === "url"
+        ? resolveProductImageUrl(newVariantImageUrl)
+        : null;
+    } catch (err) {
+      setError(err.message);
+      return;
+    }
+    const imageFile = newVariantImageSource === "upload" ? newVariantImageFile : null;
+    try {
+      const created = await createVariant(productId, {
         name,
+        image_url,
         unit,
         sale_mode: saleMode,
         unit_quantity: saleMode === "bulk" ? 1 : parseInt(unitQuantity, 10),
@@ -1408,6 +1449,19 @@ function VariantsPanel({ productId, variants, onChange }) {
       setSellingPrice("");
       setCostPrice("");
       setUnitQuantity("1");
+      setNewVariantImageSource("upload");
+      setNewVariantImageUrl("");
+      setNewVariantImageFile(null);
+      if (imageFile) {
+        try {
+          image_url = await uploadProductImage(imageFile);
+          await updateVariant(created.id, { image_url });
+        } catch (err) {
+          onChange();
+          setError(`Variant added, but its photo could not be saved. ${getErrorMessage(err, "Upload failed.")}`);
+          return;
+        }
+      }
       onChange();
     } catch (err) {
       setError(err.response?.data?.detail || "Could not create variant.");
@@ -1426,9 +1480,16 @@ function VariantsPanel({ productId, variants, onChange }) {
     try {
       await updateVariant(editingVariant.id, {
         name: editingVariant.name,
+        image_url: editingVariant.imageSource === "url"
+          ? resolveProductImageUrl(editingVariant.imageUrl)
+          : editingVariant.image_url,
         selling_price: fromCents(toCents(editingVariant.selling_price)),
         cost_price: fromCents(toCents(editingVariant.cost_price)),
       });
+      if (editingVariant.imageSource === "upload" && editingVariant.imageFile) {
+        const image_url = await uploadProductImage(editingVariant.imageFile);
+        await updateVariant(editingVariant.id, { image_url });
+      }
       setEditingVariant(null);
       onChange();
     } catch (err) {
@@ -1494,7 +1555,8 @@ function VariantsPanel({ productId, variants, onChange }) {
         </thead>
         <tbody>
           {variants.map((v) => (
-            <tr key={v.id} className={!v.is_active ? "inactive-row" : ""}>
+            <Fragment key={v.id}>
+            <tr className={!v.is_active ? "inactive-row" : ""}>
               <td>
                 {editingVariant?.id === v.id ? <input value={editingVariant.name} onChange={(e) => setEditingVariant({ ...editingVariant, name: e.target.value })} /> : v.name}
                 {(v.barcode || v.sku) && <small className="variant-identifiers-summary">{v.barcode && `Barcode: ${v.barcode}`}{v.barcode && v.sku ? " · " : ""}{v.sku && `SKU: ${v.sku}`}</small>}
@@ -1522,7 +1584,16 @@ function VariantsPanel({ productId, variants, onChange }) {
                     {editingVariant?.id === v.id ? <>
                       <button className="small" onClick={handleSaveVariant}>Save</button>
                       <button className="small" type="button" onClick={() => setEditingVariant(null)}>Cancel</button>
-                    </> : <button className="small" onClick={() => setEditingVariant({ id: v.id, name: v.name, selling_price: v.selling_price, cost_price: v.cost_price })}>Edit</button>}
+                    </> : <button className="small" onClick={() => setEditingVariant({
+                      id: v.id,
+                      name: v.name,
+                      selling_price: v.selling_price,
+                      cost_price: v.cost_price,
+                      image_url: v.image_url ?? null,
+                      imageUrl: v.image_url ?? "",
+                      imageSource: "upload",
+                      imageFile: null,
+                    })}>Edit</button>}
                     <button className="danger small" onClick={() => handleDeactivateVariant(v.id)}>
                       Deactivate
                     </button>
@@ -1539,6 +1610,27 @@ function VariantsPanel({ productId, variants, onChange }) {
                 )}
               </td>
             </tr>
+            {editingVariant?.id === v.id && (
+              <tr className="variant-image-edit-row">
+                <td colSpan={7}>
+                  <label className="variant-image-field">
+                    <span>Variant photo <small>Optional · overrides the product photo</small></span>
+                    <ProductImagePicker
+                      imageUrl={editingVariant.image_url}
+                      file={editingVariant.imageFile}
+                      source={editingVariant.imageSource}
+                      onSourceChange={(value) => setEditingVariant({ ...editingVariant, imageSource: value })}
+                      urlValue={editingVariant.imageUrl}
+                      onUrlChange={(value) => setEditingVariant({ ...editingVariant, imageUrl: value })}
+                      onFileChange={(value) => setEditingVariant({ ...editingVariant, imageFile: value })}
+                      onRemove={() => setEditingVariant({ ...editingVariant, image_url: null, imageUrl: "", imageFile: null })}
+                      onInvalid={setError}
+                    />
+                  </label>
+                </td>
+              </tr>
+            )}
+            </Fragment>
           ))}
           {variants.length === 0 && (
             <tr><td colSpan={7} className="empty-hint">No variants yet.</td></tr>
@@ -1642,6 +1734,19 @@ function VariantsPanel({ productId, variants, onChange }) {
 
         <button type="submit">Add Variant</button>
       </form>
+      <div className="variant-image-field new-variant-image-field">
+        <span>Variant photo <small>Optional · overrides the product photo</small></span>
+        <ProductImagePicker
+          imageUrl={null}
+          file={newVariantImageFile}
+          source={newVariantImageSource}
+          onSourceChange={setNewVariantImageSource}
+          urlValue={newVariantImageUrl}
+          onUrlChange={setNewVariantImageUrl}
+          onFileChange={setNewVariantImageFile}
+          onInvalid={setError}
+        />
+      </div>
       {error && <div className="form-error" role="alert">{error}</div>}
     </div>
   );
@@ -1657,6 +1762,9 @@ function createEmptyVariant() {
     costPrice: "",
     sku: "",
     barcode: "",
+    imageSource: "upload",
+    imageUrl: "",
+    imageFile: null,
   };
 }
 

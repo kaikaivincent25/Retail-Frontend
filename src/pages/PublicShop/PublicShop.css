@@ -51,6 +51,7 @@
 .public-product-description { display: -webkit-box; overflow: hidden; margin: .55rem 0 0; height: 2.3rem; color: var(--public-muted); font-size: .74rem; line-height: 1.55; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .public-product-variants { display: grid; gap: .45rem; margin-top: .8rem; }
 .public-variant { display: flex; justify-content: space-between; align-items: center; gap: .45rem; padding-top: .55rem; border-top: 1px solid #edf1f5; }
+.public-variant-image { width: 2.4rem; height: 2.4rem; flex: 0 0 2.4rem; object-fit: cover; border-radius: .35rem; }
 .public-variant div { display: grid; gap: .12rem; min-width: 0; }
 .public-variant strong { color: var(--public-ink); font-size: .88rem; }
 .public-variant small { overflow: hidden; color: var(--public-muted); font-size: .65rem; text-overflow: ellipsis; white-space: nowrap; }

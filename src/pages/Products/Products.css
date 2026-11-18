@@ -244,6 +244,31 @@
   background: #fbfdff;
 }
 
+.variant-image-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.45rem 0 0.6rem;
+  color: #465d75;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.variant-image-field > span small {
+  color: #8797a8;
+  font-weight: 500;
+}
+
+.new-variant-image-field {
+  padding-top: 0.75rem;
+  border-top: 1px solid #edf1f5;
+}
+
+.variant-image-edit-row td {
+  padding: 0.75rem;
+  background: #fbfdff;
+}
+
 .attribute-editor {
   min-width: 0;
   margin: 0;
