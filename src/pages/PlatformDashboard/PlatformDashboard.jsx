@@ -16,9 +16,14 @@ const FEATURE_LABELS = {
   online_store: "Public storefront and online orders",
 };
 
+const PLAN_FEATURE_OPTIONS = Object.entries(FEATURE_LABELS);
+
 function PlatformDashboard() {
   const [overview, setOverview] = useState(null);
   const [shops, setShops] = useState([]);
+  const [plans, setPlans] = useState([]);
+  const [savingPlan, setSavingPlan] = useState("");
+  const [planMessages, setPlanMessages] = useState({});
   const [activity, setActivity] = useState([]);
   const [selectedShop, setSelectedShop] = useState(null);
   const [selectedPanel, setSelectedPanel] = useState(null);
@@ -35,10 +40,15 @@ function PlatformDashboard() {
       navigate("/platform/login", { replace: true });
       return;
     }
-    Promise.all([platformApi.get("/platform/overview"), platformApi.get("/platform/shops")])
-      .then(([overviewResponse, shopsResponse]) => {
+    Promise.all([
+      platformApi.get("/platform/overview"),
+      platformApi.get("/platform/shops"),
+      platformApi.get("/platform/plans"),
+    ])
+      .then(([overviewResponse, shopsResponse, plansResponse]) => {
         setOverview(overviewResponse.data);
         setShops(shopsResponse.data);
+        setPlans(plansResponse.data);
       })
       .catch((err) => {
         if (err.response?.status === 401) {
@@ -108,6 +118,44 @@ function PlatformDashboard() {
     }
   }
 
+  function updatePlanDraft(planCode, changes) {
+    setPlans((current) => current.map((plan) => plan.code === planCode ? { ...plan, ...changes } : plan));
+    setPlanMessages((current) => ({ ...current, [planCode]: "" }));
+  }
+
+  function togglePlanFeature(plan, feature, enabled) {
+    updatePlanDraft(plan.code, {
+      features: { ...plan.features, [feature]: enabled },
+    });
+  }
+
+  async function savePlan(plan) {
+    if (savingPlan) return;
+    setSavingPlan(plan.code);
+    setError("");
+    setPlanMessages((current) => ({ ...current, [plan.code]: "" }));
+    try {
+      const payload = {
+        monthly_price: Number(plan.monthly_price),
+        annual_price: plan.annual_price === "" || plan.annual_price === null ? null : Number(plan.annual_price),
+        max_users: plan.max_users === "" || plan.max_users == null ? null : Number(plan.max_users),
+        features: Object.fromEntries(
+          PLAN_FEATURE_OPTIONS.map(([feature]) => [feature, Boolean(plan.features?.[feature])]),
+        ),
+      };
+      const response = await platformApi.patch(`/platform/plans/${plan.code}`, payload);
+      setPlans((current) => current.map((item) => item.code === plan.code ? response.data : item));
+      setPlanMessages((current) => ({
+        ...current,
+        [plan.code]: "Plan settings saved and recorded in the platform audit trail.",
+      }));
+    } catch (err) {
+      setError(err.response?.data?.detail || `Could not update the ${plan.name} plan.`);
+    } finally {
+      setSavingPlan("");
+    }
+  }
+
   async function updateUser(shop, member, changes) {
     if (changes.is_active === false && !window.confirm(`Deactivate ${member.full_name}'s RIS access?`)) return;
     try {
@@ -153,6 +201,53 @@ function PlatformDashboard() {
         <Metric label="Est. monthly revenue" value={`KES ${overview.estimated_monthly_revenue.toLocaleString()}`} />
         <Metric label="New shops (30d)" value={overview.new_shops_last_30_days} />
         <Metric label="Events (7d)" value={overview.activity_events_last_7_days} />
+      </section>
+      <section className="platform-panel">
+        <div className="platform-panel-heading">
+          <div>
+            <span className="platform-kicker">PLAN CATALOGUE</span>
+            <h2>Plans &amp; pricing</h2>
+            <p className="platform-panel-subtitle">Update prices, team limits, and included features. Feature changes apply immediately; price changes apply to future checkouts.</p>
+          </div>
+          <span>{plans.length} plans</span>
+        </div>
+        <div className="platform-plan-grid">
+          {plans.map((plan) => (
+            <form
+              className="platform-plan-editor"
+              key={plan.code}
+              onSubmit={(event) => {
+                event.preventDefault();
+                savePlan(plan);
+              }}
+            >
+              <div className="platform-plan-heading">
+                <div><span className="platform-kicker">{plan.code}</span><h3>{plan.name}</h3></div>
+                <span className={`platform-plan-state ${plan.is_active ? "is-active" : "is-inactive"}`}>{plan.is_active ? "Active" : "Inactive"}</span>
+              </div>
+              <div className="platform-plan-fields">
+                <label>Monthly price (KES)<input type="number" min="0" step="1" required disabled={plan.code === "free"} value={plan.monthly_price} onChange={(event) => updatePlanDraft(plan.code, { monthly_price: event.target.value })} /></label>
+                <label>Annual price (KES)<input type="number" min="0" step="1" disabled={plan.code === "free"} value={plan.annual_price ?? ""} placeholder="Not set" onChange={(event) => updatePlanDraft(plan.code, { annual_price: event.target.value })} /></label>
+                <label>Active team members<input type="number" min="1" step="1" value={plan.max_users ?? ""} placeholder="Unlimited" onChange={(event) => updatePlanDraft(plan.code, { max_users: event.target.value === "" ? null : event.target.value })} /></label>
+              </div>
+              {plan.code === "free" && <small className="platform-plan-note">Free plan pricing stays at KES 0.</small>}
+              <fieldset className="platform-plan-features">
+                <legend>Included features</legend>
+                {PLAN_FEATURE_OPTIONS.map(([feature, label]) => (
+                  <label key={feature}>
+                    <input type="checkbox" checked={Boolean(plan.features?.[feature])} onChange={(event) => togglePlanFeature(plan, feature, event.target.checked)} />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </fieldset>
+              {planMessages[plan.code] && <p className="platform-feature-success" role="status">{planMessages[plan.code]}</p>}
+              <button type="submit" className="platform-save-features" disabled={Boolean(savingPlan)}>
+                {savingPlan === plan.code ? "Saving plan…" : "Save plan"}
+              </button>
+            </form>
+          ))}
+        </div>
+        <p className="platform-plan-note">Annual prices are configurable; online checkout currently charges the monthly plan price. All plan changes are audited.</p>
       </section>
       <section className="platform-panel">
         <div className="platform-panel-heading"><div><span className="platform-kicker">TENANTS</span><h2>Registered shops</h2></div><span>{shops.length} shops</span></div>
