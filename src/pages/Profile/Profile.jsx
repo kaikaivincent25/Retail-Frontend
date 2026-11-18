@@ -46,6 +46,7 @@ function Profile() {
   const [shop, setShop] = useState(null);
   const [shopName, setShopName] = useState("");
   const [shopLocation, setShopLocation] = useState("");
+  const [shopWhatsappNumber, setShopWhatsappNumber] = useState("");
   const [shopBusinessType, setShopBusinessType] = useState("general_retail");
   const [breakfastStartMinute, setBreakfastStartMinute] = useState(360);
   const [breakfastEndMinute, setBreakfastEndMinute] = useState(630);
@@ -75,6 +76,7 @@ function Profile() {
         setShop(data);
         setShopName(data.name);
         setShopLocation(data.location || "");
+        setShopWhatsappNumber(data.whatsapp_number || "");
         setShopBusinessType(data.business_type || "general_retail");
         setBreakfastStartMinute(data.breakfast_start_minute ?? 360);
         setBreakfastEndMinute(data.breakfast_end_minute ?? 630);
@@ -135,6 +137,7 @@ function Profile() {
       const updated = await updateShop({
         name: shopName,
         location: shopLocation || null,
+        whatsapp_number: shopWhatsappNumber || null,
         currency: shopCurrency,
         business_type: shopBusinessType,
         breakfast_start_minute: breakfastStartMinute,
@@ -146,6 +149,7 @@ function Profile() {
         mpesa_paybill_account_number: shopPaybillAccountNumber || null,
       });
       setShop(updated);
+      setShopWhatsappNumber(updated.whatsapp_number || "");
       setBreakfastStartMinute(updated.breakfast_start_minute);
       setBreakfastEndMinute(updated.breakfast_end_minute);
       setEveningStartMinute(updated.evening_start_minute);
@@ -580,6 +584,21 @@ function Profile() {
                     </span>
                   </div>
 
+                  <div className="profile-field">
+                    <label htmlFor="shop-whatsapp-number">WhatsApp number</label>
+                    <input
+                      id="shop-whatsapp-number"
+                      type="tel"
+                      value={shopWhatsappNumber}
+                      onChange={(e) => setShopWhatsappNumber(e.target.value)}
+                      maxLength={30}
+                      placeholder="+254 7XX XXX XXX"
+                    />
+                    <span className="field-hint">
+                      Used as the contact number on your public storefront. Leave blank to hide the WhatsApp link.
+                    </span>
+                  </div>
+
                   <div className="profile-field currency-field">
                     <label htmlFor="shop-currency">Currency</label>
                     <div className="currency-input">
@@ -686,6 +705,7 @@ function Profile() {
                       setEditingShop(false);
                       setShopName(shop.name);
                       setShopLocation(shop.location || "");
+                      setShopWhatsappNumber(shop.whatsapp_number || "");
                       setShopCurrency(shop.currency);
                       setShopBusinessType(shop.business_type || "general_retail");
                       setBreakfastStartMinute(shop.breakfast_start_minute ?? 360);

@@ -95,7 +95,7 @@ export default function PublicShop() {
         </div>
         <div className="public-shop-header-actions">
           <span className="public-shop-trust"><span aria-hidden="true">✓</span> Local &amp; convenient</span>
-          <a className="public-contact" href={`https://wa.me/?text=${encodeURIComponent(`Hello ${shop.name}`)}`} target="_blank" rel="noreferrer">Chat with shop <span aria-hidden="true">↗</span></a>
+          {shop.whatsapp_number && <a className="public-contact" href={`https://wa.me/${shop.whatsapp_number.replace(/\D/g, "")}?text=${encodeURIComponent(`Hello ${shop.name}, I have a question about your products.`)}`} target="_blank" rel="noreferrer">Chat with shop <span aria-hidden="true">↗</span></a>}
         </div>
       </header>
     </div>

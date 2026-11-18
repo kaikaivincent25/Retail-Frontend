@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
+  createCustomerActivity,
   createCustomer,
   getCustomerLedger,
+  getCustomerTimeline,
+  listCustomerFollowUpAssignees,
+  listCustomerFollowUps,
   listCustomers,
   recordCustomerPayment,
   updateCustomer,
+  updateCustomerActivity,
 } from "../../services/customersApi";
 import { extractErrorMessage } from "../../services/errorHandling";
 import { formatCurrency } from "../../utils/money";
@@ -17,6 +22,37 @@ const EMPTY_CUSTOMER = {
   email: "",
   notes: "",
 };
+
+const LEAD_STATUS_LABELS = {
+  new: "New",
+  contacted: "Contacted",
+  interested: "Interested",
+  won: "Won",
+  lost: "Lost",
+};
+
+function getWhatsAppUrl(phone, customerName) {
+  if (!phone) return null;
+  let number = phone.replace(/\D/g, "");
+  if (number.length === 10 && number.startsWith("0")) number = `254${number.slice(1)}`;
+  else if (number.length === 9 && /^[17]/.test(number)) number = `254${number}`;
+  if (number.length < 9 || number.length > 15 || number.startsWith("0")) return null;
+  const message = `Hi ${customerName}, how can we help you today?`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
+function getFollowUpTiming(followUp, now = new Date()) {
+  const due = new Date(followUp.due_at);
+  if (due < now) return { kind: "overdue", label: "Overdue" };
+  if (
+    due.getFullYear() === now.getFullYear()
+    && due.getMonth() === now.getMonth()
+    && due.getDate() === now.getDate()
+  ) {
+    return { kind: "today", label: "Due today" };
+  }
+  return { kind: "upcoming", label: "Upcoming" };
+}
 
 function Customers() {
   const { user } = useAuth();
@@ -31,14 +67,28 @@ function Customers() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [followUps, setFollowUps] = useState([]);
+  const [followUpAssignees, setFollowUpAssignees] = useState([]);
+  const [followUpsLoading, setFollowUpsLoading] = useState(true);
+  const [followUpsError, setFollowUpsError] = useState("");
+  const [dueFilter, setDueFilter] = useState("all");
+  const [assigneeFilter, setAssigneeFilter] = useState("all");
 
   // Customer Ledger Modal State
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [ledger, setLedger] = useState(null);
+  const [timeline, setTimeline] = useState(null);
   const [loadingLedger, setLoadingLedger] = useState(false);
+  const [loadingTimeline, setLoadingTimeline] = useState(false);
   const [ledgerError, setLedgerError] = useState("");
   const [paymentSuccess, setPaymentSuccess] = useState("");
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
+  const [activitySubmitting, setActivitySubmitting] = useState(false);
+  const [activityForm, setActivityForm] = useState({
+    activity_type: "follow_up",
+    body: "",
+    due_at: "",
+  });
   const [paymentForm, setPaymentForm] = useState({
     sale_id: "",
     amount: "",
@@ -65,6 +115,37 @@ function Customers() {
       active = false;
     };
   }, [search, includeArchived, reloadKey]);
+
+  useEffect(() => {
+    let active = true;
+    listCustomerFollowUps()
+      .then((items) => {
+        if (active) setFollowUps(items);
+      })
+      .catch((requestError) => {
+        if (active) {
+          setFollowUps([]);
+          setFollowUpsError(extractErrorMessage(requestError));
+        }
+      })
+      .finally(() => {
+        if (active) setFollowUpsLoading(false);
+      });
+
+    if (canManage) {
+      listCustomerFollowUpAssignees()
+        .then((staff) => {
+          if (active) setFollowUpAssignees(staff);
+        })
+        .catch((requestError) => {
+          if (active) setFollowUpsError(extractErrorMessage(requestError));
+        });
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [reloadKey, canManage]);
 
   function loadCustomerLedger(customerId) {
     setLoadingLedger(true);
@@ -94,14 +175,91 @@ function Customers() {
 
   function openLedgerModal(customer) {
     setSelectedCustomer(customer);
+    setLedger(null);
+    setTimeline(null);
+    setActivityForm({ activity_type: "follow_up", body: "", due_at: "" });
     loadCustomerLedger(customer.id);
+    loadCustomerTimeline(customer.id);
+  }
+
+  function loadCustomerTimeline(customerId) {
+    setLoadingTimeline(true);
+    getCustomerTimeline(customerId)
+      .then(setTimeline)
+      .catch((err) => setLedgerError(extractErrorMessage(err)))
+      .finally(() => setLoadingTimeline(false));
   }
 
   function closeLedgerModal() {
     setSelectedCustomer(null);
     setLedger(null);
+    setTimeline(null);
     setLedgerError("");
     setPaymentSuccess("");
+  }
+
+  async function handleCreateActivity(event) {
+    event.preventDefault();
+    if (!selectedCustomer || !activityForm.body.trim()) return;
+    setActivitySubmitting(true);
+    setLedgerError("");
+    try {
+      await createCustomerActivity(selectedCustomer.id, {
+        activity_type: activityForm.activity_type,
+        body: activityForm.body.trim(),
+        due_at: activityForm.activity_type === "follow_up"
+          ? new Date(activityForm.due_at).toISOString()
+          : null,
+      });
+      setActivityForm((current) => ({ ...current, body: "" }));
+      loadCustomerTimeline(selectedCustomer.id);
+      setFollowUpsLoading(true);
+      setReloadKey((key) => key + 1);
+    } catch (requestError) {
+      setLedgerError(extractErrorMessage(requestError));
+    } finally {
+      setActivitySubmitting(false);
+    }
+  }
+
+  async function handleFollowUpStatus(customerId, activityId, status) {
+    setLedgerError("");
+    if (selectedCustomer?.id !== customerId) setFollowUpsLoading(true);
+    setFollowUpsError("");
+    try {
+      await updateCustomerActivity(customerId, activityId, { status });
+      if (selectedCustomer?.id === customerId) loadCustomerTimeline(customerId);
+      setReloadKey((key) => key + 1);
+    } catch (requestError) {
+      const message = extractErrorMessage(requestError);
+      if (selectedCustomer?.id === customerId) setLedgerError(message);
+      else setFollowUpsError(message);
+    }
+  }
+
+  async function handleReassignFollowUp(customerId, activityId, assigneeId) {
+    setFollowUpsError("");
+    setFollowUpsLoading(true);
+    try {
+      await updateCustomerActivity(customerId, activityId, {
+        assigned_to_user_id: Number(assigneeId),
+      });
+      setReloadKey((key) => key + 1);
+    } catch (requestError) {
+      setFollowUpsError(extractErrorMessage(requestError));
+    }
+  }
+
+  async function handleLeadStatusChange(customer, leadStatus) {
+    setLedgerError("");
+    try {
+      const updated = await updateCustomer(customer.id, { lead_status: leadStatus });
+      setSelectedCustomer(updated);
+      setCustomers((current) => current.map((item) => item.id === updated.id ? updated : item));
+      loadCustomerTimeline(customer.id);
+    } catch (requestError) {
+      setLedgerError(extractErrorMessage(requestError));
+    }
   }
 
   function handleInvoiceSelect(e) {
@@ -172,6 +330,7 @@ function Customers() {
       email: customer.email || "",
       notes: customer.notes || "",
       credit_limit: customer.credit_limit ?? "",
+      lead_status: customer.lead_status || "new",
     });
     setError("");
     setSuccess("");
@@ -194,6 +353,7 @@ function Customers() {
         email: draft.email.trim() || null,
         notes: draft.notes.trim() || null,
         credit_limit: draft.credit_limit === "" ? null : Number(draft.credit_limit),
+        lead_status: draft.lead_status,
       });
       setEditing(null);
       setDraft(EMPTY_CUSTOMER);
@@ -224,6 +384,17 @@ function Customers() {
 
   const activeCount = customers.filter((customer) => customer.is_active).length;
   const archivedCount = customers.length - activeCount;
+  const now = new Date();
+  const overdueFollowUpCount = followUps.filter((item) => getFollowUpTiming(item, now).kind === "overdue").length;
+  const todayFollowUpCount = followUps.filter((item) => getFollowUpTiming(item, now).kind === "today").length;
+  const visibleFollowUps = followUps.filter((item) => {
+    const timing = getFollowUpTiming(item, now).kind;
+    const dueMatches = dueFilter === "all" || timing === dueFilter;
+    const assigneeMatches = assigneeFilter === "all"
+      || (assigneeFilter === "mine" && item.assigned_to_user_id === user?.id)
+      || String(item.assigned_to_user_id) === assigneeFilter;
+    return dueMatches && assigneeMatches;
+  });
 
   return (
     <main className="customers-page">
@@ -231,11 +402,11 @@ function Customers() {
         <div>
           <span className="customers-eyebrow">CUSTOMER ACCOUNTS</span>
           <h1>Customers</h1>
-          <p>Customer contact directory, credit accounts, and repayment tracking.</p>
+          <p>Customer history, lead stages, follow-ups, and account balances.</p>
         </div>
         <div className="customers-reminder-placeholder" role="note">
-          <strong>Reminders — coming soon</strong>
-          <span>Customer reminders are not scheduled or sent by the system yet.</span>
+          <strong>WhatsApp-ready follow-ups</strong>
+          <span>Open a prepared message when you choose. The system does not send messages automatically.</span>
         </div>
       </header>
 
@@ -253,6 +424,111 @@ function Customers() {
             <span>Archived in results</span>
             <strong>{archivedCount}</strong>
           </article>
+        )}
+      </section>
+
+      <section className="customers-panel followups-panel" aria-labelledby="followups-heading">
+        <div className="followups-heading">
+          <div>
+            <span className="customers-eyebrow">NEXT ACTIONS</span>
+            <h2 id="followups-heading">Follow-ups</h2>
+            <p>Keep customer conversations moving with clear owners and due dates.</p>
+          </div>
+          <div className="followups-counts" aria-label="Follow-up totals">
+            <span><strong>{followUps.length}</strong> {canManage ? "open" : "my open"}</span>
+            <span className={overdueFollowUpCount ? "is-overdue" : ""}><strong>{overdueFollowUpCount}</strong> overdue</span>
+            <span><strong>{todayFollowUpCount}</strong> due today</span>
+          </div>
+        </div>
+        <div className="followups-filters">
+          <label>
+            Due
+            <select value={dueFilter} onChange={(event) => setDueFilter(event.target.value)}>
+              <option value="all">All open</option>
+              <option value="overdue">Overdue</option>
+              <option value="today">Due today</option>
+              <option value="upcoming">Upcoming</option>
+            </select>
+          </label>
+          {canManage && (
+            <label>
+              Assigned to
+              <select value={assigneeFilter} onChange={(event) => setAssigneeFilter(event.target.value)}>
+                <option value="all">All staff</option>
+                <option value="mine">Me</option>
+                {followUpAssignees.map((staff) => (
+                  <option key={staff.id} value={staff.id}>{staff.full_name}</option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+        {followUpsError && <p className="customers-message is-error" role="alert">{followUpsError}</p>}
+        {followUpsLoading ? (
+          <p className="customers-empty" role="status">Loading follow-ups…</p>
+        ) : visibleFollowUps.length ? (
+          <div className="followups-list">
+            {visibleFollowUps.map((followUp) => {
+              const timing = getFollowUpTiming(followUp);
+              const currentAssigneeAvailable = followUpAssignees.some(
+                (staff) => staff.id === followUp.assigned_to_user_id,
+              );
+              return (
+                <article className={`followup-card ${timing.kind}`} key={followUp.id}>
+                  <div className="followup-card-main">
+                    <div className="followup-card-customer">
+                      <button type="button" onClick={() => openLedgerModal(followUp.customer)}>
+                        {followUp.customer.full_name}
+                      </button>
+                      {followUp.customer.phone && <span>{followUp.customer.phone}</span>}
+                    </div>
+                    <p>{followUp.body}</p>
+                    <div className="followup-card-meta">
+                      <span className={`followup-due ${timing.kind}`}>
+                        {timing.label} · {new Date(followUp.due_at).toLocaleString()}
+                      </span>
+                      <span>{followUp.assigned_to_name || "Unassigned"}</span>
+                    </div>
+                  </div>
+                  <div className="followup-card-actions">
+                    {canManage && (
+                      <label>
+                        <span className="sr-only">Reassign follow-up for {followUp.customer.full_name}</span>
+                        <select
+                          aria-label={`Reassign follow-up for ${followUp.customer.full_name}`}
+                          value={followUp.assigned_to_user_id ?? ""}
+                          onChange={(event) => handleReassignFollowUp(followUp.customer.id, followUp.id, event.target.value)}
+                        >
+                          {!followUp.assigned_to_user_id && <option value="" disabled>Unassigned</option>}
+                          {followUp.assigned_to_user_id && !currentAssigneeAvailable && (
+                            <option value={followUp.assigned_to_user_id} disabled>
+                              {followUp.assigned_to_name || "Inactive staff"}
+                            </option>
+                          )}
+                          {followUpAssignees.map((staff) => (
+                            <option key={staff.id} value={staff.id}>{staff.full_name}</option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                    <button
+                      type="button"
+                      className="followup-complete-button"
+                      onClick={() => handleFollowUpStatus(followUp.customer.id, followUp.id, "completed")}
+                    >
+                      Complete
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="customers-empty">
+            {followUps.length
+              ? "No open follow-ups match these filters."
+              : "No open follow-ups. Add one from a customer profile."}
+          </p>
         )}
       </section>
 
@@ -361,6 +637,17 @@ function Customers() {
                 onChange={(event) => updateDraft("credit_limit", event.target.value)}
               />
             </label>
+            <label>
+              Lead stage
+              <select
+                value={draft.lead_status}
+                onChange={(event) => updateDraft("lead_status", event.target.value)}
+              >
+                {Object.entries(LEAD_STATUS_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
             <div className="customers-form-actions">
               <button type="submit" disabled={saving}>
                 {saving ? "Saving…" : "Save changes"}
@@ -377,7 +664,7 @@ function Customers() {
         <div className="customers-list-heading">
           <div>
             <h2>Directory</h2>
-            <p>Click a customer to view credit ledger and record payments.</p>
+            <p>Open a customer to view their journey, follow-ups, and credit ledger.</p>
           </div>
           {canManage && (
             <label className="customers-archived-toggle">
@@ -424,6 +711,7 @@ function Customers() {
                   <th>Customer</th>
                   <th>Contact</th>
                   <th>Credit limit</th>
+                  <th>Lead stage</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -454,6 +742,11 @@ function Customers() {
                     </td>
                     <td>
                       {customer.credit_limit === null ? "Not set" : formatCurrency(customer.credit_limit)}
+                    </td>
+                    <td>
+                      <span className={`customer-lead-stage ${customer.lead_status || "new"}`}>
+                        {LEAD_STATUS_LABELS[customer.lead_status] || "New"}
+                      </span>
                     </td>
                     <td>
                       <span className={`customers-status ${customer.is_active ? "is-active" : "is-archived"}`}>
@@ -501,7 +794,7 @@ function Customers() {
           <div className="customer-ledger-modal" onClick={(e) => e.stopPropagation()}>
             <header className="customer-ledger-modal-header">
               <div>
-                <span className="customers-eyebrow">ACCOUNT LEDGER</span>
+                <span className="customers-eyebrow">CUSTOMER PROFILE</span>
                 <h2>{selectedCustomer.full_name}</h2>
                 <p className="customer-modal-contact">
                   {selectedCustomer.phone && <span>Tel: {selectedCustomer.phone}</span>}
@@ -510,6 +803,16 @@ function Customers() {
                     <span className="customer-limit-chip">
                       Limit: {formatCurrency(selectedCustomer.credit_limit)}
                     </span>
+                  )}
+                  {getWhatsAppUrl(selectedCustomer.phone, selectedCustomer.full_name) && (
+                    <a
+                      className="customer-whatsapp-link"
+                      href={getWhatsAppUrl(selectedCustomer.phone, selectedCustomer.full_name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      WhatsApp
+                    </a>
                   )}
                 </p>
               </div>
@@ -525,6 +828,114 @@ function Customers() {
               <p className="customers-empty">Loading account history…</p>
             ) : ledger ? (
               <div className="customer-ledger-content">
+                <section className="customer-ledger-section customer-crm-section">
+                  <div className="customer-crm-heading">
+                    <div>
+                      <h3>Customer journey</h3>
+                      <p>Purchases, online orders, notes, and follow-ups in one timeline.</p>
+                    </div>
+                    {canManage ? (
+                      <label className="customer-stage-control">
+                        Lead stage
+                        <select
+                          value={selectedCustomer.lead_status || "new"}
+                          onChange={(event) => handleLeadStatusChange(selectedCustomer, event.target.value)}
+                        >
+                          {Object.entries(LEAD_STATUS_LABELS).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : (
+                      <span className={`customer-lead-stage ${selectedCustomer.lead_status || "new"}`}>
+                        {LEAD_STATUS_LABELS[selectedCustomer.lead_status] || "New"}
+                      </span>
+                    )}
+                  </div>
+                  <form className="customer-activity-form" onSubmit={handleCreateActivity}>
+                    <label>
+                      Activity
+                      <select
+                        value={activityForm.activity_type}
+                        onChange={(event) => setActivityForm((current) => ({
+                          ...current,
+                          activity_type: event.target.value,
+                        }))}
+                      >
+                        <option value="follow_up">Follow-up</option>
+                        <option value="note">Note</option>
+                      </select>
+                    </label>
+                    {activityForm.activity_type === "follow_up" && (
+                      <label>
+                        Due
+                        <input
+                          type="datetime-local"
+                          value={activityForm.due_at}
+                          onChange={(event) => setActivityForm((current) => ({
+                            ...current,
+                            due_at: event.target.value,
+                          }))}
+                          required
+                        />
+                      </label>
+                    )}
+                    <label className="customer-activity-body">
+                      Details
+                      <textarea
+                        maxLength={2000}
+                        value={activityForm.body}
+                        onChange={(event) => setActivityForm((current) => ({
+                          ...current,
+                          body: event.target.value,
+                        }))}
+                        placeholder={activityForm.activity_type === "follow_up" ? "What should you follow up about?" : "Add a customer note"}
+                        rows={2}
+                        required
+                      />
+                    </label>
+                    <button type="submit" disabled={activitySubmitting || !activityForm.body.trim() || (activityForm.activity_type === "follow_up" && !activityForm.due_at)}>
+                      {activitySubmitting ? "Saving…" : activityForm.activity_type === "follow_up" ? "Schedule follow-up" : "Add note"}
+                    </button>
+                  </form>
+                  {loadingTimeline ? (
+                    <p className="customers-empty" role="status">Loading customer activity…</p>
+                  ) : timeline?.entries?.length ? (
+                    <ol className="customer-timeline">
+                      {timeline.entries.map((entry) => (
+                        <li key={entry.id} className={`customer-timeline-entry ${entry.kind}`}>
+                          <span className="customer-timeline-marker" aria-hidden="true" />
+                          <div className="customer-timeline-copy">
+                            <div className="customer-timeline-topline">
+                              <strong>{entry.title}</strong>
+                              <time dateTime={entry.occurred_at}>{new Date(entry.occurred_at).toLocaleString()}</time>
+                            </div>
+                            <p>{entry.details}</p>
+                            {entry.amount !== null && entry.amount !== undefined && (
+                              <span className="customer-timeline-amount">{formatCurrency(entry.amount)}</span>
+                            )}
+                            {entry.kind === "follow_up" && (
+                              <div className="customer-timeline-followup">
+                                <span>
+                                  Due {entry.due_at ? new Date(entry.due_at).toLocaleString() : "date not set"}
+                                  {entry.assigned_to_name ? ` · ${entry.assigned_to_name}` : ""}
+                                </span>
+                                {entry.status === "open" ? (
+                                  <button type="button" onClick={() => handleFollowUpStatus(selectedCustomer.id, Number(entry.id.replace("activity-", "")), "completed")}>
+                                    Mark complete
+                                  </button>
+                                ) : <span className="customer-followup-complete">Completed</span>}
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="customers-empty">No activity yet. Schedule a follow-up or add a note.</p>
+                  )}
+                </section>
+
                 <div className="customer-ledger-kpis">
                   <article className="ledger-kpi-card highlight-card">
                     <span>Outstanding balance</span>
@@ -696,11 +1107,6 @@ function Customers() {
                   )}
                 </div>
 
-                {/* REMINDERS PLACEHOLDER */}
-                <div className="customers-reminder-placeholder ledger-reminder-banner">
-                  <strong>Reminders — coming soon</strong>
-                  <span>Automated SMS and email reminders are scheduled for a future phase. No notifications are sent.</span>
-                </div>
               </div>
             ) : null}
           </div>
