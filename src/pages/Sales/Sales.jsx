@@ -65,6 +65,7 @@ function Sales() {
   const searchInputRef = useRef(null);
   const cartPanelRef = useRef(null);
   const completeSaleButtonRef = useRef(null);
+  const categoryRailRef = useRef(null);
   const bulkInputRef = useRef(null);
   const [bulkPromptVariant, setBulkPromptVariant] = useState(null);
   const [bulkPresetVariant, setBulkPresetVariant] = useState(null);
@@ -258,6 +259,20 @@ function Sales() {
   }, [session]);
 
   useEffect(() => {
+    const rail = categoryRailRef.current;
+    const activeButton = rail?.querySelector('[aria-pressed="true"]');
+    if (!rail || !activeButton) return;
+
+    requestAnimationFrame(() => {
+      activeButton.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    });
+  }, [selectedCategory, viewMode]);
+
+  useEffect(() => {
     if (!mpesaSale || mpesaSale.status !== "pending") return undefined;
 
     let active = true;
@@ -387,6 +402,13 @@ function Sales() {
     if (value && viewMode !== "all") {
       setViewMode("all");
     }
+  }
+
+  function scrollCategoryRail(direction) {
+    categoryRailRef.current?.scrollBy({
+      left: direction * Math.min(categoryRailRef.current.clientWidth * 0.72, 320),
+      behavior: "smooth",
+    });
   }
 
   function updateQuantity(variantId, delta) {
@@ -739,26 +761,44 @@ function Sales() {
               <strong>Categories</strong>
               <span>{categoryOptions.length} available</span>
             </div>
-            <div className="sales-category-options">
+            <div className="sales-category-scroll-shell">
               <button
                 type="button"
-                className={selectedCategory === "all" ? "active" : ""}
-                aria-pressed={selectedCategory === "all"}
-                onClick={() => setSelectedCategory("all")}
+                className="sales-category-scroll-button"
+                aria-label="Scroll categories left"
+                onClick={() => scrollCategoryRail(-1)}
               >
-                All categories <span>{catalogueItems.length}</span>
+                ‹
               </button>
-              {categoryOptions.map((category) => (
+              <div className="sales-category-options" ref={categoryRailRef}>
                 <button
                   type="button"
-                  className={selectedCategory === category ? "active" : ""}
-                  aria-pressed={selectedCategory === category}
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  className={selectedCategory === "all" ? "active" : ""}
+                  aria-pressed={selectedCategory === "all"}
+                  onClick={() => setSelectedCategory("all")}
                 >
-                  {category} <span>{catalogueItems.filter((item) => item.category === category).length}</span>
+                  All categories <span>{catalogueItems.length}</span>
                 </button>
-              ))}
+                {categoryOptions.map((category) => (
+                  <button
+                    type="button"
+                    className={selectedCategory === category ? "active" : ""}
+                    aria-pressed={selectedCategory === category}
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category} <span>{catalogueItems.filter((item) => item.category === category).length}</span>
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="sales-category-scroll-button"
+                aria-label="Scroll categories right"
+                onClick={() => scrollCategoryRail(1)}
+              >
+                ›
+              </button>
             </div>
           </div>
         )}

@@ -3485,6 +3485,155 @@
   background: #ffffff30;
 }
 
+/* Category rail: keep every option inside the catalogue panel. */
+.sales-category-filter {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  margin-top: 14px;
+  padding: 10px;
+  background: var(--sales-background);
+  border: 1px solid var(--sales-border);
+  border-radius: 13px;
+}
+
+.sales-category-filter-heading {
+  min-height: 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.sales-category-filter-heading strong {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}
+
+.sales-category-filter-heading span {
+  min-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  color: var(--sales-green-dark);
+  background: var(--sales-green-soft);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.sales-category-scroll-shell {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 5px;
+}
+
+.sales-category-options {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  gap: 7px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: 4px 2px 7px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sales-green) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sales-category-options::-webkit-scrollbar {
+  height: 5px;
+}
+
+.sales-category-options::-webkit-scrollbar-thumb {
+  background: #cdaeb5;
+  border-radius: 999px;
+}
+
+.sales-category-options button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 7px 10px;
+  scroll-snap-align: center;
+  border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(53, 44, 43, 0.025);
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.sales-category-options button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(53, 44, 43, 0.06);
+}
+
+.sales-category-options button.active {
+  box-shadow: 0 4px 10px var(--sales-accent-shadow);
+}
+
+.sales-category-options button span {
+  min-width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+}
+
+.sales-category-scroll-button {
+  width: 30px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0 0 2px;
+  color: var(--sales-green-dark);
+  background: #fff;
+  border: 1px solid var(--sales-border);
+  border-radius: 9px;
+  font-size: 24px;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(53, 44, 43, 0.04);
+}
+
+.sales-category-scroll-button:hover {
+  color: #fff;
+  background: var(--sales-green);
+  border-color: var(--sales-green);
+}
+
+@media (max-width: 520px) {
+  .sales-category-filter {
+    padding: 9px;
+  }
+
+  .sales-category-scroll-shell {
+    grid-template-columns: 26px minmax(0, 1fr) 26px;
+    gap: 3px;
+  }
+
+  .sales-category-scroll-button {
+    width: 26px;
+    height: 36px;
+  }
+
+  .sales-category-options {
+    gap: 6px;
+  }
+
+  .sales-category-options button {
+    min-height: 36px;
+    padding-inline: 9px;
+  }
+}
+
 .payment-method-card.credit .payment-method-icon {
   color: #1e40af;
   background: #dbeafe;
