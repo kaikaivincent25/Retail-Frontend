@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   createPublicOrder,
+  cancelPublicOrder,
   getPublicMpesaStatus,
   getPublicOrderStatus,
   getPublicShop,
@@ -82,10 +83,24 @@ export default function PublicShop() {
   const [cart, setCart] = useState({});
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const [checkoutMessage, setCheckoutMessage] = useState("");
   const [order, setOrder] = useState(null);
   const [paymentError, setPaymentError] = useState("");
   const [checkingOrder, setCheckingOrder] = useState(false);
   const [checkout, setCheckout] = useState({ customer_name: "", customer_phone: "", fulfilment: "delivery", payment_method: "pay_on_delivery", delivery_address: "", estate: "", landmark: "", delivery_instructions: "", preferred_delivery_time: "" });
+
+  useEffect(() => {
+    if (!checkoutOpen && !cancelConfirmOpen) return undefined;
+    function handleEscape(event) {
+      if (event.key !== "Escape") return;
+      if (cancelConfirmOpen) setCancelConfirmOpen(false);
+      else if (!submitting) setCheckoutOpen(false);
+    }
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [cancelConfirmOpen, checkoutOpen, submitting]);
 
   useEffect(() => {
     let active = true;
@@ -136,15 +151,25 @@ export default function PublicShop() {
   function addToCart(product, variant) {
     if (!variant.is_available) return;
     setCart((current) => ({ ...current, [variant.id]: { product, variant, quantity: Math.min((current[variant.id]?.quantity || 0) + 1, 99) } }));
+    setCheckoutMessage(`${product.name} added to your cart.`);
   }
 
   function changeQuantity(variantId, quantity) {
+    const item = cart[variantId];
+    if (!item) return;
+    setCheckoutMessage(quantity <= 0
+      ? `${item.product.name} removed from your cart.`
+      : `${item.product.name} quantity updated to ${Math.min(quantity, 99)}.`);
     setCart((current) => {
       const next = { ...current };
       if (quantity <= 0) delete next[variantId];
       else next[variantId] = { ...next[variantId], quantity: Math.min(quantity, 99) };
       return next;
     });
+  }
+
+  function updateCheckout(field, value) {
+    setCheckout((current) => ({ ...current, [field]: value }));
   }
 
   async function submitOrder(event) {
@@ -172,6 +197,21 @@ export default function PublicShop() {
     finally { setSubmitting(false); }
   }
 
+  async function confirmCancelOrder() {
+    if (!order?.public_token || cancelling) return;
+    setCancelling(true);
+    setPaymentError("");
+    try {
+      setOrder(await cancelPublicOrder(order.public_token));
+      setCancelConfirmOpen(false);
+    } catch (err) {
+      setPaymentError(getErrorMessage(err, "Could not cancel this order."));
+      setCancelConfirmOpen(false);
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   async function refreshOrderStatus() {
     if (!order?.public_token) return;
     setCheckingOrder(true);
@@ -190,16 +230,19 @@ export default function PublicShop() {
   if (order) return (
     <main className="public-shop-confirmation">
       <div className="confirmation-card">
-        <div className="confirmation-check">✓</div>
-        <span className="public-shop-kicker">ORDER RECEIVED</span>
-        <h1>Thank you, {order.customer_name}.</h1>
-        <p>Your order <strong>{order.order_number}</strong> has been sent to {shop.name}.</p>
+        <div className={`confirmation-check ${order.status === "cancelled" ? "cancelled" : ""}`}>{order.status === "cancelled" ? "×" : "✓"}</div>
+        <span className="public-shop-kicker">{order.status === "cancelled" ? "ORDER CANCELLED" : "ORDER RECEIVED"}</span>
+        <h1>{order.status === "cancelled" ? "Your order was cancelled." : `Thank you, ${order.customer_name}.`}</h1>
+        <p>{order.status === "cancelled"
+          ? `Order ${order.order_number} is no longer active.`
+          : <>Your order <strong>{order.order_number}</strong> has been sent to {shop.name}.</>}</p>
         <p className="public-order-total">{formatPrice(order.total, shop.currency)}</p>
         <div className="public-order-progress">
           <strong>Order progress</strong>
           <span>{ORDER_STATUS_LABELS[order.status] || order.status}</span>
           <span>{getPublicPaymentLabel(order)}</span>
         </div>
+        {order.status === "cancelled" && <p className="public-cancelled-note" role="status">Your order has been cancelled. The shop has been notified.</p>}
         {paymentError && <p className="public-form-error">{paymentError}</p>}
         {order.payment_method === "manual_mpesa" && (
           <p className={`public-payment-state ${order.payment_status}`}>M-Pesa payment: {order.payment_status}</p>
@@ -223,7 +266,30 @@ export default function PublicShop() {
         <button type="button" onClick={() => { setOrder(null); setPaymentError(""); }}>
           Continue shopping
         </button>
+        {["pending", "accepted"].includes(order.status) && !["paid", "initiated"].includes(order.payment_status) && (
+          <div className="public-cancel-order">
+            <p>You can cancel while the shop is still preparing to accept your order.</p>
+            <button type="button" className="public-cancel-order-button" onClick={() => setCancelConfirmOpen(true)}>
+              Cancel this order
+            </button>
+          </div>
+        )}
       </div>
+      {cancelConfirmOpen && (
+        <div className="public-checkout-backdrop public-cancel-backdrop">
+          <section className="public-cancel-dialog" role="alertdialog" aria-modal="true" aria-labelledby="cancel-order-title" aria-describedby="cancel-order-description">
+            <span className="public-cancel-icon" aria-hidden="true">!</span>
+            <h2 id="cancel-order-title">Cancel order {order.order_number}?</h2>
+            <p id="cancel-order-description">This will notify {shop.name} and release the items in your order. You can place a new order later.</p>
+            <div className="public-cancel-actions">
+              <button type="button" autoFocus onClick={() => setCancelConfirmOpen(false)} disabled={cancelling}>Keep my order</button>
+              <button type="button" className="public-cancel-confirm" onClick={confirmCancelOrder} disabled={cancelling}>
+                {cancelling ? "Cancelling…" : "Yes, cancel order"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 
@@ -269,6 +335,61 @@ export default function PublicShop() {
     <section className="public-product-grid" aria-live="polite">{products.map((product, index) => <article className="public-product-card" style={{ "--card-index": index }} key={product.id}><div className="public-product-media">{product.image_url ? <img src={product.image_url} alt="" /> : <div className="public-product-placeholder">{product.name.slice(0, 1)}</div>}<span className="public-product-badge">{product.category || "Featured"}</span></div><div className="public-product-content"><div className="public-product-topline"><h2>{product.name}</h2>{product.brand && <p className="public-product-brand">{product.brand}</p>}</div>{product.description && <p className="public-product-description">{product.description}</p>}<div className="public-product-variants">{product.variants.map((variant) => <div className="public-variant" key={variant.id}>{variant.image_url && variant.image_url !== product.image_url && <img className="public-variant-image" src={variant.image_url} alt="" loading="lazy" />}<div><strong>{formatPrice(variant.selling_price, shop.currency)}</strong><small>{variant.name} · {variant.unit}</small></div><button disabled={!variant.is_available} onClick={() => addToCart(product, variant)}>{variant.is_available ? <><span aria-hidden="true">+</span> Add</> : "Sold out"}</button></div>)}</div>{product.availability_message && <p className="public-product-note">{product.availability_message}</p>}</div></article>)}</section>
     {!products.length && <p className="public-shop-empty">No products match your search.</p>}
     {itemCount > 0 && <aside className="public-cart"><div><strong>{itemCount} item(s)</strong><span>{formatPrice(cartTotal, shop.currency)}</span></div><button onClick={() => setCheckoutOpen(true)}>Checkout</button></aside>}
-    {checkoutOpen && <div className="public-checkout-backdrop"><form className="public-checkout" onSubmit={submitOrder}><button type="button" className="public-checkout-close" onClick={() => setCheckoutOpen(false)}>×</button><div className="checkout-heading"><span className="public-shop-kicker">CHECKOUT</span><h2>Complete your order</h2><p>{itemCount} item(s) · {formatPrice(cartTotal, shop.currency)}</p></div><div className="public-checkout-items">{cartItems.map((item) => <div key={item.variant.id}><span>{item.product.name} · {item.variant.name}</span><span><button type="button" onClick={() => changeQuantity(item.variant.id, item.quantity - 1)}>−</button> {item.quantity} <button type="button" onClick={() => changeQuantity(item.variant.id, item.quantity + 1)}>+</button></span></div>)}</div><label>Your name<input required placeholder="e.g. Amina Otieno" value={checkout.customer_name} onChange={(e) => setCheckout({ ...checkout, customer_name: e.target.value })} /></label><label>Phone number<input required placeholder="07XX XXX XXX" value={checkout.customer_phone} onChange={(e) => setCheckout({ ...checkout, customer_phone: e.target.value })} /></label><label>Fulfilment<select value={checkout.fulfilment} onChange={(e) => setCheckout({ ...checkout, fulfilment: e.target.value, payment_method: e.target.value === "pickup" ? "pay_at_pickup" : "pay_on_delivery" })}><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select></label>{checkout.fulfilment === "delivery" && <label>Delivery address<input required placeholder="Estate, building, street, or landmark" value={checkout.delivery_address} onChange={(e) => setCheckout({ ...checkout, delivery_address: e.target.value })} /></label>}<label>Payment<select value={checkout.payment_method} onChange={(e) => setCheckout({ ...checkout, payment_method: e.target.value })}>{paymentOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>{error && <p className="public-form-error">{error}</p>}<button className="public-submit-order" disabled={submitting}>{submitting ? "Placing order…" : `Place order · ${formatPrice(cartTotal, shop.currency)}`}</button></form></div>}
+    {checkoutOpen && <div className="public-checkout-backdrop">
+      <form className="public-checkout" onSubmit={submitOrder} role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+        <div className="public-checkout-top">
+          <div className="checkout-heading">
+            <span className="public-shop-kicker">SECURE CHECKOUT</span>
+            <h2 id="checkout-title">Review your order</h2>
+            <p>Check your items and delivery details before placing your order.</p>
+          </div>
+          <button type="button" autoFocus className="public-checkout-close" aria-label="Close checkout and keep shopping" onClick={() => setCheckoutOpen(false)}>×</button>
+        </div>
+        <div className="public-checkout-summary">
+          <div className="public-checkout-summary-heading"><strong>Your items</strong><span>{itemCount} {itemCount === 1 ? "item" : "items"}</span></div>
+          <div className="public-checkout-items">
+            {cartItems.map((item) => (
+              <div className="public-checkout-item" key={item.variant.id}>
+                <span className="public-checkout-item-name">{item.product.name}<small>{item.variant.name} · {formatPrice(item.variant.selling_price, shop.currency)} each</small></span>
+                <span className="public-checkout-quantity">
+                  <button type="button" aria-label={`Remove one ${item.product.name}`} onClick={() => changeQuantity(item.variant.id, item.quantity - 1)}>−</button>
+                  <strong>{item.quantity}</strong>
+                  <button type="button" aria-label={`Add one ${item.product.name}`} onClick={() => changeQuantity(item.variant.id, item.quantity + 1)}>+</button>
+                </span>
+                <strong className="public-checkout-line-total">{formatPrice(Number(item.variant.selling_price) * item.quantity, shop.currency)}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="public-checkout-total"><span>Total</span><strong>{formatPrice(cartTotal, shop.currency)}</strong></div>
+        </div>
+        {checkoutMessage && <p className="public-checkout-message" role="status" aria-live="polite">{checkoutMessage}</p>}
+        <div className="public-checkout-fields">
+          <label>Your name<input required autoComplete="name" placeholder="e.g. Amina Otieno" value={checkout.customer_name} onChange={(event) => updateCheckout("customer_name", event.target.value)} onBlur={() => setCheckoutMessage(checkout.customer_name.trim() ? "Your name is ready for this order." : "Your name is still needed to place this order.")} /></label>
+          <label>Phone number<input required type="tel" autoComplete="tel" placeholder="07XX XXX XXX" value={checkout.customer_phone} onChange={(event) => updateCheckout("customer_phone", event.target.value)} onBlur={() => setCheckoutMessage(checkout.customer_phone.trim() ? "Your phone number is ready for this order." : "Your phone number is still needed to place this order.")} /></label>
+          <label>How would you like to receive your order?
+            <select value={checkout.fulfilment} onChange={(event) => {
+              const fulfilment = event.target.value;
+              setCheckout((current) => ({ ...current, fulfilment, payment_method: fulfilment === "pickup" ? "pay_at_pickup" : "pay_on_delivery" }));
+              setCheckoutMessage(fulfilment === "pickup" ? "Pickup selected. You can pay at pickup or use M-Pesa." : "Delivery selected. Add your delivery address below.");
+            }}>
+              <option value="delivery">Delivery</option><option value="pickup">Pickup</option>
+            </select>
+          </label>
+          {checkout.fulfilment === "delivery" && <label>Delivery address<input required autoComplete="street-address" placeholder="Estate, building, street, or landmark" value={checkout.delivery_address} onChange={(event) => updateCheckout("delivery_address", event.target.value)} onBlur={() => setCheckoutMessage(checkout.delivery_address.trim() ? "Your delivery address is ready for this order." : "A delivery address is needed before you can place this order.")} /></label>}
+          <label>Payment method
+            <select value={checkout.payment_method} onChange={(event) => {
+              updateCheckout("payment_method", event.target.value);
+              setCheckoutMessage(`Payment method changed to ${paymentOptions.find((option) => option.value === event.target.value)?.label || "your selection"}.`);
+            }}>
+              {paymentOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </label>
+        </div>
+        {error && <p className="public-form-error" role="alert">{error}</p>}
+        <p className="public-checkout-help">You can review your order with the shop before payment is collected.</p>
+        <button className="public-submit-order" disabled={submitting || !itemCount}>{submitting ? "Placing your order…" : `Place order · ${formatPrice(cartTotal, shop.currency)}`}</button>
+        <button type="button" className="public-keep-shopping" disabled={submitting} onClick={() => setCheckoutOpen(false)}>Keep shopping (your cart will be saved)</button>
+      </form>
+    </div>}
   </main>;
 }
