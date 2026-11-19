@@ -97,6 +97,9 @@
 .public-payment-state { font-weight: 800; }
 .public-payment-state.paid { color: #278b5a; }
 .public-payment-state.failed { color: #a73d36; }
+.public-order-progress { display: grid; gap: .35rem; margin: 1rem 0; padding: .85rem; text-align: left; background: #f5faf7; border: 1px solid #dcece2; border-radius: 10px; }
+.public-order-progress strong { color: var(--public-ink); font-size: .8rem; }
+.public-order-progress span { color: var(--public-muted); font-size: .76rem; }
 .public-shop-loading, .public-shop-error { display: grid; place-items: center; min-height: 100vh; padding: 2rem; color: var(--public-muted); text-align: center; }
 .public-shop-error h1 { color: var(--public-ink); font-size: 1.8rem; }
 

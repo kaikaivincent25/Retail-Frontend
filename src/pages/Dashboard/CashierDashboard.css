@@ -207,3 +207,9 @@
     flex-direction: column;
   }
 }
+
+.cashier-order-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 13px; }
+.cashier-order-counts > div { display: grid; gap: 4px; padding: 13px 15px; border: 1px solid #e8d9cc; border-radius: 10px; background: #fffcf7; }
+.cashier-order-counts strong { color: #173a52; font-size: 19px; }
+.cashier-order-counts span { color: #82716b; font-size: 10px; }
+@media (max-width: 560px) { .cashier-order-counts { grid-template-columns: 1fr; } }

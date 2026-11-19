@@ -227,6 +227,47 @@ function Dashboard() {
         </div>
       </section>
 
+      <section className="dashboard-section dashboard-orders-section">
+        <div className="section-heading products-heading">
+          <div>
+            <h2>Online orders</h2>
+            <p>Current fulfilment stages and payments that still need attention</p>
+          </div>
+          <Link to="/orders" className="credit-sales-link">Manage orders <span>→</span></Link>
+        </div>
+        <div className="dashboard-order-counts">
+          <div><strong>{summary.pending_orders_count}</strong><span>Awaiting acceptance</span></div>
+          <div><strong>{summary.active_orders_count}</strong><span>Open orders</span></div>
+          <div><strong>{summary.orders_awaiting_payment_count}</strong><span>Payment due</span></div>
+        </div>
+        {summary.recent_orders.length === 0 ? (
+          <div className="empty-hint">
+            <div className="empty-icon">⌁</div>
+            <h3>No online orders yet</h3>
+            <p>Orders placed through your public shop link will appear here.</p>
+          </div>
+        ) : (
+          <div className="table-container">
+            <table className="dashboard-orders-table">
+              <thead>
+                <tr><th>Order</th><th>Customer</th><th>Stage</th><th>Payment</th><th>Total</th></tr>
+              </thead>
+              <tbody>
+                {summary.recent_orders.map((order) => (
+                  <tr key={order.id}>
+                    <td>{order.order_number}</td>
+                    <td>{order.customer_name}</td>
+                    <td>{order.status.replaceAll("_", " ")}</td>
+                    <td>{order.payment_status === "paid" ? "Paid" : "Payment due"}</td>
+                    <td>{formatCurrency(order.total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
       {/* Credit Sales */}
       <section className="dashboard-section">
         <div className="section-heading products-heading">

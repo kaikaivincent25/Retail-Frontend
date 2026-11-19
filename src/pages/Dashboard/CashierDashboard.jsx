@@ -93,6 +93,42 @@ function CashierDashboard() {
         </article>
       </section>
 
+      <section className="cashier-dashboard-section">
+        <div className="cashier-dashboard-section-heading">
+          <div>
+            <h2>Online orders</h2>
+            <p>Fulfilment progress and outstanding payments</p>
+          </div>
+          <Link to="/orders">Manage orders <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className="cashier-order-counts">
+          <div><strong>{summary.pending_orders_count}</strong><span>Awaiting acceptance</span></div>
+          <div><strong>{summary.active_orders_count}</strong><span>Open orders</span></div>
+          <div><strong>{summary.orders_awaiting_payment_count}</strong><span>Payment due</span></div>
+        </div>
+        <div className="cashier-dashboard-table-wrap">
+          <table className="cashier-dashboard-table">
+            <thead>
+              <tr><th>Order</th><th>Customer</th><th>Stage</th><th>Payment</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+              {summary.recent_orders.map((order) => (
+                <tr key={order.id}>
+                  <td>{order.order_number}</td>
+                  <td>{order.customer_name}</td>
+                  <td>{order.status.replaceAll("_", " ")}</td>
+                  <td>{order.payment_status === "paid" ? "Paid" : "Payment due"}</td>
+                  <td>{formatCurrency(order.total)}</td>
+                </tr>
+              ))}
+              {summary.recent_orders.length === 0 && (
+                <tr><td colSpan={5} className="cashier-empty">No online orders yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section className="cashier-dashboard-section cashier-expenses-shortcut">
         <div className="cashier-dashboard-section-heading">
           <div>

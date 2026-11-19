@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { createPublicOrder, getPublicMpesaStatus, getPublicShop, initiatePublicMpesa } from "../../services/catalogApi";
+import {
+  createPublicOrder,
+  getPublicMpesaStatus,
+  getPublicOrderStatus,
+  getPublicShop,
+  initiatePublicMpesa,
+} from "../../services/catalogApi";
 import "./PublicShop.css";
 
 function formatPrice(value, currency) {
@@ -39,6 +45,28 @@ function getErrorMessage(error, fallback) {
   return fallback;
 }
 
+const ORDER_STATUS_LABELS = {
+  pending: "Awaiting shop acceptance",
+  accepted: "Accepted",
+  rejected: "Rejected",
+  preparing: "Being prepared",
+  ready_for_pickup: "Ready for pickup",
+  out_for_delivery: "Out for delivery",
+  delivered: "Delivered / collected",
+  completed: "Order closed",
+  cancelled: "Cancelled",
+};
+
+function getPublicPaymentLabel(order) {
+  if (order.payment_status === "paid") return "Payment confirmed";
+  if (order.payment_method === "manual_mpesa") {
+    if (order.payment_status === "initiated") return "Waiting for M-Pesa confirmation";
+    if (order.payment_status === "failed") return "M-Pesa payment failed";
+    return "Pay by M-Pesa";
+  }
+  return order.payment_method === "pay_at_pickup" ? "Pay at pickup" : "Pay on delivery";
+}
+
 export default function PublicShop() {
   const { slug } = useParams();
   const [shopResponse, setShopResponse] = useState({
@@ -56,6 +84,7 @@ export default function PublicShop() {
   const [submitting, setSubmitting] = useState(false);
   const [order, setOrder] = useState(null);
   const [paymentError, setPaymentError] = useState("");
+  const [checkingOrder, setCheckingOrder] = useState(false);
   const [checkout, setCheckout] = useState({ customer_name: "", customer_phone: "", fulfilment: "delivery", payment_method: "pay_on_delivery", delivery_address: "", estate: "", landmark: "", delivery_instructions: "", preferred_delivery_time: "" });
 
   useEffect(() => {
@@ -143,9 +172,60 @@ export default function PublicShop() {
     finally { setSubmitting(false); }
   }
 
+  async function refreshOrderStatus() {
+    if (!order?.public_token) return;
+    setCheckingOrder(true);
+    setPaymentError("");
+    try {
+      setOrder(await getPublicOrderStatus(order.public_token));
+    } catch (err) {
+      setPaymentError(getErrorMessage(err, "Could not refresh this order."));
+    } finally {
+      setCheckingOrder(false);
+    }
+  }
+
   if (loadError) return <main className="public-shop-error" role="alert"><div><h1>{loadError}</h1><p>{currentResponse?.planRestricted ? "The shop needs to restore online ordering before this catalogue can be used. Please contact the shop directly for availability." : "Check the link or your connection, then try again."}</p>{!currentResponse?.planRestricted && <button type="button" onClick={() => setReloadKey((key) => key + 1)}>Try again</button>}</div></main>;
   if (!shop) return <main className="public-shop-loading" role="status">Loading shop catalogue…</main>;
-  if (order) return <main className="public-shop-confirmation"><div className="confirmation-card"><div className="confirmation-check">✓</div><span className="public-shop-kicker">ORDER RECEIVED</span><h1>Thank you, {order.customer_name}.</h1><p>Your order <strong>{order.order_number}</strong> has been sent to {shop.name}.</p><p className="public-order-total">{formatPrice(order.total, shop.currency)}</p>{paymentError && <p className="public-form-error">{paymentError}</p>}{order.payment_method === "manual_mpesa" && <p className={`public-payment-state ${order.payment_status}`}>M-Pesa payment: {order.payment_status}</p>}{order.payment_method === "manual_mpesa" && order.payment_status === "initiated" && <button onClick={() => getPublicMpesaStatus(order.public_token).then(setOrder).catch((err) => setPaymentError(getErrorMessage(err, "Could not check payment status.")))}>Check payment status</button>}<button onClick={() => { setOrder(null); setPaymentError(""); }}>Continue shopping</button></div></main>;
+  if (order) return (
+    <main className="public-shop-confirmation">
+      <div className="confirmation-card">
+        <div className="confirmation-check">✓</div>
+        <span className="public-shop-kicker">ORDER RECEIVED</span>
+        <h1>Thank you, {order.customer_name}.</h1>
+        <p>Your order <strong>{order.order_number}</strong> has been sent to {shop.name}.</p>
+        <p className="public-order-total">{formatPrice(order.total, shop.currency)}</p>
+        <div className="public-order-progress">
+          <strong>Order progress</strong>
+          <span>{ORDER_STATUS_LABELS[order.status] || order.status}</span>
+          <span>{getPublicPaymentLabel(order)}</span>
+        </div>
+        {paymentError && <p className="public-form-error">{paymentError}</p>}
+        {order.payment_method === "manual_mpesa" && (
+          <p className={`public-payment-state ${order.payment_status}`}>M-Pesa payment: {order.payment_status}</p>
+        )}
+        {order.payment_method === "manual_mpesa" && order.payment_status === "initiated" && (
+          <button type="button" onClick={() => getPublicMpesaStatus(order.public_token).then(setOrder).catch((err) => setPaymentError(getErrorMessage(err, "Could not check payment status.")))}>
+            Check M-Pesa status
+          </button>
+        )}
+        {order.payment_method === "manual_mpesa" && order.payment_status === "failed" && (
+          <button
+            type="button"
+            onClick={() => initiatePublicMpesa(order.public_token).then(setOrder).catch((err) => setPaymentError(getErrorMessage(err, "Could not restart M-Pesa payment.")))}
+          >
+            Retry M-Pesa payment
+          </button>
+        )}
+        <button type="button" disabled={checkingOrder} onClick={refreshOrderStatus}>
+          {checkingOrder ? "Checking…" : "Refresh order progress"}
+        </button>
+        <button type="button" onClick={() => { setOrder(null); setPaymentError(""); }}>
+          Continue shopping
+        </button>
+      </div>
+    </main>
+  );
 
   return <main className="public-shop">
     <div className="public-shop-shell">

@@ -26,8 +26,12 @@ export const createPublicOrder = (slug, data) =>
   api.post(`/public/shops/${encodeURIComponent(slug)}/orders`, data).then((r) => r.data);
 export const initiatePublicMpesa = (token) =>
   api.post(`/public/orders/${encodeURIComponent(token)}/mpesa`).then((r) => r.data);
+
 export const getPublicMpesaStatus = (token) =>
   api.get(`/public/orders/${encodeURIComponent(token)}/mpesa/status`).then((r) => r.data);
+
+export const getPublicOrderStatus = (token) =>
+  api.get(`/public/orders/${encodeURIComponent(token)}`).then((r) => r.data);
 
 export async function uploadProductImage(file) {
   const { data: upload } = await api.post("/products/image-upload", {

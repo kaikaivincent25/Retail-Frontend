@@ -4,6 +4,7 @@ import {
   createCustomerActivity,
   createCustomer,
   getCustomerLedger,
+  getCustomerOrders,
   getCustomerTimeline,
   listCustomerFollowUpAssignees,
   listCustomerFollowUps,
@@ -29,6 +30,18 @@ const LEAD_STATUS_LABELS = {
   interested: "Interested",
   won: "Won",
   lost: "Lost",
+};
+
+const ORDER_STATUS_LABELS = {
+  pending: "Awaiting acceptance",
+  accepted: "Accepted",
+  rejected: "Rejected",
+  preparing: "Preparing",
+  ready_for_pickup: "Ready for pickup",
+  out_for_delivery: "Out for delivery",
+  delivered: "Delivered / collected",
+  completed: "Closed",
+  cancelled: "Cancelled",
 };
 
 function getWhatsAppUrl(phone, customerName) {
@@ -78,6 +91,9 @@ function Customers() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [ledger, setLedger] = useState(null);
   const [timeline, setTimeline] = useState(null);
+  const [onlineOrders, setOnlineOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [ordersError, setOrdersError] = useState("");
   const [loadingLedger, setLoadingLedger] = useState(false);
   const [loadingTimeline, setLoadingTimeline] = useState(false);
   const [ledgerError, setLedgerError] = useState("");
@@ -177,9 +193,16 @@ function Customers() {
     setSelectedCustomer(customer);
     setLedger(null);
     setTimeline(null);
+    setOnlineOrders([]);
+    setOrdersError("");
+    setLoadingOrders(true);
     setActivityForm({ activity_type: "follow_up", body: "", due_at: "" });
     loadCustomerLedger(customer.id);
     loadCustomerTimeline(customer.id);
+    getCustomerOrders(customer.id)
+      .then(setOnlineOrders)
+      .catch((err) => setOrdersError(extractErrorMessage(err)))
+      .finally(() => setLoadingOrders(false));
   }
 
   function loadCustomerTimeline(customerId) {
@@ -196,6 +219,8 @@ function Customers() {
     setTimeline(null);
     setLedgerError("");
     setPaymentSuccess("");
+    setOnlineOrders([]);
+    setOrdersError("");
   }
 
   async function handleCreateActivity(event) {
@@ -331,6 +356,7 @@ function Customers() {
       notes: customer.notes || "",
       credit_limit: customer.credit_limit ?? "",
       lead_status: customer.lead_status || "new",
+      identity_review_required: customer.identity_review_required || false,
     });
     setError("");
     setSuccess("");
@@ -354,6 +380,7 @@ function Customers() {
         notes: draft.notes.trim() || null,
         credit_limit: draft.credit_limit === "" ? null : Number(draft.credit_limit),
         lead_status: draft.lead_status,
+        identity_review_required: Boolean(draft.identity_review_required),
       });
       setEditing(null);
       setDraft(EMPTY_CUSTOMER);
@@ -648,6 +675,14 @@ function Customers() {
                 ))}
               </select>
             </label>
+            <label className="customer-review-control">
+              <input
+                type="checkbox"
+                checked={Boolean(draft.identity_review_required)}
+                onChange={(event) => updateDraft("identity_review_required", event.target.checked)}
+              />
+              Mark possible duplicate identity as reviewed
+            </label>
             <div className="customers-form-actions">
               <button type="submit" disabled={saving}>
                 {saving ? "Saving…" : "Save changes"}
@@ -731,6 +766,9 @@ function Customers() {
                         </span>
                         <span>{customer.full_name}</span>
                       </button>
+                      {customer.identity_review_required && (
+                        <span className="customer-identity-review">Review identity</span>
+                      )}
                     </td>
                     <td>
                       <span className="customers-contact">
@@ -796,6 +834,30 @@ function Customers() {
               <div>
                 <span className="customers-eyebrow">CUSTOMER PROFILE</span>
                 <h2>{selectedCustomer.full_name}</h2>
+                {selectedCustomer.identity_review_required && (
+                  <p className="customer-identity-warning" role="status">
+                    This profile was created because the phone matched multiple customer records.
+                    Verify the identity before consolidating profiles.
+                    {canManage && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const updated = await updateCustomer(selectedCustomer.id, {
+                              identity_review_required: false,
+                            });
+                            setSelectedCustomer(updated);
+                            setCustomers((current) => current.map((item) => item.id === updated.id ? updated : item));
+                          } catch (requestError) {
+                            setLedgerError(extractErrorMessage(requestError));
+                          }
+                        }}
+                      >
+                        Mark reviewed
+                      </button>
+                    )}
+                  </p>
+                )}
                 <p className="customer-modal-contact">
                   {selectedCustomer.phone && <span>Tel: {selectedCustomer.phone}</span>}
                   {selectedCustomer.email && <span>Email: {selectedCustomer.email}</span>}
@@ -823,6 +885,35 @@ function Customers() {
 
             {ledgerError && <div className="customers-message is-error">{ledgerError}</div>}
             {paymentSuccess && <div className="customers-message is-success">{paymentSuccess}</div>}
+            <section className="customer-ledger-section customer-online-orders">
+              <h3>Online order history</h3>
+              {ordersError && <p className="customers-message is-error">{ordersError}</p>}
+              {loadingOrders ? (
+                <p className="customers-empty" role="status">Loading online orders…</p>
+              ) : onlineOrders.length ? (
+                <div className="customers-table-wrap">
+                  <table className="customers-table">
+                    <thead>
+                      <tr><th>Order</th><th>Date</th><th>Items</th><th>Fulfilment</th><th>Payment</th><th>Total</th></tr>
+                    </thead>
+                    <tbody>
+                      {onlineOrders.map((order) => (
+                        <tr key={order.id}>
+                          <td><strong>{order.order_number}</strong></td>
+                          <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                          <td>{order.items.map((item) => `${item.quantity}× ${item.variant_name}`).join(", ")}</td>
+                          <td>{ORDER_STATUS_LABELS[order.status] || order.status}</td>
+                          <td>{order.payment_status === "paid" ? "Paid" : "Payment due"}</td>
+                          <td>{formatCurrency(order.total)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : !ordersError ? (
+                <p className="customers-empty">No online orders linked to this customer yet.</p>
+              ) : null}
+            </section>
 
             {loadingLedger && !ledger ? (
               <p className="customers-empty">Loading account history…</p>

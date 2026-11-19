@@ -22,6 +22,9 @@ export const updateCustomer = (customerId, data) =>
 export const getCustomerLedger = (customerId) =>
   api.get(`/customers/${customerId}/ledger`).then((response) => response.data);
 
+export const getCustomerOrders = (customerId) =>
+  api.get(`/customers/${customerId}/orders`).then((response) => response.data);
+
 export const getCustomerTimeline = (customerId) =>
   api.get(`/customers/${customerId}/timeline`).then((response) => response.data);
 

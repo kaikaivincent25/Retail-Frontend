@@ -34,6 +34,16 @@ adjust the recommendation times in Profile > Manage shop settings. Times use
 the cashier device's local clock. No barcode scanner is needed for this
 feature.
 
+Online orders move through acceptance, preparation, handoff, delivery or
+collection, and closure. Fulfilment status is tracked separately from payment:
+staff record the recipient at handoff and confirm payment before closing an
+order. Cash payments require an open till session; M-Pesa payments require a
+receipt or provider confirmation. Order changes and payment confirmations are
+available in the order history. New public orders create or reuse a shop
+customer profile by normalized phone number; ambiguous matches are flagged for
+review instead of being silently merged. Customer profiles show linked online
+orders, and both manager and cashier dashboards summarize current order work.
+
 To inspect the local database in Chrome, open the app from `npm run dev`, then
 open DevTools > Application > IndexedDB > `dukaos`. The `variants` store is
 populated after the Sales page loads while online. The `outbox` store holds
