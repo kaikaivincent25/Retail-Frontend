@@ -188,13 +188,21 @@ function CashierDashboard() {
                 <tr key={session.id}>
                   <td>{session.closed_at ? formatDate(session.closed_at) : "—"}</td>
                   <td>{formatCurrency(session.expected_cash)}</td>
-                  <td>{formatCurrency(session.closing_cash)}</td>
+                  <td>
+                    {session.auto_closed
+                      ? `Estimated (auto): ${formatCurrency(session.closing_cash)}`
+                      : formatCurrency(session.closing_cash)}
+                  </td>
                   <td className={Number(session.difference) < 0 ? "cashier-negative" : Number(session.difference) > 0 ? "cashier-positive" : ""}>
                     {Number(session.difference) > 0 ? "+" : ""}{formatCurrency(session.difference)}
                   </td>
                   <td>
                     <span className={`cashier-reconciliation ${Number(session.difference) === 0 ? "balanced" : "difference"}`}>
-                      {Number(session.difference) === 0 ? "Balanced" : "Difference"}
+                      {session.auto_closed
+                        ? "Estimated"
+                        : Number(session.difference) === 0
+                          ? "Balanced"
+                          : "Difference"}
                     </span>
                   </td>
                 </tr>

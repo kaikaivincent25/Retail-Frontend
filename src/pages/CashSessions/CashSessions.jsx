@@ -282,7 +282,11 @@ function CashSessions() {
                   </details>
                 )}
               </td>
-              <td>{s.closing_cash != null ? formatCurrency(s.closing_cash) : "—"}</td>
+              <td>
+                {s.closing_cash != null
+                  ? `${s.auto_closed ? "Estimated (auto): " : ""}${formatCurrency(s.closing_cash)}`
+                  : "—"}
+              </td>
               <td>
                 {depositsBySession[s.id]
                   ? formatCurrency(depositsBySession[s.id])
