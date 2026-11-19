@@ -1,4 +1,14 @@
-.platform-page { min-height: 100vh; padding: 32px clamp(16px, 4vw, 52px); background: #edf5fc; color: #173b5d; }
+.platform-page {
+  --platform-navy: #102a43;
+  --platform-blue: #1768a6;
+  --platform-cyan: #35a3b6;
+  min-height: 100vh;
+  padding: 34px clamp(16px, 4vw, 52px) 64px;
+  background:
+    radial-gradient(circle at 84% 0%, rgba(53, 163, 182, 0.12), transparent 28rem),
+    linear-gradient(145deg, #f5f8fb 0%, #edf3f8 100%);
+  color: var(--platform-navy);
+}
 .platform-header, .platform-panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
 .platform-header h1 { margin: 8px 0; font: 700 clamp(28px, 4vw, 42px) Georgia, serif; }
 .platform-header p, .platform-panel-heading > span { color: #698198; margin: 0; }
@@ -58,3 +68,254 @@
 .platform-plan-note { color:#698198; font-size:10px; line-height:1.5; }
 .platform-plan-editor .platform-plan-note { margin-top:-8px; }
 @media (max-width: 480px) { .platform-plan-fields,.platform-plan-features { grid-template-columns:1fr; }.platform-plan-fields label:last-child { grid-column:auto; } }
+
+/* Premium control-centre refresh */
+.platform-header {
+  position: relative;
+  align-items: center;
+  min-height: 130px;
+  overflow: hidden;
+  padding: 26px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 82% 20%, rgba(73, 169, 188, 0.28), transparent 13rem),
+    linear-gradient(135deg, #102a43, #164665 72%, #1e5f78);
+  box-shadow: 0 18px 44px rgba(16, 42, 67, 0.16);
+  color: #fff;
+}
+
+.platform-header::after {
+  content: "";
+  position: absolute;
+  right: 9%;
+  width: 160px;
+  height: 160px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.025), 0 0 0 56px rgba(255, 255, 255, 0.018);
+  pointer-events: none;
+}
+
+.platform-header > div,
+.platform-header button {
+  position: relative;
+  z-index: 1;
+}
+
+.platform-header h1 {
+  margin: 8px 0 6px;
+  color: #fff;
+  font-family: inherit;
+  letter-spacing: -0.035em;
+}
+
+.platform-header p {
+  color: #d3e3ed;
+  max-width: 620px;
+  line-height: 1.55;
+}
+
+.platform-header .platform-kicker {
+  color: #82d2dc;
+}
+
+.platform-signout {
+  flex: 0 0 auto;
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  transition: 160ms ease;
+}
+
+.platform-signout:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.platform-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+
+.platform-metric,
+.platform-panel {
+  border-color: #dde7ef;
+  box-shadow: 0 10px 28px rgba(28, 77, 114, 0.07);
+}
+
+.platform-metric {
+  position: relative;
+  min-height: 106px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fff, #fbfdfe);
+}
+
+.platform-metric::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  bottom: -30px;
+  width: 74px;
+  height: 74px;
+  border: 12px solid #edf5f8;
+  border-radius: 50%;
+}
+
+.platform-metric span {
+  color: #71879a;
+  font-weight: 700;
+}
+
+.platform-metric strong {
+  position: relative;
+  z-index: 1;
+  color: #164665;
+  font-size: clamp(22px, 2.2vw, 29px);
+  letter-spacing: -0.02em;
+}
+
+.platform-panel {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.platform-panel-heading {
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf2f6;
+}
+
+.platform-panel-heading h2 {
+  margin: 6px 0 7px;
+  color: #173b5d;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.platform-panel-heading > span {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid #dce8f0;
+  border-radius: 999px;
+  background: #f7fafc;
+  color: #5f7b91;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.platform-kicker {
+  color: #1768a6;
+}
+
+.platform-plan-editor {
+  border-color: #dfe9f0;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fbfdff, #fff);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.platform-plan-editor:hover {
+  border-color: #c8dae7;
+  box-shadow: 0 10px 24px rgba(23, 104, 166, 0.07);
+  transform: translateY(-1px);
+}
+
+.platform-plan-fields input,
+.platform-table select {
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.platform-plan-fields input:focus,
+.platform-table select:focus {
+  border-color: #1768a6;
+  box-shadow: 0 0 0 3px rgba(23, 104, 166, 0.09);
+  outline: none;
+}
+
+.platform-save-features {
+  min-height: 42px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #1768a6, #2383b0);
+  box-shadow: 0 7px 16px rgba(23, 104, 166, 0.16);
+  transition: 160ms ease;
+}
+
+.platform-save-features:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(23, 104, 166, 0.22);
+}
+
+.platform-table-wrap {
+  border: 1px solid #edf2f6;
+  border-radius: 12px;
+}
+
+.platform-table th {
+  background: #f7fafc;
+  border-top: 0;
+}
+
+.platform-table tbody tr {
+  transition: background 120ms ease;
+}
+
+.platform-table tbody tr:hover {
+  background: #fbfdff;
+}
+
+.platform-actions button,
+.platform-panel-heading button,
+.platform-table button {
+  transition: 150ms ease;
+}
+
+.platform-actions button:hover,
+.platform-panel-heading button:hover,
+.platform-table button:hover {
+  border-color: #9ebed4;
+  background: #f2f8fb;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .platform-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .platform-header {
+    align-items: flex-start;
+    min-height: 0;
+    padding: 22px 18px;
+  }
+
+  .platform-header::after {
+    display: none;
+  }
+
+  .platform-header h1 {
+    font-size: 28px;
+  }
+
+  .platform-signout {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+  }
+
+  .platform-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .platform-panel-heading {
+    align-items: flex-start;
+  }
+}

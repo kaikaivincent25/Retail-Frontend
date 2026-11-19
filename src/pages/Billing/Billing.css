@@ -495,6 +495,51 @@
   text-align: center;
 }
 
+.billing-checkout-controls {
+  display: grid;
+  flex: 0 0 min(420px, 42%);
+  gap: 12px;
+}
+
+.billing-cycle-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--billing-border);
+  border-radius: 11px;
+  background: #f4f8fb;
+}
+
+.billing-cycle-toggle button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--billing-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 150ms ease;
+}
+
+.billing-cycle-toggle button:hover {
+  color: var(--billing-ink);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.billing-cycle-toggle button.active {
+  background: var(--billing-accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(36, 120, 173, 0.18);
+}
+
+.billing-cycle-toggle button:focus-visible {
+  outline: 3px solid rgba(36, 120, 173, 0.22);
+  outline-offset: 2px;
+}
+
 .billing-payment-note {
   margin: 16px 0 0;
   color: var(--billing-muted);
@@ -553,6 +598,10 @@
 
   .billing-phone-field {
     min-width: 0;
+  }
+
+  .billing-checkout-controls {
+    flex-basis: auto;
   }
 }
 

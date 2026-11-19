@@ -34,7 +34,6 @@ const FEATURE_LABELS = {
   "reports.full": "Detailed sales and profitability reports",
   "reports.export": "Print-ready report summaries",
   "audit.logs": "Activity history",
-  "mpesa.tools": "M-Pesa payment tools",
   online_store: "Public storefront and online orders",
   "scheduled.reports": "Scheduled reports",
   multi_branch: "Multi-branch tools",
@@ -53,6 +52,7 @@ function Billing() {
   const [startingTrial, setStartingTrial] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [checkoutPlan, setCheckoutPlan] = useState("");
+  const [billingCycle, setBillingCycle] = useState("monthly");
   const [paymentMessage, setPaymentMessage] = useState("");
   const [canceling, setCanceling] = useState(false);
   const [resumingTrial, setResumingTrial] = useState(false);
@@ -97,6 +97,7 @@ function Billing() {
       const response = await api.post("/billing/mpesa/checkout", {
         plan_code: plan.code,
         phone_number: phoneNumber,
+        billing_cycle: billingCycle,
       });
       setPaymentMessage(response.data.message);
       let paymentResolved = false;
@@ -257,22 +258,42 @@ function Billing() {
           <div>
             <span className="billing-card-label">CHOOSE YOUR NEXT STEP</span>
             <h2 id="billing-plans-title">Compare plans</h2>
-            <p>All prices are in Kenyan shillings and billed monthly.</p>
+            <p>All prices are in Kenyan shillings. Choose a monthly or annual billing cycle.</p>
           </div>
-          <label className="billing-phone-field" htmlFor="billing-phone-number">
-            <span>M-Pesa number</span>
-            <input
-              id="billing-phone-number"
-              type="tel"
-              autoComplete="tel"
-              value={phoneNumber}
-              onChange={(event) => setPhoneNumber(event.target.value)}
-              placeholder="0712 345 678"
-              inputMode="tel"
-              aria-describedby="billing-phone-help"
-            />
-            <small id="billing-phone-help">You’ll approve the payment on your phone.</small>
-          </label>
+          <div className="billing-checkout-controls">
+            <div className="billing-cycle-toggle" role="group" aria-label="Billing cycle">
+              <button
+                type="button"
+                className={billingCycle === "monthly" ? "active" : ""}
+                aria-pressed={billingCycle === "monthly"}
+                onClick={() => setBillingCycle("monthly")}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                className={billingCycle === "annual" ? "active" : ""}
+                aria-pressed={billingCycle === "annual"}
+                onClick={() => setBillingCycle("annual")}
+              >
+                Annual
+              </button>
+            </div>
+            <label className="billing-phone-field" htmlFor="billing-phone-number">
+              <span>M-Pesa number</span>
+              <input
+                id="billing-phone-number"
+                type="tel"
+                autoComplete="tel"
+                value={phoneNumber}
+                onChange={(event) => setPhoneNumber(event.target.value)}
+                placeholder="0712 345 678"
+                inputMode="tel"
+                aria-describedby="billing-phone-help"
+              />
+              <small id="billing-phone-help">You’ll approve the payment on your phone.</small>
+            </label>
+          </div>
         </div>
 
         {error && <div className="billing-error" role="alert">{error}</div>}
@@ -289,6 +310,10 @@ function Billing() {
             const teamSize = plan.max_users
               ? `Up to ${plan.max_users} active team members`
               : "Unlimited team members";
+            const displayedPrice = billingCycle === "annual" && plan.annual_price
+              ? plan.annual_price
+              : plan.monthly_price;
+            const priceSuffix = billingCycle === "annual" && plan.annual_price ? "/ year" : "/ month";
             let buttonLabel = isCurrent
               ? "Current plan"
               : isLockedDuringTrial
@@ -312,8 +337,8 @@ function Billing() {
                 <h3>{plan.name}</h3>
                 <p className="billing-plan-tagline">{planDescription?.tagline || "Tools to help your shop run smoothly."}</p>
                 <div className="billing-plan-price">
-                  <strong>{money.format(plan.monthly_price)}</strong>
-                  <span>/ month</span>
+                  <strong>{isPaid ? money.format(displayedPrice) : "Free"}</strong>
+                  <span>{isPaid ? priceSuffix : ""}</span>
                 </div>
                 <div className="billing-plan-team">{teamSize}</div>
                 <div className="billing-plan-includes">
