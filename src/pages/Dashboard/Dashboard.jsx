@@ -113,7 +113,7 @@ function Dashboard() {
               {formatCurrency(summary.total_sales)}
             </span>
             <span className="card-description">
-              Gross sales recorded today
+              Sales and paid online orders recorded today
             </span>
           </div>
 
@@ -187,7 +187,7 @@ function Dashboard() {
               {summary.transaction_count.toLocaleString()}
             </span>
             <span className="card-description">
-              Completed sales today
+              Sales and paid online orders today
             </span>
           </div>
 

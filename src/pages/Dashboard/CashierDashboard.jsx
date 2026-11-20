@@ -60,7 +60,7 @@ function CashierDashboard() {
         <article className="cashier-dashboard-card">
           <span>Today's gross shop sales</span>
           <strong>{formatCurrency(summary.total_sales)}</strong>
-          <small>Completed sales recorded today</small>
+          <small>Sales and confirmed online payments recorded today</small>
         </article>
         <article className="cashier-dashboard-card">
           <span>Today's expenses</span>
@@ -80,7 +80,7 @@ function CashierDashboard() {
         <article className="cashier-dashboard-card">
           <span>Transactions</span>
           <strong>{summary.transaction_count.toLocaleString()}</strong>
-          <small>Completed sales today</small>
+          <small>Sales and paid online orders today</small>
         </article>
         <article className="cashier-dashboard-card cashier-till-card">
           <span>Current till</span>

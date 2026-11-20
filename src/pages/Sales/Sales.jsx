@@ -1517,6 +1517,8 @@ function CashSessionBreakdown({ review }) {
     <div className="cash-session-breakdown" aria-label="Expected till cash breakdown">
       <div className="close-result-row"><span>Opening float</span><span>{formatCurrency(review.opening_cash)}</span></div>
       <div className="close-result-row"><span>Cash sales</span><span>+{formatCurrency(review.cash_sales_total)}</span></div>
+      <div className="close-result-row"><span>M-Pesa / online sales (non-cash)</span><span>{formatCurrency(review.non_cash_sales_total)}</span></div>
+      <div className="close-result-row"><span>Total sales</span><span>{formatCurrency(review.sales_total)}</span></div>
       <div className="close-result-row"><span>Cash collected on credit invoices</span><span>+{formatCurrency(review.cash_collections_total)}</span></div>
       <div className="close-result-row"><span>Cash expenses</span><span>−{formatCurrency(review.cash_expenses_total)}</span></div>
       <div className="close-result-row"><span>Credit invoices (invoice value; not added separately)</span><span>{formatCurrency(review.credit_sales_total)}</span></div>

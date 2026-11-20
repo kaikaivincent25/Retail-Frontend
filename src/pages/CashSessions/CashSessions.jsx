@@ -275,6 +275,8 @@ function CashSessions() {
                     <small>
                       Opening float: {formatCurrency(s.opening_cash)}<br />
                       Cash sales: +{formatCurrency(s.cash_sales_total)}<br />
+                      M-Pesa / online sales (non-cash): +{formatCurrency(s.non_cash_sales_total)}<br />
+                      Total sales: {formatCurrency(s.sales_total)}<br />
                       Cash credit collections: +{formatCurrency(s.cash_collections_total)}<br />
                       Cash expenses: −{formatCurrency(s.cash_expenses_total)}<br />
                       Credit invoice value (not added separately): {formatCurrency(s.credit_sales_total)}
