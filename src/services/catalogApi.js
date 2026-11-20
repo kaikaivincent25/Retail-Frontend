@@ -34,6 +34,8 @@ export const getPublicOrderStatus = (token) =>
   api.get(`/public/orders/${encodeURIComponent(token)}`).then((r) => r.data);
 export const getPublicOrderTracking = (code) =>
   api.get(`/public/orders/track/${encodeURIComponent(code)}`).then((r) => r.data);
+export const requestPublicOrderReminder = (code) =>
+  api.post(`/public/orders/track/${encodeURIComponent(code)}/reminder`).then((r) => r.data);
 export const cancelPublicOrder = (token) =>
   api.post(`/public/orders/${encodeURIComponent(token)}/cancel`).then((r) => r.data);
 

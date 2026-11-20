@@ -1,10 +1,16 @@
 import api from "./api";
 
-export const listCustomerOrders = ({ status = "", paymentStatus = "", search = "" } = {}) => {
+export const listCustomerOrders = ({
+  status = "",
+  paymentStatus = "",
+  search = "",
+  remindersOnly = false,
+} = {}) => {
   const params = new URLSearchParams();
   if (status) params.set("status", status);
   if (paymentStatus) params.set("payment_status", paymentStatus);
   if (search.trim()) params.set("search", search.trim());
+  if (remindersOnly) params.set("reminders_only", "true");
   const query = params.toString();
   return api.get(`/orders${query ? `?${query}` : ""}`).then((r) => r.data);
 };

@@ -32,6 +32,7 @@ const PAYMENT_LABELS = {
 const EVENT_LABELS = {
   order_placed: "Order placed",
   status_changed: "Order stage updated",
+  customer_reminder_requested: "Customer requested an update",
   payment_initiated: "Payment started",
   payment_confirmed: "Payment confirmed",
   payment_failed: "Payment failed",
@@ -43,13 +44,16 @@ function formatDate(value) {
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [reminderOrders, setReminderOrders] = useState([]);
   const [error, setError] = useState("");
+  const [reminderError, setReminderError] = useState("");
   const [loading, setLoading] = useState(true);
   const [savingOrder, setSavingOrder] = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("");
   const [search, setSearch] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [reminderRefreshKey, setReminderRefreshKey] = useState(0);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [histories, setHistories] = useState({});
   const [historyErrors, setHistoryErrors] = useState({});
@@ -79,6 +83,33 @@ export default function Orders() {
     };
   }, [statusFilter, paymentFilter, search, refreshKey]);
 
+  useEffect(() => {
+    let active = true;
+    listCustomerOrders({ remindersOnly: true })
+      .then((result) => {
+        if (active) {
+          setReminderOrders(result);
+          setReminderError("");
+        }
+      })
+      .catch((err) => {
+        if (active) setReminderError(extractErrorMessage(err));
+      });
+    return () => {
+      active = false;
+    };
+  }, [reminderRefreshKey]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (!document.hidden) {
+        setRefreshKey((key) => key + 1);
+        setReminderRefreshKey((key) => key + 1);
+      }
+    }, 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   async function changeStatus(order, nextStatus) {
     let receivedByName;
     if (nextStatus === "delivered") {
@@ -98,6 +129,7 @@ export default function Orders() {
         ...(receivedByName ? { received_by_name: receivedByName } : {}),
       });
       setOrders((current) => current.map((item) => item.id === updated.id ? updated : item));
+      setReminderRefreshKey((key) => key + 1);
       setHistories((current) => {
         const next = { ...current };
         delete next[order.id];
@@ -165,6 +197,12 @@ export default function Orders() {
       && order.payment_status !== "paid",
   ).length;
 
+  function openReminderOrder(order) {
+    setSearch(order.order_number);
+    setStatusFilter("");
+    setPaymentFilter("");
+  }
+
   return (
     <div className="orders-page">
       <header className="orders-header">
@@ -173,7 +211,14 @@ export default function Orders() {
           <h1>Customer orders</h1>
           <p>Track fulfilment and payment separately from placement to close.</p>
         </div>
-        <button className="orders-refresh" type="button" onClick={() => setRefreshKey((key) => key + 1)}>
+        <button
+          className="orders-refresh"
+          type="button"
+          onClick={() => {
+            setRefreshKey((key) => key + 1);
+            setReminderRefreshKey((key) => key + 1);
+          }}
+        >
           <span aria-hidden="true">↻</span> Refresh
         </button>
       </header>
@@ -183,6 +228,27 @@ export default function Orders() {
         <div><span className="summary-icon summary-icon-orange" aria-hidden="true">₿</span><div><strong>{awaitingPaymentCount}</strong><span>Awaiting payment</span></div></div>
         <div><span className="summary-icon summary-icon-green" aria-hidden="true">✓</span><div><strong>{orders.length}</strong><span>Orders shown</span></div></div>
       </section>
+
+      {reminderError && <p className="orders-error" role="alert">Could not load customer reminders: {reminderError}</p>}
+      {reminderOrders.length > 0 && (
+        <section className="orders-reminder-banner" role="status">
+          <div>
+            <strong>
+              {reminderOrders.length === 1
+                ? "A customer is waiting for an order update"
+                : `${reminderOrders.length} customers are waiting for an order update`}
+            </strong>
+            <p>Shared with shop staff who have access to customer orders.</p>
+          </div>
+          <div className="orders-reminder-links">
+            {reminderOrders.map((order) => (
+              <button type="button" key={order.id} onClick={() => openReminderOrder(order)}>
+                View {order.order_number}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="orders-filters" aria-label="Filter orders">
         <label>
@@ -259,6 +325,12 @@ export default function Orders() {
                   ))}
                 </div>
               </div>
+              {order.customer_reminder_requested_at && (
+                <div className="order-customer-reminder">
+                  <strong>Customer requested an update</strong>
+                  <span>{formatDate(order.customer_reminder_requested_at)} · This reminder is shared with the shop team.</span>
+                </div>
+              )}
 
               <div className="order-card-footer">
                 <div className="order-total-block">

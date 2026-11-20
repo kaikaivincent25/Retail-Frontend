@@ -73,4 +73,14 @@
 .order-history-event { display: grid; gap: .15rem; padding-left: .65rem; border-left: 2px solid #b8d5eb; }
 .order-history-event strong { color: var(--orders-ink); font-size: .72rem; }
 .order-history-event span, .order-history-event p { margin: 0; color: var(--orders-muted); font-size: .65rem; }
+.orders-reminder-banner { display: flex; justify-content: space-between; align-items: center; gap: .8rem; margin-bottom: 1rem; padding: .85rem 1rem; background: #fff7e8; border: 1px solid #f0d7a7; border-radius: 10px; }
+.orders-reminder-banner strong { color: #76501d; font-size: .78rem; }
+.orders-reminder-banner p { margin: .2rem 0 0; color: #8c744d; font-size: .68rem; }
+.orders-reminder-links { display: flex; flex-wrap: wrap; gap: .35rem; }
+.orders-reminder-links button { padding: .48rem .65rem; color: #684715; background: #fff; border: 1px solid #ead29f; border-radius: 7px; font: inherit; font-size: .66rem; font-weight: 800; cursor: pointer; }
+.orders-reminder-links button:hover { background: #fff0cf; }
+.order-customer-reminder { display: grid; gap: .15rem; margin: -.25rem 0 .75rem; padding: .6rem .7rem; background: #fff7e8; border-left: 3px solid #dfa13d; border-radius: 0 7px 7px 0; }
+.order-customer-reminder strong { color: #76501d; font-size: .72rem; }
+.order-customer-reminder span { color: #8c744d; font-size: .65rem; }
 @media (max-width: 650px) { .orders-filters { grid-template-columns: 1fr; }.order-badges { justify-content: flex-start; } }
+@media (max-width: 560px) { .orders-reminder-banner { align-items: flex-start; flex-direction: column; } }
