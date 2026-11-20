@@ -129,6 +129,14 @@
 .confirmation-check.cancelled { background: #a94e43; box-shadow: 0 0 0 8px #a94e4318; }
 .confirmation-card h1 { margin: .5rem 0; color: var(--public-ink); font-size: 1.7rem; }
 .confirmation-card p { color: var(--public-muted); font-size: .85rem; }
+.public-tracking-card { display: grid; justify-items: center; gap: .45rem; margin: 1rem 0; padding: 1rem; background: #f4f8fc; border: 1px solid #dfeaf4; border-radius: 11px; }
+.public-tracking-card > span { color: var(--public-brand); font-size: .62rem; font-weight: 850; letter-spacing: .13em; }
+.public-tracking-card > strong { color: var(--public-ink); font-family: var(--mono); font-size: 1.05rem; letter-spacing: .08em; }
+.public-tracking-card p { margin: 0; color: var(--public-muted); font-size: .72rem; line-height: 1.45; }
+.public-tracking-card a { color: var(--public-brand-dark); font-size: .75rem; font-weight: 800; text-decoration: none; }
+.public-tracking-card a:hover { text-decoration: underline; }
+.public-tracking-card button { padding: .55rem .75rem; color: var(--public-ink); background: #fff; border: 1px solid var(--public-line); border-radius: 7px; font-size: .7rem; font-weight: 750; cursor: pointer; }
+.public-tracking-card small { color: var(--public-muted); font-size: .68rem; }
 .public-order-total { color: var(--public-brand) !important; font-size: 1.35rem; font-weight: 800; }
 .public-payment-state { font-weight: 800; }
 .public-payment-state.paid { color: #278b5a; }

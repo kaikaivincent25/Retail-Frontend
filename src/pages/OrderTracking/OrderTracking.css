@@ -1,0 +1,240 @@
+.order-tracking-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1.25rem;
+  color: #172235;
+  background: #f4f7fa;
+}
+
+.order-tracking-card {
+  width: min(100%, 520px);
+  padding: clamp(1.25rem, 5vw, 2.25rem);
+  background: #fff;
+  border: 1px solid #e1e8ef;
+  border-radius: 18px;
+  box-shadow: 0 16px 48px #20354a12;
+}
+
+.order-tracking-home {
+  display: inline-block;
+  margin-bottom: 2rem;
+  color: #52657a;
+  font-size: .78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.order-tracking-home:hover {
+  color: #1d5d9d;
+  text-decoration: underline;
+}
+
+.order-tracking-kicker {
+  display: block;
+  color: #2878c7;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.order-tracking-card h1 {
+  margin: .45rem 0;
+  color: #172235;
+  font-size: clamp(1.7rem, 6vw, 2.1rem);
+  letter-spacing: -.04em;
+}
+
+.order-tracking-intro {
+  margin: 0 0 1.35rem;
+  color: #718094;
+  font-size: .86rem;
+  line-height: 1.55;
+}
+
+.order-tracking-form {
+  display: grid;
+  gap: .55rem;
+}
+
+.order-tracking-form label {
+  color: #435367;
+  font-size: .75rem;
+  font-weight: 750;
+}
+
+.order-tracking-form input {
+  width: 100%;
+  min-height: 3rem;
+  padding: .7rem .8rem;
+  color: #172235;
+  background: #fff;
+  border: 1px solid #dbe3ea;
+  border-radius: 9px;
+  font: inherit;
+  font-size: .95rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.order-tracking-form input:focus {
+  outline: 3px solid #2d78c426;
+  border-color: #78aad3;
+}
+
+.order-tracking-form button {
+  min-height: 2.9rem;
+  margin-top: .2rem;
+  color: #fff;
+  background: #1d5d9d;
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.order-tracking-form button:hover:not(:disabled) {
+  background: #164b80;
+}
+
+.order-tracking-form button:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.order-tracking-error {
+  margin: .8rem 0 0;
+  padding: .7rem .8rem;
+  color: #a73d36;
+  background: #fff0ed;
+  border: 1px solid #f1c9c2;
+  border-radius: 9px;
+  font-size: .78rem;
+}
+
+.order-tracking-result {
+  display: grid;
+  gap: .85rem;
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #e5ebf1;
+}
+
+.order-tracking-reference,
+.order-tracking-status {
+  display: grid;
+  gap: .2rem;
+}
+
+.order-tracking-reference span,
+.order-tracking-status span,
+.order-tracking-details dt {
+  color: #718094;
+  font-size: .7rem;
+}
+
+.order-tracking-reference strong {
+  color: #172235;
+  font-size: .92rem;
+}
+
+.order-tracking-status {
+  padding: .8rem;
+  background: #eef6fc;
+  border: 1px solid #d9e9f7;
+  border-radius: 10px;
+}
+
+.order-tracking-status strong {
+  color: #1d5d9d;
+  font-size: .95rem;
+}
+
+.order-tracking-status.is-terminal {
+  background: #fff5f2;
+  border-color: #f0d7d2;
+}
+
+.order-tracking-status.is-terminal strong {
+  color: #a34a40;
+}
+
+.order-tracking-terminal {
+  margin: 0;
+  color: #718094;
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.order-tracking-progress {
+  display: grid;
+  gap: .2rem;
+  margin: .2rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.order-tracking-progress li {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-height: 2.25rem;
+  color: #9aa5b1;
+  font-size: .76rem;
+}
+
+.order-tracking-step-marker {
+  display: grid;
+  flex: 0 0 1.45rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  color: #718094;
+  background: #f0f3f6;
+  border-radius: 50%;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.order-tracking-progress li.is-complete {
+  color: #278b5a;
+}
+
+.order-tracking-progress li.is-complete .order-tracking-step-marker {
+  color: #fff;
+  background: #43a66f;
+}
+
+.order-tracking-progress li.is-current {
+  color: #172235;
+  font-weight: 800;
+}
+
+.order-tracking-progress li.is-current .order-tracking-step-marker {
+  color: #fff;
+  background: #2878c7;
+  box-shadow: 0 0 0 4px #2878c71a;
+}
+
+.order-tracking-details {
+  display: grid;
+  gap: .6rem;
+  margin: .2rem 0 0;
+  padding-top: .8rem;
+  border-top: 1px solid #e5ebf1;
+}
+
+.order-tracking-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.order-tracking-details dd {
+  margin: 0;
+  color: #435367;
+  font-size: .72rem;
+  text-align: right;
+}

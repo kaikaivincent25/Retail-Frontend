@@ -27,6 +27,7 @@ import "./App.css";
 import "./pages/Landing/Landing.css";
 import DevelopmentNotice from "./components/DevelopmentNotice/DevelopmentNotice";
 import PublicShop from "./pages/PublicShop/PublicShop";
+import OrderTracking from "./pages/OrderTracking/OrderTracking";
 import Orders from "./pages/Orders/Orders";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -54,6 +55,7 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/shop/:slug" element={<PublicShop />} />
+      <Route path="/track-order" element={<OrderTracking />} />
       <Route path="/orders" element={<ProtectedRoute allowedRoles={["admin", "manager", "cashier"]}><Orders /></ProtectedRoute>} />
       <Route path="/platform/login" element={<PlatformLogin />} />
       <Route path="/platform" element={<PlatformDashboard />} />

@@ -14,6 +14,10 @@ function formatPrice(value, currency) {
   return new Intl.NumberFormat("en-KE", { style: "currency", currency: currency || "KES", maximumFractionDigits: 2 }).format(Number(value));
 }
 
+function formatTrackingCode(value) {
+  return value?.match(/.{1,4}/g)?.join("-") || value;
+}
+
 function getErrorMessage(error, fallback) {
   if (error.response?.status === 402) {
     const detail = String(error.response.data?.detail || "").toLowerCase();
@@ -89,6 +93,7 @@ export default function PublicShop() {
   const [order, setOrder] = useState(null);
   const [paymentError, setPaymentError] = useState("");
   const [checkingOrder, setCheckingOrder] = useState(false);
+  const [trackingLinkMessage, setTrackingLinkMessage] = useState("");
   const [checkout, setCheckout] = useState({ customer_name: "", customer_phone: "", fulfilment: "delivery", payment_method: "pay_on_delivery", delivery_address: "", estate: "", landmark: "", delivery_instructions: "", preferred_delivery_time: "" });
 
   useEffect(() => {
@@ -176,6 +181,7 @@ export default function PublicShop() {
     event.preventDefault();
     if (!cartItems.length || submitting) return;
     setSubmitting(true); setError(""); setPaymentError("");
+    setTrackingLinkMessage("");
     try {
       const created = await createPublicOrder(slug, {
         ...checkout,
@@ -212,6 +218,16 @@ export default function PublicShop() {
     }
   }
 
+  async function copyTrackingLink() {
+    const trackingUrl = `${window.location.origin}/track-order?code=${encodeURIComponent(order.tracking_code)}`;
+    try {
+      await navigator.clipboard.writeText(trackingUrl);
+      setTrackingLinkMessage("Tracking link copied.");
+    } catch {
+      setTrackingLinkMessage("Copy is unavailable here. Open the tracking page or copy the code below.");
+    }
+  }
+
   async function refreshOrderStatus() {
     if (!order?.public_token) return;
     setCheckingOrder(true);
@@ -236,6 +252,16 @@ export default function PublicShop() {
         <p>{order.status === "cancelled"
           ? `Order ${order.order_number} is no longer active.`
           : <>Your order <strong>{order.order_number}</strong> has been sent to {shop.name}.</>}</p>
+        {order.tracking_code && order.status !== "cancelled" && (
+          <div className="public-tracking-card">
+            <span>YOUR TRACKING CODE</span>
+            <strong>{formatTrackingCode(order.tracking_code)}</strong>
+            <p>Save this code to check your order status later. No app or account needed.</p>
+            <a href={`/track-order?code=${encodeURIComponent(order.tracking_code)}`}>Open tracking page</a>
+            <button type="button" onClick={copyTrackingLink}>Copy tracking link</button>
+            {trackingLinkMessage && <small role="status">{trackingLinkMessage}</small>}
+          </div>
+        )}
         <p className="public-order-total">{formatPrice(order.total, shop.currency)}</p>
         <div className="public-order-progress">
           <strong>Order progress</strong>
