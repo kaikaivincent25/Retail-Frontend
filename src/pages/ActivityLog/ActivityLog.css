@@ -106,7 +106,7 @@
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: #2878c7;
+  accent-color: var(--brand);
   cursor: pointer;
 }
 
@@ -125,8 +125,8 @@
 }
 
 .staff-filter select:focus-visible {
-  border-color: #2878c7;
-  box-shadow: 0 0 0 3px rgba(40, 120, 199, 0.13);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.13);
 }
 
 .activity-list {
@@ -392,12 +392,12 @@
 
 .activity-page .pagination button:not(:disabled):hover {
   color: #fff;
-  background: #2878c7;
-  border-color: #2878c7;
+  background: var(--brand);
+  border-color: var(--brand);
 }
 
 .activity-page .pagination button:focus-visible {
-  outline: 3px solid rgba(40, 120, 199, 0.2);
+  outline: 3px solid rgba(15, 118, 110, 0.2);
   outline-offset: 2px;
 }
 

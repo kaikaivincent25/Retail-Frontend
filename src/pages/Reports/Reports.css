@@ -1,10 +1,10 @@
 .reports-page {
-  --reports-accent: #8b4651;
-  --reports-accent-dark: #6f3540;
-  --reports-accent-soft: #f7edf0;
-  --reports-ink: #332729;
-  --reports-muted: #817477;
-  --reports-border: #eee4e1;
+  --reports-accent: var(--brand);
+  --reports-accent-dark: var(--brand-strong);
+  --reports-accent-soft: var(--brand-soft);
+  --reports-ink: var(--ink);
+  --reports-muted: var(--muted);
+  --reports-border: var(--line);
 
   width: min(100%, 1440px);
   box-sizing: border-box;
@@ -246,7 +246,7 @@
 
 .date-fields input:focus {
   border-color: var(--reports-accent);
-  box-shadow: 0 0 0 3px rgba(139, 70, 81, 0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
   outline: none;
 }
 
@@ -512,9 +512,9 @@
 .chart-bar {
   width: min(72%, 35px);
   min-height: 4px;
-  background: linear-gradient(180deg, #bf7d88 0%, var(--reports-accent) 100%);
+  background: linear-gradient(180deg, #4cb6a6 0%, var(--reports-accent) 100%);
   border-radius: 6px 6px 2px 2px;
-  box-shadow: 0 3px 9px rgba(139, 70, 81, 0.14);
+  box-shadow: 0 3px 9px rgba(15, 118, 110, 0.14);
   transition: filter 150ms ease, transform 150ms ease;
 }
 
@@ -607,7 +607,7 @@
 .product-progress span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #c38a93, var(--reports-accent));
+  background: linear-gradient(90deg, #77c9bb, var(--reports-accent));
   border-radius: inherit;
 }
 
@@ -690,7 +690,7 @@
 .report-shortcut:focus-visible,
 .preset-list button:focus-visible,
 .date-fields input:focus-visible {
-  outline: 3px solid rgba(139, 70, 81, 0.2);
+  outline: 3px solid rgba(15, 118, 110, 0.2);
   outline-offset: 2px;
 }
 
@@ -871,9 +871,9 @@
 
 /* Refined analytics dashboard */
 .reports-page {
-  --reports-accent: #2878c7;
-  --reports-accent-dark: #1c5e9f;
-  --reports-accent-soft: #eaf3fc;
+  --reports-accent: var(--brand);
+  --reports-accent-dark: var(--brand-strong);
+  --reports-accent-soft: var(--brand-soft);
   --reports-ink: #142b45;
   --reports-muted: #687c91;
   --reports-border: #e0e8f1;
@@ -1129,9 +1129,9 @@
 
 .chart-bar {
   width: min(70%, 36px);
-  background: linear-gradient(180deg, #66a9e5 0%, #2878c7 100%);
+  background: linear-gradient(180deg, #66a9e5 0%, var(--brand) 100%);
   border-radius: 6px 6px 2px 2px;
-  box-shadow: 0 3px 9px rgba(40, 120, 199, 0.18);
+  box-shadow: 0 3px 9px rgba(15, 118, 110, 0.18);
 }
 
 .chart-bar.is-negative {
@@ -1188,7 +1188,7 @@
 }
 
 .product-progress span {
-  background: linear-gradient(90deg, #75b4e9, #2878c7);
+  background: linear-gradient(90deg, #75b4e9, var(--brand));
 }
 
 .reports-page .empty-hint {
@@ -1238,7 +1238,7 @@
 .report-shortcut:focus-visible,
 .preset-list button:focus-visible,
 .date-fields input:focus-visible {
-  outline-color: rgba(40, 120, 199, 0.28);
+  outline-color: rgba(15, 118, 110, 0.28);
 }
 
 @media (max-width: 1100px) {
@@ -1378,7 +1378,7 @@
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 10px;
   background: #fff;
-  color: #1d639f;
+  color: var(--brand-strong);
   font: inherit;
   font-size: 12px;
   font-weight: 750;
@@ -1386,7 +1386,7 @@
 }
 
 .reports-print-button:hover:not(:disabled) {
-  background: #e8f3fc;
+  background: var(--brand-soft);
 }
 
 .reports-print-button:disabled {
@@ -1560,9 +1560,9 @@
   .reports-print-badge {
     display: inline-block !important;
     padding: 3px 8px !important;
-    border: 1px solid #8b4651 !important;
+    border: 1px solid var(--brand) !important;
     border-radius: 4px !important;
-    color: #8b4651 !important;
+    color: var(--brand) !important;
     font-size: 9px !important;
     font-weight: 800 !important;
     text-transform: uppercase !important;
@@ -1769,7 +1769,7 @@
   gap: 16px;
   margin: 0 0 16px;
   padding: 15px 18px;
-  border: 1px solid #d9e7f3;
+  border: 1px solid var(--line);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.95);
 }
@@ -1835,7 +1835,7 @@
 }
 
 .report-actions-panel a {
-  color: #1d639f;
+  color: var(--brand-strong);
   font-weight: 750;
 }
 
@@ -1923,7 +1923,7 @@
 
 .reports-plan-gate-card h1 {
   margin: 9px 0;
-  color: #173b5d;
+  color: var(--navy);
   font-size: clamp(25px, 4vw, 34px);
   letter-spacing: -0.015em;
   line-height: 1.15;

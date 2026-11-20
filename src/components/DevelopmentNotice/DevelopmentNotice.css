@@ -73,7 +73,7 @@
   height: 26px;
   place-items: center;
   border-radius: 50%;
-  background: var(--brand-soft, #e4f1fb);
+  background: var(--brand-soft, var(--brand-soft));
   color: var(--brand-strong, #245f96);
   font: 700 12px/1 var(--sans, Arial, sans-serif);
 }

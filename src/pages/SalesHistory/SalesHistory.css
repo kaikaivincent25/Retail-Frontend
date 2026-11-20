@@ -14,7 +14,7 @@
 .history-filters select,
 .history-filters input {
   padding: 0.5rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 6px;
 }
 
@@ -22,14 +22,14 @@
   display: flex;
   flex-direction: column;
   font-size: 0.75rem;
-  color: #766665;
+  color: var(--muted);
   gap: 0.2rem;
 }
 
 .sessions-link {
   display: inline-block;
   margin: 0 0 0.75rem;
-  color: #8b4651;
+  color: var(--brand);
   font-size: 0.85rem;
   text-decoration: none;
 }
@@ -40,9 +40,9 @@
 
 .clear-filters {
   padding: 0.5rem 0.8rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fffcf7;
+  background: var(--surface);
   cursor: pointer;
   font-size: 0.85rem;
 }
@@ -50,15 +50,15 @@
 .sales-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fffcf7;
+  background: var(--surface);
 }
 
 .sales-table th {
   text-align: left;
   font-size: 0.75rem;
-  color: #766665;
+  color: var(--muted);
   padding: 0.5rem;
-  border-bottom: 1px solid #e8d9cc;
+  border-bottom: 1px solid var(--line);
 }
 
 .sales-table td {
@@ -82,9 +82,9 @@
 .sales-table button {
   padding: 0.3rem 0.7rem;
   font-size: 0.8rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: #fffcf7;
+  background: var(--surface);
   cursor: pointer;
 }
 
@@ -105,7 +105,7 @@
 }
 
 .modal-card {
-  background: #fffcf7;
+  background: var(--surface);
   padding: 1.5rem;
   border-radius: 10px;
   width: 480px;
@@ -130,7 +130,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  border-top: 1px solid #e8d9cc;
+  border-top: 1px solid var(--line);
   padding-top: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -147,9 +147,9 @@
 
 .modal-card button {
   padding: 0.5rem 1rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fffcf7;
+  background: var(--surface);
   cursor: pointer;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .modal-card .sale-history-print {
-  color: #6f3540;
+  color: var(--brand-strong);
   background: #fff;
   font-weight: 700;
 }
@@ -173,15 +173,15 @@
   gap: 0.5rem;
   margin: 1rem 0;
   padding: 0.9rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f7f0e7;
+  background: var(--canvas);
 }
 
 .manual-payment-history-actions p,
 .mpesa-reconcile-history-actions p {
   margin: 0;
-  color: #766665;
+  color: var(--muted);
   font-size: 0.85rem;
   line-height: 1.5;
 }
@@ -193,7 +193,7 @@
 
 .manual-payment-history-actions input {
   padding: 0.55rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 6px;
 }
 
@@ -210,7 +210,7 @@
 .sessions-link {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #8b4651;
+  color: var(--brand);
   font-size: 0.9rem;
   text-decoration: none;
 }

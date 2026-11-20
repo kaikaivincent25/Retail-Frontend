@@ -1,18 +1,19 @@
 :root {
-  --brand: #397fbd;
-  --brand-strong: #245f96;
-  --brand-soft: #e4f1fb;
-  --navy: #183551;
-  --ink: #304a63;
-  --muted: #71869b;
+  --brand: #0f766e;
+  --brand-strong: #115e59;
+  --brand-soft: #e6f4f1;
+  --navy: #142b45;
+  --ink: #26384a;
+  --muted: #66788a;
   --surface: #ffffff;
-  --canvas: #edf5fc;
-  --line: #d7e5f2;
-  --line-strong: #c5d9eb;
-  --success: #17865b;
-  --danger: #c6474e;
-  --shadow-card: 0 5px 20px rgba(22, 51, 81, 0.045);
-  --shadow-pop: 0 12px 32px rgba(22, 51, 81, 0.1);
+  --canvas: #f5f7f6;
+  --line: #e1e8e5;
+  --line-strong: #cbd8d3;
+  --success: #137a55;
+  --warning: #a16207;
+  --danger: #b4232f;
+  --shadow-card: 0 5px 20px rgba(20, 43, 69, 0.045);
+  --shadow-pop: 0 12px 32px rgba(20, 43, 69, 0.1);
 }
 
 html {
@@ -52,7 +53,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(40, 120, 199, 0.28);
+  outline: 3px solid rgba(15, 118, 110, 0.28);
   outline-offset: 2px;
 }
 
@@ -69,16 +70,16 @@ a {
 .app-status-strip {
   min-height: 49px;
   padding: 8px clamp(14px, 2.4vw, 32px);
-  background: rgba(243, 247, 251, 0.94);
+  background: rgba(255, 255, 255, 0.92);
   border-bottom-color: var(--line);
 }
 
 .app-content::-webkit-scrollbar-thumb {
-  background: #c6d5e5;
+  background: #cbd8d3;
 }
 
 .app-content::-webkit-scrollbar-thumb:hover {
-  background: #aebfd2;
+  background: #aabbb5;
 }
 
 .sidebar {
@@ -90,7 +91,7 @@ a {
   color: var(--ink);
   background: var(--surface);
   border-right-color: var(--line);
-  box-shadow: 3px 0 16px rgba(22, 51, 81, 0.025);
+  box-shadow: 3px 0 16px rgba(20, 43, 69, 0.025);
 }
 
 .sidebar-brand {
@@ -104,7 +105,7 @@ a {
   height: 40px;
   border-radius: 12px;
   background: var(--brand);
-  box-shadow: 0 5px 12px rgba(40, 120, 199, 0.18);
+  box-shadow: 0 5px 12px rgba(15, 118, 110, 0.18);
   font-family: var(--sans);
   font-size: 22px;
 }
@@ -557,7 +558,7 @@ a {
   --sales-border: var(--line);
   --sales-surface: var(--surface);
   --sales-background: #f3f7fb;
-  --sales-accent-shadow: rgba(40, 120, 199, 0.15);
+  --sales-accent-shadow: rgba(15, 118, 110, 0.15);
   gap: 18px;
   padding: clamp(14px, 2.2vw, 26px);
   color: var(--ink);
@@ -605,7 +606,7 @@ a {
 
 .sales-page button:focus-visible,
 .sales-page input:focus-visible {
-  outline-color: rgba(40, 120, 199, 0.28);
+  outline-color: rgba(15, 118, 110, 0.28);
 }
 
 .quick-sell-tile {
@@ -616,7 +617,7 @@ a {
 .quick-sell-tile:hover {
   border-color: #a9cbea;
   background: #fafeff;
-  box-shadow: 0 6px 16px rgba(40, 120, 199, 0.1);
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.1);
 }
 
 .cart-panel {
@@ -678,7 +679,7 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 select:focus,
 textarea:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(40, 120, 199, 0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 table {
@@ -712,9 +713,9 @@ tbody tr:hover {
 
 /* Public pages */
 .landing-page {
-  --landing-green: #2878c7;
-  --landing-green-dark: #1c5e9f;
-  --landing-green-soft: #eaf3fc;
+  --landing-green: var(--brand);
+  --landing-green-dark: var(--brand-strong);
+  --landing-green-soft: var(--brand-soft);
   --landing-ink: #142b45;
   --landing-muted: #62778d;
   --landing-border: #dce6f0;
@@ -730,7 +731,7 @@ tbody tr:hover {
 .brand-mark,
 .preview-brand-mark {
   background: var(--brand);
-  box-shadow: 0 5px 12px rgba(40, 120, 199, 0.18);
+  box-shadow: 0 5px 12px rgba(15, 118, 110, 0.18);
 }
 
 .brand-accent,
@@ -747,12 +748,12 @@ tbody tr:hover {
 
 .landing-cta-primary {
   background: var(--brand);
-  box-shadow: 0 7px 16px rgba(40, 120, 199, 0.18);
+  box-shadow: 0 7px 16px rgba(15, 118, 110, 0.18);
 }
 
 .landing-cta-primary:hover {
   background: var(--brand-strong);
-  box-shadow: 0 9px 20px rgba(40, 120, 199, 0.22);
+  box-shadow: 0 9px 20px rgba(15, 118, 110, 0.22);
 }
 
 .landing-cta-secondary:hover {
@@ -766,11 +767,11 @@ tbody tr:hover {
 }
 
 .hero-visual::before {
-  background: radial-gradient(circle, #eaf3fc 0%, #f4f8fc 52%, rgba(248, 250, 252, 0) 72%);
+  background: radial-gradient(circle, var(--brand-soft) 0%, #f4f8fc 52%, rgba(248, 250, 252, 0) 72%);
 }
 
 .visual-orbit {
-  border-color: rgba(40, 120, 199, 0.12);
+  border-color: rgba(15, 118, 110, 0.12);
 }
 
 .shop-preview {
@@ -845,9 +846,9 @@ tbody tr:hover {
 }
 
 .login-page {
-  --risa-primary: #2878c7;
-  --risa-primary-dark: #1c5e9f;
-  --risa-primary-light: #eaf3fc;
+  --risa-primary: var(--brand);
+  --risa-primary-dark: var(--brand-strong);
+  --risa-primary-light: var(--brand-soft);
   --risa-text: #142b45;
   --risa-text-secondary: #62778d;
   --risa-muted: #8293a6;
@@ -872,7 +873,7 @@ tbody tr:hover {
 .signup-brand-mark {
   color: #fff;
   background: var(--brand);
-  box-shadow: 0 5px 12px rgba(40, 120, 199, 0.18);
+  box-shadow: 0 5px 12px rgba(15, 118, 110, 0.18);
 }
 
 .signup-intro h1 span {
@@ -935,19 +936,19 @@ tbody tr:hover {
 
 .signup-field input:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(40, 120, 199, 0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 .signup-submit {
   background: var(--brand);
   border-color: var(--brand);
-  box-shadow: 0 7px 16px rgba(40, 120, 199, 0.18);
+  box-shadow: 0 7px 16px rgba(15, 118, 110, 0.18);
 }
 
 .signup-submit:hover:not(:disabled) {
   background: var(--brand-strong);
   border-color: var(--brand-strong);
-  box-shadow: 0 10px 21px rgba(40, 120, 199, 0.2);
+  box-shadow: 0 10px 21px rgba(15, 118, 110, 0.2);
 }
 
 .signup-mobile-login a {
@@ -1995,18 +1996,18 @@ body {
   }
 }
 
-/* Unified light blue canvas with the supplied retail photography. */
+/* Unified warm-neutral canvas with the supplied retail photography. */
 :root {
-  --brand: #2878c7;
-  --brand-strong: #1e629f;
-  --brand-soft: #e4f1fb;
-  --navy: #173b5d;
-  --ink: #344f68;
-  --muted: #6e8499;
-  --surface: rgba(255, 255, 255, 0.94);
-  --canvas: #eaf4fc;
-  --line: #d4e4f2;
-  --line-strong: #bfd6e9;
+  --brand: #0f766e;
+  --brand-strong: #115e59;
+  --brand-soft: #e6f4f1;
+  --navy: #142b45;
+  --ink: #26384a;
+  --muted: #66788a;
+  --surface: #ffffff;
+  --canvas: #f5f7f6;
+  --line: #e1e8e5;
+  --line-strong: #cbd8d3;
 }
 
 html,
@@ -2093,12 +2094,12 @@ body {
   backdrop-filter: blur(10px);
 }
 
-/* Auth screens share the blue palette and use retail imagery beneath a wash. */
+/* Auth screens share the navy and teal palette over subdued retail imagery. */
 :root {
-  --risa-primary: #2878c7;
-  --risa-primary-dark: #1e629f;
-  --risa-primary-light: #e4f1fb;
-  --risa-text: #173b5d;
+  --risa-primary: var(--brand);
+  --risa-primary-dark: var(--brand-strong);
+  --risa-primary-light: var(--brand-soft);
+  --risa-text: var(--navy);
   --risa-text-secondary: #607991;
   --risa-muted: #8297aa;
   --risa-background: #eaf4fc;
@@ -2125,10 +2126,10 @@ body {
 }
 
 .signup-page {
-  --signup-ink: #173b5d;
+  --signup-ink: var(--navy);
   --signup-muted: #607991;
-  --signup-primary: #2878c7;
-  --signup-primary-dark: #1e629f;
+  --signup-primary: var(--brand);
+  --signup-primary-dark: var(--brand-strong);
   --signup-paper: #eaf4fc;
   --signup-card: #ffffff;
   --signup-border: #d4e4f2;
@@ -2166,17 +2167,17 @@ body {
 .signup-brand-mark,
 .signup-submit {
   background: linear-gradient(135deg, #398bd0, #216aa8);
-  border-color: #2878c7;
+  border-color: var(--brand);
 }
 
 .signup-submit:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2878c7, #1e629f);
-  border-color: #1e629f;
+  background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+  border-color: var(--brand-strong);
 }
 
 .signup-field input:focus {
-  border-color: #2878c7;
-  box-shadow: 0 0 0 4px rgba(40, 120, 199, 0.13);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.13);
 }
 
 .signup-card {
@@ -2292,7 +2293,7 @@ body {
   place-items: center;
   overflow: hidden;
   color: var(--brand-strong);
-  background: linear-gradient(145deg, #f5f9fd, #eaf3fc);
+  background: linear-gradient(145deg, #f5f9fd, var(--brand-soft));
   border-radius: 10px;
   font-size: 34px;
   font-weight: 800;
@@ -2363,7 +2364,7 @@ body {
   }
 }
 
-/* Shared premium light-blue theme and motion */
+/* Shared premium retail theme and motion */
 body,
 button,
 input,
@@ -2769,8 +2770,8 @@ video {
   overflow: hidden;
   border: 1px solid #c8dff0;
   border-radius: 18px;
-  background: #e8f3fc;
-  box-shadow: 0 8px 18px rgba(40, 120, 199, 0.16);
+  background: var(--brand-soft);
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.16);
 }
 
 .summary-card,
@@ -3186,12 +3187,12 @@ video {
 
 /* Premium analytics presentation */
 .reports-page {
-  --reports-accent: #2878c7;
-  --reports-accent-dark: #1d639f;
-  --reports-accent-soft: #e8f3fc;
-  --reports-ink: #173b5d;
-  --reports-muted: #6e8499;
-  --reports-border: #d9e7f3;
+  --reports-accent: var(--brand);
+  --reports-accent-dark: var(--brand-strong);
+  --reports-accent-soft: var(--brand-soft);
+  --reports-ink: var(--navy);
+  --reports-muted: var(--muted);
+  --reports-border: var(--line);
 }
 
 .reports-hero {
@@ -3293,11 +3294,11 @@ video {
 }
 
 .reports-page .metric-net_sales::before {
-  background: linear-gradient(90deg, #2878c7, #8ec5ed);
+  background: linear-gradient(90deg, var(--brand), #8ec5ed);
 }
 
 .reports-page .metric-net_sales .card-value {
-  color: #1d639f;
+  color: var(--brand-strong);
 }
 
 .reports-page .report-section {
@@ -3318,8 +3319,8 @@ video {
 }
 
 .reports-page .chart-bar {
-  background: linear-gradient(180deg, #74b6e9, #2878c7);
-  box-shadow: 0 4px 10px rgba(40, 120, 199, 0.18);
+  background: linear-gradient(180deg, #74b6e9, var(--brand));
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.18);
 }
 
 .reports-page .product-rank-row {
@@ -3331,7 +3332,7 @@ video {
 }
 
 .reports-page .product-progress span {
-  background: linear-gradient(90deg, #91c9ef, #2878c7);
+  background: linear-gradient(90deg, #91c9ef, var(--brand));
 }
 
 .reports-page .report-shortcut {
@@ -3347,7 +3348,7 @@ video {
 .reports-page .report-shortcut:focus-visible,
 .reports-page .preset-list button:focus-visible,
 .reports-page .date-fields input:focus-visible {
-  outline-color: rgba(40, 120, 199, 0.38);
+  outline-color: rgba(15, 118, 110, 0.38);
 }
 
 @media (max-width: 650px) {
@@ -3537,9 +3538,9 @@ video {
 .sale-history-print:hover,
 .sale-complete-print:hover {
   border-color: #74b4dc;
-  background: linear-gradient(135deg, #2878c7, #1d639f);
+  background: linear-gradient(135deg, var(--brand), var(--brand-strong));
   color: #fff;
-  box-shadow: 0 9px 20px rgba(40, 120, 199, 0.2);
+  box-shadow: 0 9px 20px rgba(15, 118, 110, 0.2);
   transform: translateY(-1px);
 }
 
@@ -3549,7 +3550,7 @@ video {
 .reports-print-button:focus-visible,
 .sale-history-print:focus-visible,
 .sale-complete-print:focus-visible {
-  outline: 3px solid rgba(40, 120, 199, 0.25);
+  outline: 3px solid rgba(15, 118, 110, 0.25);
   outline-offset: 3px;
 }
 
@@ -3659,9 +3660,9 @@ video {
 .app-content .sales-page .sale-history-print:hover,
 .app-content .sales-history-page .modal-card .sale-history-print:hover {
   border-color: #74b4dc;
-  background: linear-gradient(135deg, #2878c7, #1d639f);
+  background: linear-gradient(135deg, var(--brand), var(--brand-strong));
   color: #fff;
-  box-shadow: 0 9px 20px rgba(40, 120, 199, 0.2);
+  box-shadow: 0 9px 20px rgba(15, 118, 110, 0.2);
   transform: translateY(-1px);
 }
 

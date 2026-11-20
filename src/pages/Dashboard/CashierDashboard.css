@@ -4,7 +4,7 @@
   max-width: 1440px;
   margin: 0 auto;
   padding: 34px 38px 48px;
-  color: #352c2b;
+  color: var(--ink);
 }
 
 .cashier-dashboard-header,
@@ -20,7 +20,7 @@
 }
 
 .cashier-dashboard-eyebrow {
-  color: #8b4651;
+  color: var(--brand);
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 1.5px;
@@ -36,16 +36,16 @@
 .cashier-dashboard-header p,
 .cashier-dashboard-section-heading p {
   margin: 0;
-  color: #82716b;
+  color: var(--muted);
   font-size: 13px;
 }
 
 .cashier-dashboard-header time {
   padding: 10px 14px;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fffcf7;
-  color: #766665;
+  background: var(--surface);
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -62,32 +62,32 @@
   flex-direction: column;
   gap: 9px;
   padding: 20px;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fffcf7;
+  background: var(--surface);
 }
 
 .cashier-dashboard-card > span {
-  color: #77857c;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 600;
 }
 
 .cashier-dashboard-card strong {
-  color: #352c2b;
+  color: var(--ink);
   font-size: clamp(21px, 2.4vw, 28px);
   letter-spacing: -0.5px;
   overflow-wrap: anywhere;
 }
 
 .cashier-dashboard-card small {
-  color: #82716b;
+  color: var(--muted);
   font-size: 11px;
   line-height: 1.5;
 }
 
 .cashier-till-card strong {
-  color: #8b4651;
+  color: var(--brand);
 }
 
 .cashier-net-sales-card strong {
@@ -110,7 +110,7 @@
 
 .cashier-dashboard-section-heading a {
   flex-shrink: 0;
-  color: #8b4651;
+  color: var(--brand);
   font-size: 12px;
   font-weight: 650;
   text-decoration: none;
@@ -123,9 +123,9 @@
 .cashier-dashboard-table-wrap {
   max-width: 100%;
   overflow-x: auto;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fffcf7;
+  background: var(--surface);
 }
 
 .cashier-dashboard-table {
@@ -143,7 +143,7 @@
 }
 
 .cashier-dashboard-table th {
-  color: #766665;
+  color: var(--muted);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -209,7 +209,7 @@
 }
 
 .cashier-order-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 13px; }
-.cashier-order-counts > div { display: grid; gap: 4px; padding: 13px 15px; border: 1px solid #e8d9cc; border-radius: 10px; background: #fffcf7; }
+.cashier-order-counts > div { display: grid; gap: 4px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 .cashier-order-counts strong { color: #173a52; font-size: 19px; }
-.cashier-order-counts span { color: #82716b; font-size: 10px; }
+.cashier-order-counts span { color: var(--muted); font-size: 10px; }
 @media (max-width: 560px) { .cashier-order-counts { grid-template-columns: 1fr; } }

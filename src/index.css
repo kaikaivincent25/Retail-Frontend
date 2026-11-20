@@ -1,19 +1,19 @@
 :root {
-  --text: #516477;
+  --text: #26384a;
   --text-h: #142b45;
-  --bg: #edf5fc;
-  --border: #d7e5f2;
-  --code-bg: #e4f0fa;
-  --accent: #2878c7;
-  --accent-bg: rgba(40, 120, 199, 0.1);
-  --accent-border: rgba(40, 120, 199, 0.35);
-  --social-bg: rgba(234, 241, 248, 0.8);
+  --bg: #f5f7f6;
+  --border: #e1e8e5;
+  --code-bg: #e6f4f1;
+  --accent: #0f766e;
+  --accent-bg: rgba(15, 118, 110, 0.1);
+  --accent-border: rgba(15, 118, 110, 0.32);
+  --social-bg: rgba(241, 245, 243, 0.9);
   --shadow:
-    rgba(22, 51, 81, 0.08) 0 10px 24px -8px,
-    rgba(22, 51, 81, 0.04) 0 3px 8px -2px;
+    rgba(20, 43, 69, 0.08) 0 10px 24px -8px,
+    rgba(20, 43, 69, 0.04) 0 3px 8px -2px;
 
-  --sans: "Times New Roman", Times, serif;
-  --heading: Georgia, "Times New Roman", Times, serif;
+  --sans: Inter, "Segoe UI", Arial, sans-serif;
+  --heading: Inter, "Segoe UI", Arial, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/145% var(--sans);

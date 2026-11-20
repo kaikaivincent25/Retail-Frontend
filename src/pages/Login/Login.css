@@ -5,15 +5,15 @@
 ========================================= */
 
 :root {
-  --risa-primary: #8B4651;
-  --risa-primary-dark: #6F3540;
-  --risa-primary-light: #F3E6E0;
-  --risa-text: #352C2B;
-  --risa-text-secondary: #766665;
+  --risa-primary: var(--brand);
+  --risa-primary-dark: var(--brand-strong);
+  --risa-primary-light: var(--brand-soft);
+  --risa-text: var(--ink);
+  --risa-text-secondary: var(--muted);
   --risa-muted: #9A8983;
-  --risa-background: #F7F0E7;
-  --risa-white: #FFFCF7;
-  --risa-border: #E8D9CC;
+  --risa-background: var(--canvas);
+  --risa-white: var(--surface);
+  --risa-border: var(--line);
   --risa-danger: #C0392B;
   --risa-danger-bg: #FEF2F0;
   --risa-display: var(--heading);
@@ -70,7 +70,7 @@
   padding: 42px 46px 30px;
   overflow: hidden;
   color: var(--risa-white);
-  background: linear-gradient(145deg, #98564B 0%, #75434A 100%);
+  background: linear-gradient(145deg, var(--navy) 0%, var(--brand-strong) 100%);
 }
 
 /* Brand Identity */
@@ -225,7 +225,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 55px 65px 25px;
-  background: #FFFCF7;
+  background: var(--surface);
 }
 
 .login-form-container {
@@ -326,7 +326,7 @@
 .login-field input:focus {
   border-color: var(--risa-primary);
   background: var(--risa-white);
-  box-shadow: 0 0 0 3px rgba(139, 70, 81, 0.13);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.13);
 }
 
 /* Submit Button */
@@ -365,7 +365,7 @@
 }
 
 .login-form button:focus-visible {
-  outline: 3px solid rgba(139, 70, 81, 0.28);
+  outline: 3px solid rgba(15, 118, 110, 0.28);
   outline-offset: 3px;
 }
 

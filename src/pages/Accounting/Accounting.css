@@ -575,7 +575,7 @@
 }
 .accounting-date-form label { gap: 5px; color: var(--muted); font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; }
 .accounting-date-form input { min-height: 38px; border-color: #cfe1ef; border-radius: 9px; background: #fff; color: var(--navy); }
-.accounting-btn-primary { min-height: 38px; border-radius: 9px; background: linear-gradient(135deg, #398bd0, #216aa8); box-shadow: 0 5px 12px rgba(40, 120, 199, 0.16); }
+.accounting-btn-primary { min-height: 38px; border-radius: 9px; background: linear-gradient(135deg, #398bd0, #216aa8); box-shadow: 0 5px 12px rgba(15, 118, 110, 0.16); }
 
 .accounting-table th { padding: 12px 14px; background: #f5faff; color: #71869a; font-size: 10px; letter-spacing: 0.7px; }
 .accounting-table td { padding: 14px; border-bottom-color: #edf2f7; color: #526b82; }

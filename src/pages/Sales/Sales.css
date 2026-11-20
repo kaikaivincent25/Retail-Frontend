@@ -5,15 +5,15 @@
    ========================================================= */
 
 .sales-page {
-  --sales-green: #8b4651;
-  --sales-green-dark: #6f3540;
-  --sales-green-soft: #f3e6e0;
-  --sales-ink: #352c2b;
-  --sales-muted: #766665;
-  --sales-border: #e8d9cc;
-  --sales-surface: #fffcf7;
-  --sales-background: #f7f0e7;
-  --sales-accent-shadow: rgba(139, 70, 81, 0.14);
+  --sales-green: var(--brand);
+  --sales-green-dark: var(--brand-strong);
+  --sales-green-soft: var(--brand-soft);
+  --sales-ink: var(--ink);
+  --sales-muted: var(--muted);
+  --sales-border: var(--line);
+  --sales-surface: var(--surface);
+  --sales-background: var(--canvas);
+  --sales-accent-shadow: rgba(15, 118, 110, 0.14);
 
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
@@ -49,7 +49,7 @@
 
 .sales-page button:focus-visible,
 .sales-page input:focus-visible {
-  outline: 3px solid rgba(139, 70, 81, 0.2);
+  outline: 3px solid rgba(15, 118, 110, 0.2);
   outline-offset: 2px;
 }
 
@@ -181,7 +181,7 @@
 }
 
 .sale-message.success {
-  color: #8b4651;
+  color: var(--brand);
   background: #edf8f1;
   border-color: #cce8d6;
 }
@@ -232,7 +232,7 @@
 .quick-sell-tile:hover {
   border-color: #c99198;
   background: #fffaf8;
-  box-shadow: 0 5px 14px rgba(139, 70, 81, 0.1);
+  box-shadow: 0 5px 14px rgba(15, 118, 110, 0.1);
   transform: translateY(-2px);
 }
 
@@ -595,13 +595,13 @@
 .payment-method-options .payment-method-card:hover {
   border-color: #c99198;
   background: #fffaf8;
-  box-shadow: 0 3px 10px rgba(139, 70, 81, 0.08);
+  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.08);
 }
 
 .payment-method-options .payment-method-card.active {
   background: #fbf1ed;
   border-color: var(--sales-green);
-  box-shadow: inset 0 0 0 1px var(--sales-green), 0 3px 10px rgba(139, 70, 81, 0.08);
+  box-shadow: inset 0 0 0 1px var(--sales-green), 0 3px 10px rgba(15, 118, 110, 0.08);
 }
 
 .payment-method-options .payment-method-card.active .payment-method-copy strong {
@@ -742,7 +742,7 @@
 .bulk-prompt-card input:focus {
   background: #fff;
   border-color: var(--sales-green);
-  box-shadow: 0 0 0 3px rgba(139, 70, 81, 0.09);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.09);
   outline: none;
 }
 
@@ -831,7 +831,7 @@
 .complete-sale-button:hover:not(:disabled) {
   background: var(--sales-green-dark);
   border-color: var(--sales-green-dark);
-  box-shadow: 0 6px 13px rgba(139, 70, 81, 0.22);
+  box-shadow: 0 6px 13px rgba(15, 118, 110, 0.22);
   transform: translateY(-1px);
 }
 
@@ -1277,14 +1277,14 @@
   min-height: 45px;
   border: 0;
   border-radius: 10px;
-  background: #2878c7;
+  background: var(--brand);
   color: #fff;
   cursor: pointer;
   font-weight: 700;
 }
 
 .sales-help-done:hover {
-  background: #1c5e9f;
+  background: var(--brand-strong);
 }
 
 @media (max-width: 560px) {
@@ -1657,15 +1657,15 @@
 
 /* Bright, high-contrast checkout presentation */
 .sales-page {
-  --sales-green: #16745b;
-  --sales-green-dark: #105640;
-  --sales-green-soft: #e7f5ef;
+  --sales-green: var(--brand);
+  --sales-green-dark: var(--brand-strong);
+  --sales-green-soft: var(--brand-soft);
   --sales-ink: #172b24;
   --sales-muted: #718079;
   --sales-border: #e1ebe5;
   --sales-surface: #fff;
   --sales-background: #f3f8f5;
-  --sales-accent-shadow: rgba(22, 116, 91, 0.16);
+  --sales-accent-shadow: rgba(15, 118, 110, 0.16);
 
   position: relative;
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
@@ -1691,10 +1691,10 @@
   flex: 0 0 50px;
   place-items: center;
   color: #fff;
-  background: linear-gradient(145deg, #22916e, #105640);
+  background: linear-gradient(145deg, #22916e, var(--brand-strong));
   border: 4px solid #e2f2e9;
   border-radius: 16px;
-  box-shadow: 0 7px 16px rgba(22, 116, 91, 0.18);
+  box-shadow: 0 7px 16px rgba(15, 118, 110, 0.18);
   font-size: 20px;
   font-weight: 850;
   letter-spacing: -1px;
@@ -1848,8 +1848,8 @@
 }
 
 .view-tabs button.active {
-  background: #16745b;
-  box-shadow: 0 3px 8px rgba(22, 116, 91, 0.18);
+  background: var(--brand);
+  box-shadow: 0 3px 8px rgba(15, 118, 110, 0.18);
 }
 
 .product-search-input {
@@ -1862,7 +1862,7 @@
 .product-search-input:focus,
 .amount-received-input:focus {
   border-color: #50a183;
-  box-shadow: 0 0 0 3px rgba(22, 116, 91, 0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 .quick-sell-grid {
@@ -1887,7 +1887,7 @@
 .quick-sell-tile:hover {
   background: #fff;
   border-color: #8dc9aa;
-  box-shadow: 0 9px 20px rgba(22, 116, 91, 0.095);
+  box-shadow: 0 9px 20px rgba(15, 118, 110, 0.095);
   transform: translateY(-3px);
 }
 
@@ -1949,7 +1949,7 @@
 
 .cart-line-qty button:hover {
   color: #fff;
-  background: #16745b;
+  background: var(--brand);
 }
 
 .cart-line-qty-bulk {
@@ -1992,7 +1992,7 @@
 
 .denomination-row button:hover {
   color: #fff;
-  background: #16745b;
+  background: var(--brand);
 }
 
 .payment-method-options .payment-method-card {
@@ -2008,13 +2008,13 @@
 .payment-method-options .payment-method-card.active {
   background: #eef8f2;
   border-color: #54a582;
-  box-shadow: inset 0 0 0 1px #54a582, 0 3px 10px rgba(22, 116, 91, 0.07);
+  box-shadow: inset 0 0 0 1px #54a582, 0 3px 10px rgba(15, 118, 110, 0.07);
 }
 
 .payment-method-options .payment-method-card:hover {
   background: #fbfefc;
   border-color: #a4cdb5;
-  box-shadow: 0 4px 12px rgba(22, 116, 91, 0.07);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.07);
 }
 
 .change-row {
@@ -2033,12 +2033,12 @@
   background: linear-gradient(110deg, #17805f, #12644d);
   border-color: #12644d;
   border-radius: 12px;
-  box-shadow: 0 6px 14px rgba(22, 116, 91, 0.17);
+  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.17);
 }
 
 .complete-sale-button:hover:not(:disabled) {
   background: linear-gradient(110deg, #1b8d69, #147052);
-  box-shadow: 0 8px 18px rgba(22, 116, 91, 0.23);
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.23);
 }
 
 .close-till-button {
@@ -2066,12 +2066,12 @@
 }
 
 .manual-payment-actions button:first-child {
-  background: #16745b;
-  border-color: #16745b;
+  background: var(--brand);
+  border-color: var(--brand);
 }
 
 .sale-complete-icon {
-  background: #16745b;
+  background: var(--brand);
   border-color: #dff1e6;
 }
 
@@ -2088,8 +2088,8 @@
 }
 
 .sale-complete-done:hover {
-  background: #105640;
-  border-color: #105640;
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
 }
 
 .open-session-card {
@@ -2191,18 +2191,18 @@
 /* ============================================================
    SALES UI REFRESH — visual and accessibility changes only.
    Keeps all existing component logic, interactions and API calls.
-   Original burgundy / cream retail brand palette.
+   Shared navy / teal retail brand palette.
    ============================================================ */
 .sales-page {
-  --sales-green: #884653;
-  --sales-green-dark: #672e3a;
-  --sales-green-soft: #f7eaec;
+  --sales-green: var(--brand);
+  --sales-green-dark: var(--brand-strong);
+  --sales-green-soft: var(--brand-soft);
   --sales-ink: #2f292d;
   --sales-muted: #796e72;
   --sales-border: #ecdee0;
   --sales-surface: #ffffff;
   --sales-background: #f8f3f1;
-  --sales-accent-shadow: rgba(136, 70, 83, .18);
+  --sales-accent-shadow: rgba(15, 118, 110, .18);
   grid-template-columns: minmax(0, 1fr) minmax(350px, 410px);
   align-items: start;
   gap: 22px;
@@ -2216,7 +2216,7 @@
 .sales-page-brandmark {
   background: linear-gradient(145deg,#a15b67,#713440);
   border: 4px solid #f4e5e8;
-  box-shadow: 0 6px 17px rgba(136,70,83,.13);
+  box-shadow: 0 6px 17px rgba(15,118,110,.13);
 }
 .sales-page-heading h1 { font-size: clamp(25px,2.3vw,34px); letter-spacing: -.9px; }
 .sales-page-eyebrow { color: var(--sales-green-dark); letter-spacing: .06em; }
@@ -2248,13 +2248,13 @@
 .sales-view-controls { gap: 12px; padding-top: 19px; }
 .view-tabs { background: #f8f3f4; border-color: #efe3e5; padding: 4px; }
 .view-tabs button { min-height: 38px; font-size: 12px; }
-.view-tabs button.active { background: var(--sales-green); box-shadow: 0 3px 8px rgba(136,70,83,.15); }
+.view-tabs button.active { background: var(--sales-green); box-shadow: 0 3px 8px rgba(15,118,110,.15); }
 .product-search-input {
   width: min(100%,360px); min-height: 47px;
   padding: 0 16px; border-color: #e8dcdf; border-radius: 12px;
   background: #fff; font-size: 13px;
 }
-.product-search-input:focus { border-color: var(--sales-green); box-shadow: 0 0 0 3px rgba(136,70,83,.09); outline: 0; }
+.product-search-input:focus { border-color: var(--sales-green); box-shadow: 0 0 0 3px rgba(15,118,110,.09); outline: 0; }
 .sales-catalogue-hint { margin-top: 21px; color: #918388; font-size: 12px; }
 .quick-sell-grid { grid-template-columns: repeat(auto-fill,minmax(164px,1fr)); gap: 12px; padding-top: 12px; }
 .quick-sell-tile {
@@ -2264,7 +2264,7 @@
   box-shadow: 0 2px 6px rgba(55,31,37,.025);
 }
 .quick-sell-tile::before { width: 4px; background: transparent; }
-.quick-sell-tile:hover { background:#fff8f9; border-color: #b97f8a; box-shadow: 0 9px 22px rgba(136,70,83,.10); }
+.quick-sell-tile:hover { background:#fff8f9; border-color: #b97f8a; box-shadow: 0 9px 22px rgba(15,118,110,.10); }
 .quick-sell-tile:hover::before { background: var(--sales-green); }
 .tile-name { font-size: 14px; font-weight: 800; letter-spacing: -.15px; }
 .tile-variant { font-size: 12px; color: var(--sales-muted); }
@@ -2286,7 +2286,7 @@
 .cart-line-name { font-size:13px; }
 .cart-line-price { font-size:12px; }
 .cart-line-total { font-size:13px; font-weight:800; }
-.cart-line-qty button { width:31px; height:31px; color:var(--sales-green-dark); background:var(--sales-green-soft); border-color:#ead6dc; }
+.cart-line-qty button { width:31px; height:31px; color:var(--sales-green-dark); background:var(--sales-green-soft); border-color:var(--line); }
 .cart-line-qty button:hover { background:var(--sales-green); border-color:var(--sales-green); }
 .cart-line-remove { font-size:21px; border-radius:8px; }
 .cart-summary { padding-top:17px; }
@@ -2299,8 +2299,8 @@
 .payment-method-options { gap:9px; margin-bottom:18px; }
 .payment-method-options .payment-method-card { min-height:65px; border-radius:12px; border-color:#ecdee1; padding:10px; }
 .payment-method-options .payment-method-card:hover { background:#fff8f9; border-color:#d0a3ae; }
-.payment-method-options .payment-method-card.active { background:#fbf0f3; border-color:var(--sales-green); box-shadow:inset 0 0 0 1px var(--sales-green); }
-.payment-method-icon { color:var(--sales-green-dark); background:#f7e9ed; }
+.payment-method-options .payment-method-card.active { background:var(--brand-soft); border-color:var(--sales-green); box-shadow:inset 0 0 0 1px var(--sales-green); }
+.payment-method-icon { color:var(--sales-green-dark); background:var(--brand-soft); }
 .payment-method-copy strong { font-size:12px; }
 .payment-method-copy small { font-size:10px; }
 .checkout-field-label { font-size:13px; }
@@ -2350,15 +2350,15 @@
 
 /* Final checkout layout, aligned with the workspace blue-and-navy theme. */
 .sales-page {
-  --sales-green: #2878c7;
-  --sales-green-dark: #1c5e9f;
-  --sales-green-soft: #eaf3fc;
+  --sales-green: var(--brand);
+  --sales-green-dark: var(--brand-strong);
+  --sales-green-soft: var(--brand-soft);
   --sales-ink: #142b45;
   --sales-muted: #64788d;
   --sales-border: #dce6f0;
   --sales-surface: #fff;
   --sales-background: #f3f7fb;
-  --sales-accent-shadow: rgba(40, 120, 199, 0.17);
+  --sales-accent-shadow: rgba(15, 118, 110, 0.17);
 
   grid-template-columns: minmax(0, 1fr) minmax(340px, 390px);
   gap: 20px;
@@ -2370,7 +2370,7 @@
 
 .sales-page button:focus-visible,
 .sales-page input:focus-visible {
-  outline: 3px solid rgba(40, 120, 199, 0.28);
+  outline: 3px solid rgba(15, 118, 110, 0.28);
   outline-offset: 2px;
 }
 
@@ -2380,9 +2380,9 @@
 }
 
 .sales-page-brandmark {
-  background: linear-gradient(145deg, #438fd0, #1c5e9f);
+  background: linear-gradient(145deg, #438fd0, var(--brand-strong));
   border-color: #dcecf9;
-  box-shadow: 0 6px 16px rgba(40, 120, 199, 0.16);
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.16);
 }
 
 .sales-page-eyebrow {
@@ -2498,7 +2498,7 @@
 .view-tabs button.active {
   color: #fff;
   background: var(--sales-green);
-  box-shadow: 0 3px 8px rgba(40, 120, 199, 0.2);
+  box-shadow: 0 3px 8px rgba(15, 118, 110, 0.2);
 }
 
 .product-search-input {
@@ -2519,7 +2519,7 @@
 .product-search-input:focus,
 .amount-received-input:focus {
   border-color: var(--sales-green);
-  box-shadow: 0 0 0 3px rgba(40, 120, 199, 0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 .sale-message.success {
@@ -2558,7 +2558,7 @@
 .quick-sell-tile:hover {
   background: #fff;
   border-color: #91bce0;
-  box-shadow: 0 8px 20px rgba(40, 120, 199, 0.11);
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.11);
   transform: translateY(-2px);
 }
 
@@ -2786,7 +2786,7 @@
 .payment-method-options .payment-method-card:hover {
   background: #f8fbfe;
   border-color: #a8c7e1;
-  box-shadow: 0 3px 10px rgba(40, 120, 199, 0.07);
+  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.07);
 }
 
 .payment-method-options .payment-method-card.active {
@@ -2801,7 +2801,7 @@
 
 .payment-method-icon {
   color: var(--sales-green-dark);
-  background: #eaf3fc;
+  background: var(--brand-soft);
 }
 
 .payment-method-copy strong {
@@ -2907,16 +2907,16 @@
   min-height: 53px;
   margin-top: 14px;
   color: #fff;
-  background: linear-gradient(110deg, #3288cf, #1c5e9f);
-  border-color: #1c5e9f;
+  background: linear-gradient(110deg, #3288cf, var(--brand-strong));
+  border-color: var(--brand-strong);
   border-radius: 11px;
   box-shadow: 0 5px 13px var(--sales-accent-shadow);
 }
 
 .complete-sale-button:hover:not(:disabled) {
-  background: linear-gradient(110deg, #2878c7, #174f88);
+  background: linear-gradient(110deg, var(--brand), #174f88);
   border-color: #174f88;
-  box-shadow: 0 7px 17px rgba(40, 120, 199, 0.23);
+  box-shadow: 0 7px 17px rgba(15, 118, 110, 0.23);
 }
 
 .complete-sale-button:disabled {
@@ -3181,7 +3181,7 @@
     padding: 10px 16px;
     border: 1px solid #205f99;
     border-radius: 15px;
-    background: linear-gradient(110deg, #2878c7, #1c5e9f);
+    background: linear-gradient(110deg, var(--brand), var(--brand-strong));
     color: #fff;
     box-shadow: 0 10px 30px rgba(20, 65, 105, 0.3);
     cursor: pointer;
@@ -3348,8 +3348,8 @@
 .sales-steps b {
   width: 25px;
   height: 25px;
-  background: #eaf3fc;
-  color: #1c5e9f;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
 }
 
 .sales-grid-panel,

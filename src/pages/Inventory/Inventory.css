@@ -9,7 +9,7 @@
   min-height: 100%;
   margin: 0 auto;
   padding: 35px 40px 50px;
-  color: #352C2B;
+  color: var(--ink);
   font-family: var(--sans);
   box-sizing: border-box;
 }
@@ -51,7 +51,7 @@
 
 .price-history-section h4 {
   margin: 0;
-  color: #493D39;
+  color: var(--navy);
 }
 
 .modal-card small {
@@ -80,7 +80,7 @@
 .inventory-eyebrow {
   display: inline-block;
   margin-bottom: 9px;
-  color: #8B4651;
+  color: var(--brand);
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 1.5px;
@@ -88,7 +88,7 @@
 
 .inventory-header h1 {
   margin: 0;
-  color: #352C2B;
+  color: var(--ink);
   font-size: 29px;
   font-weight: 750;
   letter-spacing: -0.9px;
@@ -96,7 +96,7 @@
 
 .inventory-header p {
   margin: 8px 0 0;
-  color: #82716B;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -106,17 +106,17 @@
   align-items: center;
   gap: 10px;
   padding: 11px 15px;
-  border: 1px solid #E8D9CC;
+  border: 1px solid var(--line);
   border-radius: 9px;
-  background: #FFFCF7;
-  color: #766665;
+  background: var(--surface);
+  color: var(--muted);
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .inventory-header-icon {
-  color: #8B4651;
+  color: var(--brand);
   font-size: 19px;
 }
 
@@ -126,9 +126,9 @@
 
 .inventory-panel {
   overflow: hidden;
-  border: 1px solid #E8D9CC;
+  border: 1px solid var(--line);
   border-radius: 13px;
-  background: #FFFCF7;
+  background: var(--surface);
   box-shadow: 0 3px 15px rgba(27, 54, 37, 0.035);
 }
 
@@ -142,7 +142,7 @@
 
 .inventory-panel-header h2 {
   margin: 0;
-  color: #493D39;
+  color: var(--navy);
   font-size: 16px;
   font-weight: 750;
 }
@@ -160,7 +160,7 @@
   padding: 7px 11px;
   border-radius: 7px;
   background: #F8F1E8;
-  color: #766665;
+  color: var(--muted);
   font-size: 10px;
   font-weight: 650;
   white-space: nowrap;
@@ -204,11 +204,11 @@
 }
 
 .inventory-tabs button:hover {
-  color: #8B4651;
+  color: var(--brand);
 }
 
 .inventory-tabs button.active {
-  color: #8B4651;
+  color: var(--brand);
   font-weight: 750;
 }
 
@@ -220,7 +220,7 @@
   width: 100%;
   height: 2px;
   border-radius: 3px 3px 0 0;
-  background: #8B4651;
+  background: var(--brand);
 }
 
 .tab-icon {
@@ -303,8 +303,8 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 9px;
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
   font-size: 17px;
 }
 
@@ -333,8 +333,8 @@
 }
 
 .mode-badge.fixed {
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 /* Quantity */
@@ -431,8 +431,8 @@
 }
 
 .adjust-button {
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .adjust-button:hover {
@@ -441,20 +441,20 @@
 }
 
 .history-button {
-  border-color: #E8D9CC !important;
-  background: #FFFCF7;
-  color: #766665;
+  border-color: var(--line) !important;
+  background: var(--surface);
+  color: var(--muted);
 }
 
 .history-button:hover {
   border-color: #DEC5BA !important;
   background: #F8F1E8;
-  color: #8B4651;
+  color: var(--brand);
 }
 
 .row-actions button:focus-visible,
 .inventory-tabs button:focus-visible {
-  outline: 2px solid #8B4651;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
 
@@ -485,8 +485,8 @@
   justify-content: center;
   margin-bottom: 3px;
   border-radius: 12px;
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
   font-size: 22px;
 }
 
@@ -585,7 +585,7 @@
 .modal-eyebrow {
   display: block;
   margin-bottom: 8px;
-  color: #8B4651;
+  color: var(--brand);
   font-size: 9px;
   font-weight: 750;
   letter-spacing: 1.3px;
@@ -615,7 +615,7 @@
   border: 1px solid #E7EDE8;
   border-radius: 8px;
   background: #FFFFFF;
-  color: #77857C;
+  color: var(--muted);
   font-size: 21px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -636,7 +636,7 @@
   gap: 12px;
   margin: 20px 0;
   padding: 14px 16px;
-  border: 1px solid #E8D9CC;
+  border: 1px solid var(--line);
   border-radius: 9px;
   background: #F8F1E8;
 }
@@ -648,7 +648,7 @@
 }
 
 .modal-current-stock strong {
-  color: #8B4651;
+  color: var(--brand);
   font-size: 15px;
   font-weight: 750;
 }
@@ -711,8 +711,8 @@
 
 .direction-toggle button.add-active {
   border-color: #DEC5BA;
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .direction-toggle button.remove-active {
@@ -722,7 +722,7 @@
 }
 
 .direction-toggle button:focus-visible {
-  outline: 2px solid #8B4651;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
 
@@ -751,9 +751,9 @@
 }
 
 .modal-input:focus {
-  border-color: #8B4651;
-  background: #FFFCF7;
-  box-shadow: 0 0 0 3px rgba(139, 70, 81, 0.13);
+  border-color: var(--brand);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.13);
 }
 
 /* Form Error */
@@ -823,12 +823,12 @@
 }
 
 .modal-actions .primary {
-  background: #8B4651;
+  background: var(--brand);
   color: #FFFFFF;
 }
 
 .modal-actions .primary:hover {
-  background: #6F3540;
+  background: var(--brand-strong);
   box-shadow: 0 4px 12px rgba(111, 53, 64, 0.18);
 }
 
@@ -841,7 +841,7 @@
 }
 
 .modal-actions button:focus-visible {
-  outline: 2px solid #8B4651;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
 
@@ -860,12 +860,12 @@
 }
 
 .history-summary span {
-  color: #77857C;
+  color: var(--muted);
   font-size: 11px;
 }
 
 .history-summary strong {
-  color: #8B4651;
+  color: var(--brand);
   font-size: 15px;
 }
 
@@ -927,8 +927,8 @@
 }
 
 .type-badge.purchase {
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .type-badge.adjustment {

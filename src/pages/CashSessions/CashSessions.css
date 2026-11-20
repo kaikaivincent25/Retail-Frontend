@@ -9,7 +9,7 @@
 
 .cash-sessions-page select {
   padding: 0.5rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 6px;
   margin: 1rem 0;
 }
@@ -17,9 +17,9 @@
 .cash-deposit-panel {
   margin: 1.25rem 0;
   padding: 1.25rem;
-  border: 1px solid #e8d9cc;
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fffcf7;
+  background: var(--surface);
 }
 
 .cash-deposit-header {
@@ -39,7 +39,7 @@
 .deposit-empty,
 .deposit-notice {
   margin: 0;
-  color: #766665;
+  color: var(--muted);
   font-size: 0.85rem;
   line-height: 1.5;
 }
@@ -52,12 +52,12 @@
 }
 
 .cash-deposit-balance span {
-  color: #766665;
+  color: var(--muted);
   font-size: 0.75rem;
 }
 
 .cash-deposit-balance strong {
-  color: #6f3540;
+  color: var(--brand-strong);
   font-size: 1.35rem;
 }
 
@@ -98,7 +98,7 @@
   padding: 0 1rem;
   border: 0;
   border-radius: 6px;
-  background: #6f3540;
+  background: var(--brand-strong);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
@@ -141,7 +141,7 @@
 }
 
 .deposit-table th {
-  color: #766665;
+  color: var(--muted);
   font-size: 0.7rem;
   text-transform: uppercase;
 }
@@ -153,15 +153,15 @@
 .sessions-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fffcf7;
+  background: var(--surface);
 }
 
 .sessions-table th {
   text-align: left;
   font-size: 0.75rem;
-  color: #766665;
+  color: var(--muted);
   padding: 0.5rem;
-  border-bottom: 1px solid #e8d9cc;
+  border-bottom: 1px solid var(--line);
 }
 
 .sessions-table td {

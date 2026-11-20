@@ -1,7 +1,7 @@
 .expenses-page {
-  --expense-accent: #2878c7;
-  --expense-ink: #173b5d;
-  --expense-muted: #6e8499;
+  --expense-accent: var(--brand);
+  --expense-ink: var(--navy);
+  --expense-muted: var(--muted);
   --expense-border: #d4e4f2;
 
   width: min(100%, 1440px);
@@ -57,7 +57,7 @@
 }
 
 .expenses-sales-link:hover {
-  background: #e4f1fb;
+  background: var(--brand-soft);
 }
 
 .expenses-summary,
@@ -83,7 +83,7 @@
   flex: 0 0 auto;
   place-items: center;
   color: var(--expense-accent);
-  background: #e4f1fb;
+  background: var(--brand-soft);
   border-radius: 11px;
 }
 
@@ -203,7 +203,7 @@
 .expenses-form input:focus,
 .expenses-form select:focus {
   border-color: var(--expense-accent);
-  outline: 3px solid rgba(40, 120, 199, 0.13);
+  outline: 3px solid rgba(15, 118, 110, 0.13);
 }
 
 .expenses-optional {
@@ -272,7 +272,7 @@
   height: 31px;
   place-items: center;
   border-radius: 9px;
-  background: #e4f1fb;
+  background: var(--brand-soft);
   color: var(--expense-accent);
   font-size: 12px;
   font-weight: 750;
@@ -298,7 +298,7 @@
 }
 
 .expenses-table th {
-  color: #6e8499;
+  color: var(--muted);
   font-size: 9px;
   font-weight: 750;
   letter-spacing: 0.6px;

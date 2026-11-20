@@ -108,7 +108,7 @@
 }
 
 .order-tracking-form input:focus {
-  outline: 3px solid #2878c71f;
+  outline: 3px solid var(--brand)1f;
   border-color: #81b4dc;
 }
 

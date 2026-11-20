@@ -9,7 +9,7 @@
   min-height: 100%;
   margin: 0 auto;
   padding: 35px 40px 50px;
-  color: #352C2B;
+  color: var(--ink);
   font-family: var(--sans);
   box-sizing: border-box;
 }
@@ -35,7 +35,7 @@
 .dashboard-eyebrow {
   display: inline-block;
   margin-bottom: 9px;
-  color: #8B4651;
+  color: var(--brand);
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 1.5px;
@@ -43,7 +43,7 @@
 
 .dashboard-header h1 {
   margin: 0;
-  color: #352C2B;
+  color: var(--ink);
   font-size: 29px;
   font-weight: 750;
   letter-spacing: -0.9px;
@@ -52,7 +52,7 @@
 
 .dashboard-welcome {
   margin: 8px 0 0;
-  color: #82716B;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -63,17 +63,17 @@
   gap: 9px;
   margin-top: 15px;
   padding: 11px 15px;
-  border: 1px solid #E8D9CC;
+  border: 1px solid var(--line);
   border-radius: 9px;
-  background: #FFFCF7;
-  color: #766665;
+  background: var(--surface);
+  color: var(--muted);
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .date-icon {
-  color: #8B4651;
+  color: var(--brand);
   font-size: 17px;
 }
 
@@ -97,7 +97,7 @@
 
 .section-heading h2 {
   margin: 0;
-  color: #493D39;
+  color: var(--navy);
   font-size: 16px;
   font-weight: 750;
   letter-spacing: -0.3px;
@@ -114,8 +114,8 @@
 .section-badge {
   padding: 7px 10px;
   border-radius: 6px;
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
   font-size: 9px;
   font-weight: 750;
   letter-spacing: 0.8px;
@@ -139,9 +139,9 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 20px;
-  border: 1px solid #E8D9CC;
+  border: 1px solid var(--line);
   border-radius: 13px;
-  background: #FFFCF7;
+  background: var(--surface);
   box-shadow: 0 3px 12px rgba(72, 43, 37, 0.035);
   transition:
     transform 0.2s ease,
@@ -164,7 +164,7 @@
 }
 
 .card-label {
-  color: #77857C;
+  color: var(--muted);
   font-size: 11px;
   font-weight: 600;
 }
@@ -182,8 +182,8 @@
 }
 
 .sales-icon {
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .transactions-icon {
@@ -204,7 +204,7 @@
 .card-value {
   display: block;
   margin-top: 17px;
-  color: #352C2B;
+  color: var(--ink);
   font-size: clamp(19px, 2vw, 25px);
   font-weight: 750;
   letter-spacing: -0.8px;
@@ -213,7 +213,7 @@
 }
 
 .card-value.profit {
-  color: #8B4651;
+  color: var(--brand);
 }
 
 .card-description {
@@ -242,7 +242,7 @@
 
 .expense-icon {
   background: #FCE9E5;
-  color: #A65D4F;
+  color: var(--brand);
 }
 
 .net-sales-icon {
@@ -279,7 +279,7 @@
   padding: 23px;
   border: 1px solid #E7EDE8;
   border-radius: 13px;
-  background: #FFFCF7;
+  background: var(--surface);
   box-shadow: 0 3px 12px rgba(27, 54, 37, 0.025);
 }
 
@@ -354,12 +354,12 @@
 }
 
 .product-rank.top-rank {
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .product-name {
-  color: #493D39;
+  color: var(--navy);
   font-weight: 650;
 }
 
@@ -371,7 +371,7 @@
   padding: 6px 10px;
   border-radius: 7px;
   background: #F8F1E8;
-  color: #8B4651;
+  color: var(--brand);
   font-size: 11px;
   font-weight: 700;
 }
@@ -401,14 +401,14 @@
   justify-content: center;
   margin-bottom: 13px;
   border-radius: 12px;
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
   font-size: 23px;
 }
 
 .empty-hint h3 {
   margin: 0;
-  color: #493D39;
+  color: var(--navy);
   font-size: 13px;
   font-weight: 700;
 }
@@ -437,9 +437,9 @@
   align-items: center;
   gap: 14px;
   padding: 17px;
-  border: 1px solid #E8D9CC;
+  border: 1px solid var(--line);
   border-radius: 11px;
-  background: #FFFCF7;
+  background: var(--surface);
   color: inherit;
   text-decoration: none;
   transition:
@@ -462,8 +462,8 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 10px;
-  background: #F3E6E0;
-  color: #8B4651;
+  background: var(--brand-soft);
+  color: var(--brand);
   font-size: 20px;
 }
 
@@ -476,7 +476,7 @@
 }
 
 .quick-link-content strong {
-  color: #493D39;
+  color: var(--navy);
   font-size: 12px;
   font-weight: 700;
 }
@@ -488,7 +488,7 @@
 }
 
 .quick-link-arrow {
-  color: #8B4651;
+  color: var(--brand);
   font-size: 18px;
   transition: transform 0.2s ease;
 }
@@ -521,7 +521,7 @@
   width: 35px;
   height: 35px;
   border: 3px solid #EEE3D9;
-  border-top-color: #8B4651;
+  border-top-color: var(--brand);
   border-radius: 50%;
   animation: dashboard-spin 0.8s linear infinite;
 }
@@ -1468,37 +1468,37 @@
   bottom: -190px;
   width: 390px;
   height: 390px;
-  border: 1px solid rgba(40, 120, 199, 0.12);
+  border: 1px solid rgba(15, 118, 110, 0.12);
   border-radius: 50%;
   background: transparent;
   box-shadow:
-    0 0 0 30px rgba(40, 120, 199, 0.035),
-    0 0 0 64px rgba(40, 120, 199, 0.025);
+    0 0 0 30px rgba(15, 118, 110, 0.035),
+    0 0 0 64px rgba(15, 118, 110, 0.025);
 }
 
 .app-content .dashboard-eyebrow,
 .app-content .dashboard-date-label {
-  color: #2878c7;
+  color: var(--brand);
   font-weight: 800;
   letter-spacing: 0.14em;
 }
 
 .app-content .dashboard-header h1 {
   max-width: min(720px, 62vw);
-  color: #173b5d;
+  color: var(--navy);
   font-size: clamp(30px, 3.8vw, 44px);
   letter-spacing: -0.045em;
 }
 
 .app-content .dashboard-welcome {
-  color: #6e8499;
+  color: var(--muted);
 }
 
 .app-content .dashboard-shop-mark {
   color: #fff;
   border: 0;
-  background: linear-gradient(145deg, #4b9bd2, #2878c7);
-  box-shadow: 0 9px 20px rgba(40, 120, 199, 0.2);
+  background: linear-gradient(145deg, #4b9bd2, var(--brand));
+  box-shadow: 0 9px 20px rgba(15, 118, 110, 0.2);
 }
 
 .app-content .dashboard-date {
@@ -1519,7 +1519,7 @@
 }
 
 .app-content .section-heading h2 {
-  color: #173b5d;
+  color: var(--navy);
   font-size: 17px;
 }
 
@@ -1533,8 +1533,8 @@
 .app-content .summary-period,
 .app-content .section-badge {
   border: 1px solid #cfe2f1;
-  background: #e8f3fc;
-  color: #2878c7;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .app-content .summary-cards {
@@ -1575,7 +1575,7 @@
 }
 
 .app-content .card-value {
-  color: #173b5d;
+  color: var(--navy);
 }
 
 .app-content .card-value.profit,
@@ -1585,8 +1585,8 @@
 
 .app-content .sales-icon,
 .app-content .credit-sales-icon {
-  background: #e8f3fc;
-  color: #2878c7;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .app-content .expense-icon {
@@ -1628,7 +1628,7 @@
 
 .app-content .top-products-table th,
 .app-content .credit-sales-table th {
-  color: #6e8499;
+  color: var(--muted);
 }
 
 .app-content .top-products-table td,
@@ -1650,8 +1650,8 @@
 
 .app-content .quantity-badge,
 .app-content .product-rank.top-rank {
-  background: #e8f3fc;
-  color: #2878c7;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .app-content .dashboard-link-card {
@@ -1668,14 +1668,14 @@
 }
 
 .app-content .quick-link-icon {
-  background: #e8f3fc;
-  color: #2878c7;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .app-content .quick-link-arrow,
 .app-content .card-link,
 .app-content .credit-sales-link {
-  color: #2878c7;
+  color: var(--brand);
 }
 
 @media (max-width: 700px) {
@@ -1698,11 +1698,11 @@
 
 .dashboard-order-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: -4px 0 16px; }
 .dashboard-order-counts > div { display: grid; gap: 4px; padding: 13px 15px; border: 1px solid #d7e7f3; border-radius: 12px; background: #f7fbfe; }
-.dashboard-order-counts strong { color: #173b5d; font-size: 20px; }
+.dashboard-order-counts strong { color: var(--navy); font-size: 20px; }
 .dashboard-order-counts span { color: #71869b; font-size: 10px; }
 .dashboard-orders-table { width: 100%; border-collapse: collapse; text-align: left; }
 .dashboard-orders-table thead { background: linear-gradient(180deg, #eaf3fa, #e2eef7); }
 .dashboard-orders-table th, .dashboard-orders-table td { padding: 12px 14px; border-bottom: 1px solid #e4eef5; white-space: nowrap; }
-.dashboard-orders-table th { color: #6e8499; font-size: 10px; letter-spacing: .55px; text-transform: uppercase; }
+.dashboard-orders-table th { color: var(--muted); font-size: 10px; letter-spacing: .55px; text-transform: uppercase; }
 .dashboard-orders-table td { color: #526f89; font-size: 12px; }
 @media (max-width: 560px) { .dashboard-order-counts { grid-template-columns: 1fr; } }
