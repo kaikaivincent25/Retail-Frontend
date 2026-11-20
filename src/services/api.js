@@ -41,8 +41,9 @@ api.interceptors.response.use(
 
     const detail = String(error.response?.data?.detail || "").toLowerCase();
     const subscriptionBlocked = detail.includes("subscription is inactive") || detail.includes("subscription has expired");
-    const isPublicShop = window.location.pathname.startsWith("/shop/");
-    if (error.response?.status === 402 && subscriptionBlocked && !isPublicShop && window.location.pathname !== "/billing") {
+    const currentPath = window.location.pathname;
+    const isPublicPage = currentPath.startsWith("/shop/") || currentPath === "/track-order";
+    if (error.response?.status === 402 && subscriptionBlocked && !isPublicPage && currentPath !== "/billing") {
       window.location.href = "/billing";
       return Promise.reject(error);
     }
@@ -56,7 +57,7 @@ api.interceptors.response.use(
         caches.delete("api-variants");
       }
       localStorage.removeItem("token");
-      if (window.location.pathname !== "/login") {
+      if (currentPath !== "/login" && !isPublicPage) {
         window.location.href = "/login";
       }
     }
