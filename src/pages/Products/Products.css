@@ -80,6 +80,10 @@
   background: white;
   font: inherit;
 }
+.product-description-field > span { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ai-description-action { padding: 3px 7px; color: var(--brand, #2879c3); background: #eef6fc; border: 1px solid #cfe3f1; border-radius: 6px; font: inherit; font-size: 10px; font-weight: 800; cursor: pointer; }
+.ai-description-action:hover:not(:disabled) { background: #dcecf9; border-color: #9fc8e6; }
+.ai-description-action:disabled { opacity: .65; cursor: wait; }
 
 .new-product-form button,
 .new-variant-form button {

@@ -3,7 +3,7 @@ import {
   listProducts, createProduct, updateProduct, deactivateProduct, reactivateProduct,
   permanentlyDeleteProduct,
   listVariants, createVariant, updateVariant, deactivateVariant, bulkCreateProducts,
-  getProductImportAiSuggestions, uploadProductImage,
+  getProductImportAiSuggestions, generateProductDescription, uploadProductImage,
 } from "../../services/catalogApi";
 import api from "../../services/api";
 import { getReceiptProfile } from "../../services/profileApi";
@@ -250,6 +250,7 @@ function Products() {
   const [importPreview, setImportPreview] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [descriptionAiTarget, setDescriptionAiTarget] = useState(null);
   const [success, setSuccess] = useState("");
 
   const refreshProducts = useCallback(async (searchTerm = productSearch) => {
@@ -373,6 +374,45 @@ function Products() {
       setError(getErrorMessage(err, "AI suggestions are unavailable. Check the backend AI configuration."));
     } finally {
       setIsAiLoading(false);
+    }
+  }
+
+  async function requestProductDescription(target) {
+    const isNewProduct = target === "new";
+    let attributes;
+    try {
+      attributes = isNewProduct ? attributesToObject(newProductAttributes) : (editingProduct?.attributes || {});
+    } catch (err) {
+      setError(err.message);
+      return;
+    }
+    const product = isNewProduct ? {
+      name: newProductName,
+      category: newProductCategory || null,
+      brand: newProductBrand || null,
+      attributes,
+      variant_names: newProductVariants.map((variant) => variant.name).filter(Boolean),
+    } : {
+      name: editingProduct?.name,
+      category: editingProduct?.category || null,
+      brand: editingProduct?.brand || null,
+      attributes,
+      variant_names: (editingProduct?.variants || []).map((variant) => variant.name).filter(Boolean),
+    };
+    if (!product.name?.trim()) {
+      setError("Add a product name before asking AI to write a description.");
+      return;
+    }
+    setDescriptionAiTarget(target);
+    setError("");
+    try {
+      const result = await generateProductDescription({ ...product, name: product.name.trim() });
+      if (isNewProduct) setNewProductDescription(result.description || "");
+      else setEditingProduct((current) => current ? { ...current, description: result.description || current.description } : current);
+    } catch (err) {
+      setError(getErrorMessage(err, "AI could not write a description. Check the backend AI configuration."));
+    } finally {
+      setDescriptionAiTarget(null);
     }
   }
 
@@ -795,7 +835,7 @@ function Products() {
             <input placeholder="e.g. Samsung, Oxford" value={newProductBrand} onChange={(e) => setNewProductBrand(e.target.value)} maxLength={100} />
           </label>
           <label className="product-field product-description-field">
-            <span>Description <small>Optional</small></span>
+            <span>Description <small>Optional</small><button type="button" className="ai-description-action" onClick={() => requestProductDescription("new")} disabled={descriptionAiTarget === "new"}>{descriptionAiTarget === "new" ? "Writing..." : "Write with AI"}</button></span>
             <textarea placeholder="Useful product details" value={newProductDescription} onChange={(e) => setNewProductDescription(e.target.value)} maxLength={2000} rows={2} />
           </label>
           <label className="product-public-toggle">
@@ -1257,7 +1297,7 @@ function Products() {
                   <label className="product-field"><span>Category</span><input list="product-category-options" value={editingProduct.category} onChange={(event) => setEditingProduct({ ...editingProduct, category: event.target.value })} maxLength={100} /></label>
                   <label className="product-field"><span>Sales suggestion group</span><select value={editingProduct.sales_group} onChange={(event) => setEditingProduct({ ...editingProduct, sales_group: event.target.value })}><option value="">Not grouped</option><option value="breakfast">Breakfast</option><option value="everyday">Everyday</option><option value="evening">Evening staples</option></select></label>
                   <label className="product-field"><span>Brand</span><input value={editingProduct.brand} onChange={(event) => setEditingProduct({ ...editingProduct, brand: event.target.value })} maxLength={100} /></label>
-                  <label className="product-field product-description-field"><span>Description</span><textarea rows={2} value={editingProduct.description} onChange={(event) => setEditingProduct({ ...editingProduct, description: event.target.value })} maxLength={2000} /></label>
+                  <label className="product-field product-description-field"><span>Description <button type="button" className="ai-description-action" onClick={() => requestProductDescription(product.id)} disabled={descriptionAiTarget === product.id}>{descriptionAiTarget === product.id ? "Writing..." : "Write with AI"}</button></span><textarea rows={3} value={editingProduct.description} onChange={(event) => setEditingProduct({ ...editingProduct, description: event.target.value })} maxLength={2000} /></label>
                   <label className="product-public-toggle"><input type="checkbox" checked={editingProduct.is_public} onChange={(event) => setEditingProduct({ ...editingProduct, is_public: event.target.checked })} /><span><b>List publicly</b><small>Customers can see active variants and selling prices.</small></span></label>
                 </div>
                 <AttributeEditor rows={editingProduct.attributes} onChange={(attributes) => setEditingProduct({ ...editingProduct, attributes })} label="Product attributes" examples="ISBN, author, model, colour, storage" />
