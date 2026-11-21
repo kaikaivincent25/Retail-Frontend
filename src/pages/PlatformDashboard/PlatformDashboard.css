@@ -10,9 +10,9 @@
   color: var(--platform-navy);
 }
 .platform-header, .platform-panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
-.platform-header h1 { margin: 8px 0; font: 700 clamp(28px, 4vw, 42px) Georgia, serif; }
+.platform-header h1 { margin: 8px 0; font: 700 clamp(28px, 4vw, 42px) var(--heading); }
 .platform-header p, .platform-panel-heading > span { color: #698198; margin: 0; }
-.platform-kicker { color: var(--brand); font: 800 10px Arial, sans-serif; letter-spacing: 1.5px; }
+.platform-kicker { color: var(--brand); font: 800 10px var(--sans); letter-spacing: 1.5px; }
 .platform-signout, .platform-panel-heading button, .platform-table button { border: 1px solid #c8dce9; border-radius: 8px; padding: 9px 13px; background: #fff; color: #285b83; font-weight: 700; cursor: pointer; }
 .platform-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin: 30px 0; }
 .platform-metric, .platform-panel { background: #fff; border: 1px solid #d7e6f1; border-radius: 15px; box-shadow: 0 8px 24px #1c4d7210; }

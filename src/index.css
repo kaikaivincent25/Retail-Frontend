@@ -12,8 +12,8 @@
     rgba(20, 43, 69, 0.08) 0 10px 24px -8px,
     rgba(20, 43, 69, 0.04) 0 3px 8px -2px;
 
-  --sans: Inter, "Segoe UI", Arial, sans-serif;
-  --heading: Inter, "Segoe UI", Arial, sans-serif;
+  --sans: Aptos, "Segoe UI", Arial, sans-serif;
+  --heading: "Times New Roman", Times, Georgia, serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/145% var(--sans);
