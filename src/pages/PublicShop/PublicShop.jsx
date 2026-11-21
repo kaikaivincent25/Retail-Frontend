@@ -83,6 +83,7 @@ export default function PublicShop() {
   const [reloadKey, setReloadKey] = useState(0);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [error, setError] = useState("");
   const [cart, setCart] = useState({});
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -97,15 +98,16 @@ export default function PublicShop() {
   const [checkout, setCheckout] = useState({ customer_name: "", customer_phone: "", fulfilment: "delivery", payment_method: "pay_on_delivery", delivery_address: "", estate: "", landmark: "", delivery_instructions: "", preferred_delivery_time: "" });
 
   useEffect(() => {
-    if (!checkoutOpen && !cancelConfirmOpen) return undefined;
+    if (!checkoutOpen && !cancelConfirmOpen && !selectedProduct) return undefined;
     function handleEscape(event) {
       if (event.key !== "Escape") return;
       if (cancelConfirmOpen) setCancelConfirmOpen(false);
+      else if (selectedProduct) setSelectedProduct(null);
       else if (!submitting) setCheckoutOpen(false);
     }
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
-  }, [cancelConfirmOpen, checkoutOpen, submitting]);
+  }, [cancelConfirmOpen, checkoutOpen, selectedProduct, submitting]);
 
   useEffect(() => {
     let active = true;
@@ -358,9 +360,24 @@ export default function PublicShop() {
     </section>
     {error && <p className="public-form-error public-page-error">{error}</p>}
     <div className="public-results-row"><p>{products.length} {products.length === 1 ? "product" : "products"}</p>{itemCount > 0 && <button className="public-cart-pill" onClick={() => setCheckoutOpen(true)}>Cart · {itemCount} <strong>{formatPrice(cartTotal, shop.currency)}</strong></button>}</div>
-    <section className="public-product-grid" aria-live="polite">{products.map((product, index) => <article className="public-product-card" style={{ "--card-index": index }} key={product.id}><div className="public-product-media">{product.image_url ? <img src={product.image_url} alt="" /> : <div className="public-product-placeholder">{product.name.slice(0, 1)}</div>}<span className="public-product-badge">{product.category || "Featured"}</span></div><div className="public-product-content"><div className="public-product-topline"><h2>{product.name}</h2>{product.brand && <p className="public-product-brand">{product.brand}</p>}</div>{product.description && <p className="public-product-description">{product.description}</p>}<div className="public-product-variants">{product.variants.map((variant) => <div className="public-variant" key={variant.id}>{variant.image_url && variant.image_url !== product.image_url && <img className="public-variant-image" src={variant.image_url} alt="" loading="lazy" />}<div><strong>{formatPrice(variant.selling_price, shop.currency)}</strong><small>{variant.name} · {variant.unit}</small></div><button disabled={!variant.is_available} onClick={() => addToCart(product, variant)}>{variant.is_available ? <><span aria-hidden="true">+</span> Add</> : "Sold out"}</button></div>)}</div>{product.availability_message && <p className="public-product-note">{product.availability_message}</p>}</div></article>)}</section>
+    <section className="public-product-grid" aria-live="polite">{products.map((product, index) => <article className="public-product-card" style={{ "--card-index": index }} key={product.id}><div className="public-product-media">{product.image_url ? <img src={product.image_url} alt="" /> : <div className="public-product-placeholder">{product.name.slice(0, 1)}</div>}<span className="public-product-badge">{product.category || "Featured"}</span></div><div className="public-product-content"><div className="public-product-topline"><h2>{product.name}</h2>{product.brand && <p className="public-product-brand">{product.brand}</p>}</div>{product.description && <p className="public-product-description">{product.description}</p>}<button type="button" className="public-product-details-link" onClick={() => setSelectedProduct(product)}>View product details</button><div className="public-product-variants">{product.variants.map((variant) => <div className="public-variant" key={variant.id}>{variant.image_url && variant.image_url !== product.image_url && <img className="public-variant-image" src={variant.image_url} alt="" loading="lazy" />}<div><strong>{formatPrice(variant.selling_price, shop.currency)}</strong><small>{variant.name} · {variant.unit} · {variant.is_available ? "In stock" : "Sold out"}</small></div><button disabled={!variant.is_available} onClick={() => addToCart(product, variant)}>{variant.is_available ? <><span aria-hidden="true">+</span> Add</> : "Sold out"}</button></div>)}</div>{product.availability_message && <p className="public-product-note">{product.availability_message}</p>}</div></article>)}</section>
     {!products.length && <p className="public-shop-empty">No products match your search.</p>}
     {itemCount > 0 && <aside className="public-cart"><div><strong>{itemCount} item(s)</strong><span>{formatPrice(cartTotal, shop.currency)}</span></div><button onClick={() => setCheckoutOpen(true)}>Checkout</button></aside>}
+    {selectedProduct && <div className="public-product-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}>
+      <section className="public-product-dialog" role="dialog" aria-modal="true" aria-labelledby="product-details-title">
+        <button type="button" className="public-product-dialog-close" aria-label="Close product details" onClick={() => setSelectedProduct(null)}>×</button>
+        <div className="public-product-dialog-media">{selectedProduct.image_url ? <img src={selectedProduct.image_url} alt="" /> : <div className="public-product-placeholder">{selectedProduct.name.slice(0, 1)}</div>}</div>
+        <div className="public-product-dialog-content">
+          <span className="public-shop-kicker">{selectedProduct.category || "PRODUCT DETAILS"}</span>
+          <h2 id="product-details-title">{selectedProduct.name}</h2>
+          {selectedProduct.brand && <p className="public-product-brand">{selectedProduct.brand}</p>}
+          {selectedProduct.description ? <p className="public-product-full-description">{selectedProduct.description}</p> : <p className="public-product-full-description public-product-muted">Ask the shop if you need more information about this product.</p>}
+          {Object.keys(selectedProduct.attributes || {}).length > 0 && <div className="public-product-attributes"><strong>Good to know</strong>{Object.entries(selectedProduct.attributes).map(([key, value]) => <div key={key}><span>{key}</span><b>{value}</b></div>)}</div>}
+          <div className="public-product-dialog-variants"><strong>Choose an option</strong>{selectedProduct.variants.map((variant) => <div className="public-variant public-variant-detail" key={variant.id}>{variant.image_url && variant.image_url !== selectedProduct.image_url && <img className="public-variant-image" src={variant.image_url} alt="" loading="lazy" />}<div><strong>{variant.name}</strong><small>{variant.unit} · {variant.is_available ? "In stock" : "Sold out"}</small></div><strong className="public-variant-detail-price">{formatPrice(variant.selling_price, shop.currency)}</strong><button disabled={!variant.is_available} onClick={() => addToCart(selectedProduct, variant)}>{variant.is_available ? "Add to cart" : "Sold out"}</button></div>)}</div>
+          {selectedProduct.availability_message && <p className="public-product-note">{selectedProduct.availability_message}</p>}
+        </div>
+      </section>
+    </div>}
     {checkoutOpen && <div className="public-checkout-backdrop">
       <form className="public-checkout" onSubmit={submitOrder} role="dialog" aria-modal="true" aria-labelledby="checkout-title">
         <div className="public-checkout-top">
