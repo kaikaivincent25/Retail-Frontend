@@ -30,6 +30,41 @@
   line-height: 1.5;
 }
 
+.missing-cost-details {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid currentColor;
+  border-color: rgba(138, 48, 41, 0.2);
+}
+
+.missing-cost-details ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.missing-cost-details li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  align-items: baseline;
+}
+
+.missing-cost-details a {
+  color: inherit;
+  font-weight: 750;
+  text-decoration: underline;
+}
+
+.missing-cost-details li span,
+.missing-cost-details small {
+  font-size: 12px;
+  opacity: 0.82;
+}
+
 .profit-status--loss,
 .profit-status--incomplete {
   border-color: #f0d4cf;

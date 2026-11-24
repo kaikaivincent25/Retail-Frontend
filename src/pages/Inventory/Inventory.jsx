@@ -135,6 +135,7 @@ function Inventory() {
               {variants.map((v) => (
                 <tr
                   key={v.id}
+                  id={`variant-${v.id}`}
                   className={v.quantity <= v.reorder_level ? "low-row" : ""}
                 >
                   <td>

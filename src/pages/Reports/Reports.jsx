@@ -353,6 +353,20 @@ function Reports() {
                 ? "Some sold items had no recorded cost. Update stock costs for a reliable result."
                 : "Estimated net profit includes cost of goods sold, recorded expenses, staff use, and stock write-offs."}
             </span>
+            {!report.cost_data_complete && report.missing_cost_products?.length > 0 && (
+              <div className="missing-cost-details">
+                <strong>Products to fix</strong>
+                <ul>
+                  {report.missing_cost_products.map((product) => (
+                    <li key={product.variant_id}>
+                      <a href={`/inventory#variant-${product.variant_id}`}>{product.variant_name}</a>
+                      <span>{Number(product.quantity_sold).toLocaleString()} sold · {product.sale_count} sale{product.sale_count === 1 ? "" : "s"}</span>
+                    </li>
+                  ))}
+                </ul>
+                <small>Open inventory and set an average cost for each product marked “Cost not recorded”.</small>
+              </div>
+            )}
           </section>
           <section className="period-comparison" aria-label="Comparison with the previous period">
             <div>
